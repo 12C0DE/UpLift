@@ -34,6 +34,9 @@ export const Home = () => {
 				<h2>Welcome {userFname}</h2>
 			</div>
 			<div>
+				<button onClick={}>Get Data</button>
+			</div>
+			<div>
 				<button onClick={() => Fbase.auth().signOut()}>Sign out</button>
 			</div>
 		</div>
