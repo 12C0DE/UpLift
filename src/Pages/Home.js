@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Fbase from '../Firebase/base';
 import { AuthContext } from '../Firebase/Auth';
-import DataFetching from '../DataFetch/DataFetching';
+import { Link } from 'react-router-dom';
 
 export const Home = () => {
 	function GetName() {
@@ -35,9 +35,9 @@ export const Home = () => {
 				<h2>Welcome {userFname}</h2>
 			</div>
 			<div>
-				<DataFetching url="https://wger.de/api/v2/exercise/" />
-				<button>Get Data</button>
+				<Link to='/lifts'>Lifts</Link>
 			</div>
+			<br></br>
 			<div>
 				<button onClick={() => Fbase.auth().signOut()}>Sign out</button>
 			</div>

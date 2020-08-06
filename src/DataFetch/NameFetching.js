@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function DataFetching(props) {
+function NameFetching(props) {
 	const [ posts, setPosts ] = useState([]);
 
 	useEffect(
@@ -21,9 +21,9 @@ function DataFetching(props) {
 
 	return (
 		<div>
-			<ul>{posts.map((post) => <li key={post.id}>{post.description}</li>)}</ul>
+			<ul>{posts.map((post) => <li key={post.id}>{post.name}</li>)}</ul>
 		</div>
 	);
 }
 
-export default DataFetching;
+export default NameFetching;
