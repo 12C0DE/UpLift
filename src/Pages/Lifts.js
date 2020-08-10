@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import NameFetching from '../DataFetch/NameFetching';
 import { Link } from 'react-router-dom';
 import { GlobalContext } from '../Context/GlobalState';
@@ -18,6 +18,7 @@ export const Lifts = () => {
 				/>
 				{categoryShown === 'exercisecategory' ? (
 					<NameFetching
+						category="exercisecategory"
 						path="/exercise"
 						url={`https://wger.de/api/v2/exercise/?status=2&language=2&category=${selectedItem}`}
 					/>
@@ -28,6 +29,7 @@ export const Lifts = () => {
 				<NameFetching url="https://wger.de/api/v2/muscle/?status=2" category="muscle" path="/lifts" />
 				{categoryShown === 'muscle' ? (
 					<NameFetching
+						category="muscle"
 						path="/exercise"
 						url={`https://wger.de/api/v2/exercise/?status=2&language=2&muscles=${selectedItem}`}
 					/>
@@ -38,6 +40,7 @@ export const Lifts = () => {
 				<NameFetching url="https://wger.de/api/v2/equipment/?status=2" category="equipment" path="/lifts" />
 				{categoryShown === 'equipment' ? (
 					<NameFetching
+						category="equipment"
 						path="/exercise"
 						url={`https://wger.de/api/v2/exercise/?status=2&language=2&equipment=${selectedItem}`}
 					/>
