@@ -42,10 +42,8 @@ function NameFetching(props) {
 			setExDesc(removeTags(post.description));
 			setExEquip(post.equipment);
 			setExName(post.name);
-			setMuscles(...muscles, post.muscles);
-			// setMuscles(post.muscles.map((p) => p.push(p.muscles)));
-			setMuscles2nd(...post.muscles_secondary);
-			// setMuscles(post.muscles_secondary.map((p) => p.push(p.muscles)));
+			setMuscles(post.muscles);
+			setMuscles2nd(post.muscles_secondary);
 		}
 	}
 

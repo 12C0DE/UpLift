@@ -9,6 +9,7 @@ import SignUp from './Pages/SignUp';
 import { AuthProvider } from './Firebase/Auth';
 import { GlobalProvider } from './Context/GlobalState';
 import { PrivateRoute } from './PrivateRoute';
+import './App.css';
 
 function App() {
 	return (
