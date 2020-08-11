@@ -13,21 +13,24 @@ export const Exercise = () => {
 		GlobalContext
 	);
 
-	useEffect(() => {
-		axios
-			.get('https://wger.de/api/v2/muscle/')
-			.then((res) => {
-				setMusclesAll(res.data);
+	useEffect(
+		() => {
+			axios
+				.get('https://wger.de/api/v2/muscle/')
+				.then((res) => {
+					setMusclesAll(res.data);
 
-				let intersectionPrims = musclesAll.filter((ones) => muscles.includes(ones.id));
-				let intersectionSec = musclesAll.filter((twos) => muscles2nd.includes(twos.id));
-				setPrimMuscs(intersectionPrims);
-				setSecMuscs(intersectionSec);
-			})
-			.catch((err) => {
-				console.log(`err: ${err}`);
-			});
-	}, []);
+					let intersectionPrims = musclesAll.filter((ones) => muscles.includes(ones.id));
+					let intersectionSec = musclesAll.filter((twos) => muscles2nd.includes(twos.id));
+					setPrimMuscs(intersectionPrims);
+					setSecMuscs(intersectionSec);
+				})
+				.catch((err) => {
+					console.log(`err: ${err}`);
+				});
+		},
+		[ muscles, muscles2nd, musclesAll, setMusclesAll ]
+	);
 
 	return (
 		<div>

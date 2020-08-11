@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { GlobalContext } from '../Context/GlobalState';
 
 export const Lifts = () => {
-	const { categoryShown, loading, selectedItem } = useContext(GlobalContext);
+	const { categoryShown, selectedItem } = useContext(GlobalContext);
 
 	return (
 		<div>
@@ -47,7 +47,6 @@ export const Lifts = () => {
 				) : null}
 			</div>
 			<Link to="/">Back Home</Link>
-			<div>{loading ? <h1>LOADING</h1> : null}</div>
 		</div>
 	);
 };

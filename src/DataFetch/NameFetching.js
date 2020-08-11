@@ -5,29 +5,19 @@ import { GlobalContext } from '../Context/GlobalState';
 
 function NameFetching(props) {
 	const [ posts, setPosts ] = useState([]);
-	const {
-		IsLoading,
-		selectItem,
-		setExDesc,
-		setExEquip,
-		setExName,
-		setMuscles,
-		setMuscles2nd,
-		showCategory
-	} = useContext(GlobalContext);
+	const { selectItem, setExDesc, setExEquip, setExName, setMuscles, setMuscles2nd, showCategory } = useContext(
+		GlobalContext
+	);
 
 	useEffect(
 		() => {
-			IsLoading(true);
 			axios
 				.get(props.url)
 				.then((res) => {
 					setPosts(res.data);
-					IsLoading(false);
 				})
 				.catch((err) => {
 					console.log(`err: ${err}`);
-					IsLoading(false);
 				});
 		},
 		[ props.url ]
