@@ -19,7 +19,7 @@ export const Exercise = () => {
 			.then((res) => {
 				setMusclesAll(res.data);
 
-				let intersectionPrims = musclesAll.filter((x) => muscles.includes(x.id));
+				let intersectionPrims = musclesAll.filter((ones) => muscles.includes(ones.id));
 				let intersectionSec = musclesAll.filter((twos) => muscles2nd.includes(twos.id));
 				setPrimMuscs(intersectionPrims);
 				setSecMuscs(intersectionSec);
