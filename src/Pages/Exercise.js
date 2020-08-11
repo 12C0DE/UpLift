@@ -37,12 +37,13 @@ export const Exercise = () => {
 			</div>
 			<br />
 			<div>
-				<img src={muscFront} className="muscFront" style={{ zIndex: '1' }} />
-				<img src={muscBack} className="muscBack" style={{ zIndex: '1' }} />
+				<img src={muscFront} alt="muscFront" className="muscFront" style={{ zIndex: '1' }} />
+				<img src={muscBack} className="muscBack" alt="muscBack" style={{ zIndex: '1' }} />
 				{muscles2nd.map((musc2) => (
 					<img
 						key={`musc2${musc2}`}
 						className="muscFront"
+						alt={`muscB${musc2}`}
 						style={{ zIndex: '2' }}
 						src={require(`../img/muscle_${musc2}_2.svg`)}
 					/>
@@ -51,6 +52,7 @@ export const Exercise = () => {
 					<img
 						key={`musc${musc}`}
 						className="muscBack"
+						alt={`muscF${musc}`}
 						style={{ zIndex: '3' }}
 						src={require(`../img/muscle_${musc}_1.svg`)}
 					/>
