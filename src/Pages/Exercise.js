@@ -1,21 +1,28 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GlobalContext } from '../Context/GlobalState';
+import { MuscImg } from '../Components/MuscImg';
 import muscFront from '../img/muscleFront.svg';
 import muscBack from '../img/muscleBack.svg';
 import axios from 'axios';
 
 export const Exercise = () => {
-	const { exDescription, exEquip, exName, muscles, muscles2nd, selectedItem } = useContext(GlobalContext);
-	const [ muscSide, setMuscSide ] = useState([]);
-	const frontMuscs = [];
-	const backMuscs = [];
+	const [ primMusc, setPrimMuscs ] = useState([]);
+	const [ secMuscs, setSecMuscs ] = useState([]);
+	const { exDescription, exEquip, exName, muscles, musclesAll, muscles2nd, setMusclesAll } = useContext(
+		GlobalContext
+	);
 
 	useEffect(() => {
 		axios
 			.get('https://wger.de/api/v2/muscle/')
 			.then((res) => {
-				setMuscSide(res.data);
+				setMusclesAll(res.data);
+
+				let intersectionPrims = musclesAll.filter((x) => muscles.includes(x.id));
+				let intersectionSec = musclesAll.filter((twos) => muscles2nd.includes(twos.id));
+				setPrimMuscs(intersectionPrims);
+				setSecMuscs(intersectionSec);
 			})
 			.catch((err) => {
 				console.log(`err: ${err}`);
@@ -39,23 +46,11 @@ export const Exercise = () => {
 			<div>
 				<img src={muscFront} alt="muscFront" className="muscFront" style={{ zIndex: '1' }} />
 				<img src={muscBack} className="muscBack" alt="muscBack" style={{ zIndex: '1' }} />
-				{muscles2nd.map((musc2) => (
-					<img
-						key={`musc2${musc2}`}
-						className="muscFront"
-						alt={`muscB${musc2}`}
-						style={{ zIndex: '2' }}
-						src={require(`../img/muscle_${musc2}_2.svg`)}
-					/>
+				{secMuscs.map((musc2) => (
+					<MuscImg key={`musc${musc2.id}`} muscleId={musc2.id} isFrst={false} isFront={musc2.is_front} />
 				))}
-				{muscles.map((musc) => (
-					<img
-						key={`musc${musc}`}
-						className="muscBack"
-						alt={`muscF${musc}`}
-						style={{ zIndex: '3' }}
-						src={require(`../img/muscle_${musc}_1.svg`)}
-					/>
+				{primMusc.map((musc) => (
+					<MuscImg key={`musc${musc.id}`} muscleId={musc.id} isFrst={true} isFront={musc.is_front} />
 				))}
 			</div>
 			<Link to="/lifts">Back to Lifts</Link>

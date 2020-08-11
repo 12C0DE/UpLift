@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import NameFetching from '../DataFetch/NameFetching';
 import { Link } from 'react-router-dom';
 import { GlobalContext } from '../Context/GlobalState';

@@ -10,6 +10,7 @@ const initialState = {
 	loading: false,
 	muscles: [],
 	muscles2nd: [],
+	musclesAll: [],
 	selectedItem: 0
 };
 
@@ -32,6 +33,13 @@ export const GlobalProvider = ({ children }) => {
 		dispatch({
 			type: 'SEL_ITEM',
 			payload: itemId
+		});
+	}
+
+	function setMusclesAll(musclesAll) {
+		dispatch({
+			type: 'MUSC_ALL',
+			payload: musclesAll
 		});
 	}
 
@@ -87,6 +95,7 @@ export const GlobalProvider = ({ children }) => {
 				loading: state.loading,
 				muscles: state.muscles,
 				muscles2nd: state.muscles2nd,
+				musclesAll: state.musclesAll,
 				selectedItem: state.selectedItem,
 				IsLoading,
 				selectItem,
@@ -94,6 +103,7 @@ export const GlobalProvider = ({ children }) => {
 				setExEquip,
 				showCategory,
 				setExName,
+				setMusclesAll,
 				setMuscles,
 				setMuscles2nd
 			}}

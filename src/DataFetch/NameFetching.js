@@ -7,7 +7,6 @@ function NameFetching(props) {
 	const [ posts, setPosts ] = useState([]);
 	const {
 		IsLoading,
-		muscles,
 		selectItem,
 		setExDesc,
 		setExEquip,

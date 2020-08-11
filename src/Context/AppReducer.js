@@ -21,6 +21,11 @@ export default (state, action) => {
 				// muscles: [ action.payload, ...state.muscles ]
 				muscles: action.payload
 			};
+		case 'MUSC_ALL':
+			return {
+				...state,
+				musclesAll: action.payload
+			};
 		case 'MUSCLES_2ND':
 			return {
 				...state,
