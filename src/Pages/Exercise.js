@@ -9,9 +9,24 @@ import axios from 'axios';
 export const Exercise = () => {
 	const [ primMusc, setPrimMuscs ] = useState([]);
 	const [ secMuscs, setSecMuscs ] = useState([]);
-	const { exDescription, exEquip, exName, muscles, musclesAll, muscles2nd, setMusclesAll } = useContext(
-		GlobalContext
-	);
+	const {
+		exDescription,
+		exEquip,
+		exName,
+		muscles,
+		musclesAll,
+		muscles2nd,
+		musclesBack,
+		musclesFront,
+		addMusclesBack,
+		addMusclesFront,
+		setMusclesAll
+	} = useContext(GlobalContext);
+
+	function updateMuscCount() {
+		addMusclesBack(0);
+		addMusclesFront(0);
+	}
 
 	useEffect(
 		() => {
@@ -29,7 +44,8 @@ export const Exercise = () => {
 					console.log(`err: ${err}`);
 				});
 		},
-		[ muscles, muscles2nd, musclesAll, setMusclesAll ]
+		// [ muscles, muscles2nd, musclesAll, setMusclesAll ]
+		[] //find a way to include correct dependencies without it running infinitely
 	);
 
 	return (
@@ -47,16 +63,22 @@ export const Exercise = () => {
 			</div>
 			<br />
 			<div>
-				<img src={muscFront} alt="muscFront" className="muscFront" style={{ zIndex: '1' }} />
-				<img src={muscBack} className="muscBack" alt="muscBack" style={{ zIndex: '1' }} />
 				{secMuscs.map((musc2) => (
 					<MuscImg key={`musc${musc2.id}`} muscleId={musc2.id} isFrst={false} isFront={musc2.is_front} />
 				))}
 				{primMusc.map((musc) => (
 					<MuscImg key={`musc${musc.id}`} muscleId={musc.id} isFrst={true} isFront={musc.is_front} />
 				))}
+				{musclesFront > 0 ? (
+					<img src={muscFront} alt="muscFront" className="muscFront" style={{ zIndex: '1' }} />
+				) : null}
+				{musclesBack > 0 ? (
+					<img src={muscBack} className="muscBack" alt="muscBack" style={{ zIndex: '1' }} />
+				) : null}
 			</div>
-			<Link to="/lifts">Back to Lifts</Link>
+			<Link to="/lifts" onClick={updateMuscCount}>
+				Back to Lifts
+			</Link>
 		</div>
 	);
 };

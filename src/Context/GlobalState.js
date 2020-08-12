@@ -11,6 +11,8 @@ const initialState = {
 	muscles: [],
 	muscles2nd: [],
 	musclesAll: [],
+	musclesBack: 0,
+	musclesFront: 0,
 	selectedItem: 0
 };
 
@@ -22,6 +24,20 @@ export const GlobalProvider = ({ children }) => {
 	const [ state, dispatch ] = useReducer(AppReducer, initialState);
 
 	//Actions
+	function addMusclesBack(muscBack) {
+		dispatch({
+			type: 'ADD_MUSCB',
+			payload: muscBack
+		});
+	}
+
+	function addMusclesFront(muscFront) {
+		dispatch({
+			type: 'ADD_MUSCF',
+			payload: muscFront
+		});
+	}
+
 	function IsLoading(isLoading) {
 		dispatch({
 			type: 'IS_LOAD',
@@ -96,7 +112,11 @@ export const GlobalProvider = ({ children }) => {
 				muscles: state.muscles,
 				muscles2nd: state.muscles2nd,
 				musclesAll: state.musclesAll,
+				musclesBack: state.musclesBack,
+				musclesFront: state.musclesFront,
 				selectedItem: state.selectedItem,
+				addMusclesBack,
+				addMusclesFront,
 				IsLoading,
 				selectItem,
 				setExDesc,

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { About } from './Pages/About';
 import { Home } from './Pages/Home';
 import { Lifts } from './Pages/Lifts';
 import { Exercise } from './Pages/Exercise';
@@ -18,6 +19,7 @@ function App() {
 				<BrowserRouter>
 					<Switch>
 						<PrivateRoute exact path="/" component={Home} />
+						<Route exact path="/about" component={About} />
 						<Route exact path="/exercise" component={Exercise} />
 						<Route exact path="/lifts" component={Lifts} />
 						<Route exact path="/login" component={LogIn} />
