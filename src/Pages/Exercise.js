@@ -9,7 +9,9 @@ import axios from 'axios';
 export const Exercise = () => {
 	const [ primMusc, setPrimMuscs ] = useState([]);
 	const [ secMuscs, setSecMuscs ] = useState([]);
+	const [ equipName, setEquipName ] = useState([]);
 	const {
+		allEquip,
 		exDescription,
 		exEquip,
 		exName,
@@ -20,6 +22,7 @@ export const Exercise = () => {
 		musclesFront,
 		addMusclesBack,
 		addMusclesFront,
+		setAllEquip,
 		setMusclesAll
 	} = useContext(GlobalContext);
 
@@ -31,18 +34,22 @@ export const Exercise = () => {
 	useEffect(
 		() => {
 			axios
-				.get('https://wger.de/api/v2/muscle/')
-				.then((res) => {
-					setMusclesAll(res.data);
+				.all([ axios.get('https://wger.de/api/v2/muscle/'), axios.get('https://wger.de/api/v2/equipment/') ])
+				.then(
+					axios.spread((muscs, equip) => {
+						setMusclesAll(muscs.data);
 
-					let intersectionPrims = musclesAll.filter((ones) => muscles.includes(ones.id));
-					let intersectionSec = musclesAll.filter((twos) => muscles2nd.includes(twos.id));
-					setPrimMuscs(intersectionPrims);
-					setSecMuscs(intersectionSec);
-				})
-				.catch((err) => {
-					console.log(`err: ${err}`);
-				});
+						let intersectionPrims = musclesAll.filter((ones) => muscles.includes(ones.id));
+						let intersectionSec = musclesAll.filter((twos) => muscles2nd.includes(twos.id));
+						setPrimMuscs(intersectionPrims);
+						setSecMuscs(intersectionSec);
+
+						setAllEquip(equip.data);
+
+						let intersectionEquip = allEquip.filter((eq) => exEquip.includes(eq.id));
+						setEquipName(intersectionEquip);
+					})
+				);
 		},
 		// [ muscles, muscles2nd, musclesAll, setMusclesAll ]
 		[] //find a way to include correct dependencies without it running infinitely
@@ -54,9 +61,9 @@ export const Exercise = () => {
 			<div>
 				<h2>Name: {exName}</h2>
 				<h2>Desc: {exDescription}</h2>
-				<h2>Equipment: {exEquip}</h2>
-				<h2>Muscles: {muscles.map((musc) => `${musc} `)}</h2>
-				<h2>2nd Muscles: {muscles2nd.map((musc2) => `${musc2} `)}</h2>
+				<h2>Equipment: {equipName.map((eq) => `${eq.name} `)}</h2>
+				<h2>Primary Muscles: {primMusc.map((musc) => `${musc.name} `)}</h2>
+				<h2>Secondary Muscles: {secMuscs.map((musc) => `${musc.name} `)}</h2>
 			</div>
 			<div>
 				<button>Add to Workout</button>

@@ -1,5 +1,10 @@
 export default (state, action) => {
 	switch (action.type) {
+		case 'ALL_EQUIP':
+			return {
+				...state,
+				allEquip: action.payload
+			};
 		case 'EX_DESC':
 			return {
 				...state,
@@ -18,7 +23,6 @@ export default (state, action) => {
 		case 'MUSCLES':
 			return {
 				...state,
-				// muscles: [ action.payload, ...state.muscles ]
 				muscles: action.payload
 			};
 		case 'MUSC_ALL':
@@ -29,7 +33,6 @@ export default (state, action) => {
 		case 'MUSCLES_2ND':
 			return {
 				...state,
-				// muscles2nd: [ action.payload, ...state.muscles2nd ]
 				muscles2nd: action.payload
 			};
 		case 'ADD_MUSCB':

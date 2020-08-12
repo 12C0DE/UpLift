@@ -3,6 +3,7 @@ import AppReducer from './AppReducer';
 
 //Initial State
 const initialState = {
+	allEquip: [],
 	categoryShown: null,
 	exDescription: null,
 	exEquip: [],
@@ -49,6 +50,13 @@ export const GlobalProvider = ({ children }) => {
 		dispatch({
 			type: 'SEL_ITEM',
 			payload: itemId
+		});
+	}
+
+	function setAllEquip(equip) {
+		dispatch({
+			type: 'ALL_EQUIP',
+			payload: equip
 		});
 	}
 
@@ -104,6 +112,7 @@ export const GlobalProvider = ({ children }) => {
 	return (
 		<GlobalContext.Provider
 			value={{
+				allEquip: state.allEquip,
 				exDescription: state.exDescription,
 				exEquip: state.exEquip,
 				exName: state.exName,
@@ -119,6 +128,7 @@ export const GlobalProvider = ({ children }) => {
 				addMusclesFront,
 				IsLoading,
 				selectItem,
+				setAllEquip,
 				setExDesc,
 				setExEquip,
 				showCategory,
