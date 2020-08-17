@@ -4,7 +4,6 @@ import { GlobalContext } from '../Context/GlobalState';
 import { MuscImg } from '../Components/MuscImg';
 import muscFront from '../img/muscleFront.svg';
 import muscBack from '../img/muscleBack.svg';
-import axios from 'axios';
 
 export const Exercise = () => {
 	const [ primMusc, setPrimMuscs ] = useState([]);
@@ -21,9 +20,7 @@ export const Exercise = () => {
 		musclesBack,
 		musclesFront,
 		addMusclesBack,
-		addMusclesFront,
-		setAllEquip,
-		setMusclesAll
+		addMusclesFront
 	} = useContext(GlobalContext);
 
 	function updateMuscCount() {
@@ -33,25 +30,14 @@ export const Exercise = () => {
 
 	useEffect(
 		() => {
-			axios
-				.all([ axios.get('https://wger.de/api/v2/muscle/'), axios.get('https://wger.de/api/v2/equipment/') ])
-				.then(
-					axios.spread((muscs, equip) => {
-						setMusclesAll(muscs.data);
+			let intersectionPrims = musclesAll.filter((ones) => muscles.includes(ones.id));
+			let intersectionSec = musclesAll.filter((twos) => muscles2nd.includes(twos.id));
+			setPrimMuscs(intersectionPrims);
+			setSecMuscs(intersectionSec);
 
-						let intersectionPrims = musclesAll.filter((ones) => muscles.includes(ones.id));
-						let intersectionSec = musclesAll.filter((twos) => muscles2nd.includes(twos.id));
-						setPrimMuscs(intersectionPrims);
-						setSecMuscs(intersectionSec);
-
-						setAllEquip(equip.data);
-
-						let intersectionEquip = allEquip.filter((eq) => exEquip.includes(eq.id));
-						setEquipName(intersectionEquip);
-					})
-				);
+			let intersectionEquip = allEquip.filter((eq) => exEquip.includes(eq.id));
+			setEquipName(intersectionEquip);
 		},
-		// [ muscles, muscles2nd, musclesAll, setMusclesAll ]
 		[] //find a way to include correct dependencies without it running infinitely
 	);
 
