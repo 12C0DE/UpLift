@@ -8,6 +8,8 @@ const initialState = {
 	exDescription: null,
 	exEquip: [],
 	exName: null,
+	fName: null,
+	lName: null,
 	loading: false,
 	muscles: [],
 	muscles2nd: [],
@@ -57,6 +59,20 @@ export const GlobalProvider = ({ children }) => {
 		dispatch({
 			type: 'ALL_EQUIP',
 			payload: equip
+		});
+	}
+
+	function setFName(fName) {
+		dispatch({
+			type: 'F_NAME',
+			payload: fName
+		});
+	}
+
+	function setLName(lName) {
+		dispatch({
+			type: 'L_NAME',
+			payload: lName
 		});
 	}
 
@@ -116,6 +132,8 @@ export const GlobalProvider = ({ children }) => {
 				exDescription: state.exDescription,
 				exEquip: state.exEquip,
 				exName: state.exName,
+				fName: state.fName,
+				lName: state.lName,
 				categoryShown: state.categoryShown,
 				loading: state.loading,
 				muscles: state.muscles,
@@ -131,6 +149,8 @@ export const GlobalProvider = ({ children }) => {
 				setAllEquip,
 				setExDesc,
 				setExEquip,
+				setFName,
+				setLName,
 				showCategory,
 				setExName,
 				setMusclesAll,

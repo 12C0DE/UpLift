@@ -20,6 +20,16 @@ export default (state, action) => {
 				...state,
 				exName: action.payload
 			};
+		case 'F_NAME':
+			return {
+				...state,
+				fName: action.payload
+			};
+		case 'L_NAME':
+			return {
+				...state,
+				lName: action.payload
+			};
 		case 'MUSCLES':
 			return {
 				...state,

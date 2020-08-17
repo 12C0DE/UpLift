@@ -7,28 +7,29 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 export const Home = () => {
-	const { musclesAll, setAllEquip, setMusclesAll } = useContext(GlobalContext);
+	const { fName, musclesAll, setAllEquip, setFName, setMusclesAll } = useContext(GlobalContext);
 
 	function GetName() {
 		const { currentUser } = useContext(AuthContext);
-		const [ fname, setFname ] = useState(null);
 
 		useEffect(
 			() => {
-				Fbase.firestore().collection('users').where('uid', '==', currentUser.uid).onSnapshot((dt) => {
-					const user = dt.docs.filter((doc) => doc.data).map((doc) => ({
-						id: doc.id,
-						...doc.data()
-					}));
-					console.log('ran getName()');
-					setFname(user[0].fname);
-				});
+				if (!fName) {
+					Fbase.firestore().collection('users').where('uid', '==', currentUser.uid).onSnapshot((dt) => {
+						const user = dt.docs.filter((doc) => doc.data).map((doc) => ({
+							id: doc.id,
+							...doc.data()
+						}));
+						console.log('ran getName()');
+						setFName(user[0].fname);
+					});
 
-				retrieveExerciseData();
+					retrieveExerciseData();
+				}
 			},
 			[ currentUser.uid ]
 		);
-		return fname;
+		return fName;
 	}
 
 	function retrieveExerciseData() {
