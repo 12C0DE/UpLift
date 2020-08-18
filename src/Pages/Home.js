@@ -64,6 +64,9 @@ export const Home = () => {
 			<div>
 				<Link to="/about">About</Link>
 			</div>
+			<div>
+				<Link to="/workouts">Workouts</Link>
+			</div>
 			<br />
 			<div>
 				<LogoutBtn />
