@@ -12,13 +12,13 @@ export const AddLift = (e) => {
 		exDescription,
 		// exEquip,
 		exName,
-		muscles,
-		muscles2nd,
+		// muscles,
+		// muscles2nd,
 		setExDesc,
 		// setExEquip,
-		setExName,
-		setMuscles,
-		setMuscles2nd
+		setExName
+		// setMuscles,
+		// setMuscles2nd
 	} = useContext(GlobalContext);
 	// const [ lift, setLift ] = useState([]);
 	const [ equip, setEquip ] = useState([]);
@@ -69,8 +69,7 @@ export const AddLift = (e) => {
 
 	function getNewID() {
 		let newID = 0;
-		// useEffect(() => {
-		// 	const unsubscribe =
+
 		Fbase.firestore().collection('lifts').orderBy('liftID', 'desc').limit(1).onSnapshot((snap) => {
 			const nID = snap.docs.map((doc) => ({
 				id: doc.id,
@@ -78,10 +77,6 @@ export const AddLift = (e) => {
 			}));
 			newID = nID.liftID + 1;
 		});
-		// 	return () => {
-		// 		unsubscribe();
-		// 	};
-		// }, []);
 		return newID;
 	}
 
