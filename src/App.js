@@ -4,9 +4,10 @@ import { About } from './Pages/About';
 import { AddLift } from './Pages/AddLift';
 import { CurrentLift } from './Pages/CurrentLift';
 import { Home } from './Pages/Home';
-import { Lifts } from './Pages/Lifts';
+import { ExCats } from './Pages/ExCats';
 import { Exercise } from './Pages/Exercise';
 import { NotFound } from './Pages/NotFound';
+import { Programs } from './Pages/Programs';
 import { Workout } from './Pages/Workout';
 import { Workouts } from './Pages/Workouts';
 import LogIn from './Pages/LogIn';
@@ -27,8 +28,9 @@ function App() {
 						<Route exact path="/addlift" component={AddLift} />
 						<Route exact path="/currlift" component={CurrentLift} />
 						<Route exact path="/exercise" component={Exercise} />
-						<Route exact path="/lifts" component={Lifts} />
+						<Route exact path="/excats" component={ExCats} />
 						<Route exact path="/login" component={LogIn} />
+						<Route exact path="/programs" component={Programs} />
 						<Route exact path="/signup" component={SignUp} />
 						<Route exact path="/workout" component={Workout} />
 						<Route exact path="/workouts" component={Workouts} />

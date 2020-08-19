@@ -69,8 +69,8 @@ export const Exercise = () => {
 					<img src={muscBack} className="muscBack" alt="muscBack" style={{ zIndex: '1' }} />
 				) : null}
 			</div>
-			<Link to="/lifts" onClick={updateMuscCount}>
-				Back to Lifts
+			<Link to="/excats" onClick={updateMuscCount}>
+				Back to Categories
 			</Link>
 		</div>
 	);

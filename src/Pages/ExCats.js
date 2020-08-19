@@ -3,18 +3,18 @@ import NameFetching from '../DataFetch/NameFetching';
 import { Link } from 'react-router-dom';
 import { GlobalContext } from '../Context/GlobalState';
 
-export const Lifts = () => {
+export const ExCats = () => {
 	const { categoryShown, selectedItem } = useContext(GlobalContext);
 
 	return (
 		<div>
-			<h1>Lifts</h1>
+			<h1>Exercise Categories</h1>
 			<div>
 				<h2>Muscle groups</h2>
 				<NameFetching
 					url="https://wger.de/api/v2/exercisecategory/?status=2"
 					category="exercisecategory"
-					path="/lifts"
+					path="/excats"
 				/>
 				{categoryShown === 'exercisecategory' ? (
 					<NameFetching
@@ -26,7 +26,7 @@ export const Lifts = () => {
 			</div>
 			<div>
 				<h2>Specific Muscles</h2>
-				<NameFetching url="https://wger.de/api/v2/muscle/?status=2" category="muscle" path="/lifts" />
+				<NameFetching url="https://wger.de/api/v2/muscle/?status=2" category="muscle" path="/excats" />
 				{categoryShown === 'muscle' ? (
 					<NameFetching
 						category="muscle"
@@ -37,7 +37,7 @@ export const Lifts = () => {
 			</div>
 			<div>
 				<h2>Equipment</h2>
-				<NameFetching url="https://wger.de/api/v2/equipment/?status=2" category="equipment" path="/lifts" />
+				<NameFetching url="https://wger.de/api/v2/equipment/?status=2" category="equipment" path="/excats" />
 				{categoryShown === 'equipment' ? (
 					<NameFetching
 						category="equipment"

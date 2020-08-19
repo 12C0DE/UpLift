@@ -56,13 +56,16 @@ export const Home = () => {
 				<h2>Welcome {userFname}</h2>
 			</div>
 			<div>
-				<Link to="/lifts">Lifts</Link>
+				<Link to="/excats">Exercise Categories</Link>
 			</div>
 			<div>
 				<Link to="/addlift">Add Lift</Link>
 			</div>
 			<div>
 				<Link to="/about">About</Link>
+			</div>
+			<div>
+				<Link to="/programs">Programs</Link>
 			</div>
 			<div>
 				<Link to="/workouts">Workouts</Link>
