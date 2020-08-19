@@ -67,6 +67,9 @@ export const Home = () => {
 			<div>
 				<Link to="/workouts">Workouts</Link>
 			</div>
+			<div>
+				<Link to="/currlift">Current Lift</Link>
+			</div>
 			<br />
 			<div>
 				<LogoutBtn />
