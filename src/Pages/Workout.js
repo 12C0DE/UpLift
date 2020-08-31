@@ -55,8 +55,6 @@ export const Workout = () => {
 	}
 
 	function setExValues(ex) {
-		// showCategory(props.category);
-
 		setExDesc(ex.liftDesc);
 		setExEquip(ex.equip);
 		setExName(ex.liftName);

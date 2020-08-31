@@ -6,6 +6,7 @@ import { CurrentLift } from './Pages/CurrentLift';
 import { Home } from './Pages/Home';
 import { ExCats } from './Pages/ExCats';
 import { Exercise } from './Pages/Exercise';
+import { Lifts } from './Pages/Lifts';
 import { NotFound } from './Pages/NotFound';
 import { Programs } from './Pages/Programs';
 import { Workout } from './Pages/Workout';
@@ -29,6 +30,7 @@ function App() {
 						<Route exact path="/currlift" component={CurrentLift} />
 						<Route exact path="/exercise" component={Exercise} />
 						<Route exact path="/excats" component={ExCats} />
+						<Route exact path="/lifts" component={Lifts} />
 						<Route exact path="/login" component={LogIn} />
 						<Route exact path="/programs" component={Programs} />
 						<Route exact path="/signup" component={SignUp} />
