@@ -8,17 +8,17 @@ export const AddLift = () => {
 	const { currentUser } = useContext(AuthContext);
 	const {
 		allEquip,
-		musclesAll,
+		musclesAll
 		// exDescription,
 		// exEquip,
 		// exName,
 		// muscles,
 		// muscles2nd,
-		setExDesc,
-		setExEquip,
-		setExName,
-		setMuscles,
-		setMuscles2nd
+		// setExDesc,
+		// setExEquip,
+		// setExName,
+		// setMuscles,
+		// setMuscles2nd
 	} = useContext(GlobalContext);
 
 	const [ lift, setLift ] = useState([]);
@@ -99,11 +99,11 @@ export const AddLift = () => {
 			})
 			.then(() => {
 				//save to context
-				setExName(name);
-				setExDesc(desc);
-				setExEquip(equip);
-				setMuscles(musc);
-				setMuscles2nd(musc2);
+				// setExName(name);
+				// setExDesc(desc);
+				// setExEquip(equip);
+				// setMuscles(musc);
+				// setMuscles2nd(musc2);
 
 				//erase local state
 				setName('');

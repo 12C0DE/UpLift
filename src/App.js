@@ -32,7 +32,7 @@ function App() {
 						<Route exact path="/login" component={LogIn} />
 						<Route exact path="/programs" component={Programs} />
 						<Route exact path="/signup" component={SignUp} />
-						<Route exact path="/workout" component={Workout} />
+						<Route path="/workout/:wid" component={Workout} />
 						<Route exact path="/workouts" component={Workouts} />
 						<Route path="/404" component={NotFound} />
 						<Redirect to="/404" />

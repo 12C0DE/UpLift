@@ -46,10 +46,10 @@ export const Exercise = () => {
 			<h1>Exercise</h1>
 			<div>
 				<h2>Name: {exName}</h2>
-				<h2>Desc: {exDescription}</h2>
-				<h2>Equipment: {equipName.map((eq) => `${eq.name} `)}</h2>
-				<h2>Primary Muscles: {primMusc.map((musc) => `${musc.name} `)}</h2>
-				<h2>Secondary Muscles: {secMuscs.map((musc) => `${musc.name} `)}</h2>
+				<h3>Desc: {exDescription}</h3>
+				<h3>Equipment: {equipName.map((eq) => `${eq.name} `)}</h3>
+				<h3>Primary Muscles: {primMusc.map((musc) => `${musc.name} `)}</h3>
+				<h3>Secondary Muscles: {secMuscs.map((musc) => `${musc.name} `)}</h3>
 			</div>
 			<div>
 				<button>Add to Workout</button>

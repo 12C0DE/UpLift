@@ -17,6 +17,7 @@ const initialState = {
 	musclesBack: 0,
 	musclesFront: 0,
 	selectedItem: 0
+	// selectedWorkout: 0
 };
 
 //Create context
@@ -54,6 +55,13 @@ export const GlobalProvider = ({ children }) => {
 			payload: itemId
 		});
 	}
+
+	// function selectWorkout(workout) {
+	// 	dispatch({
+	// 		type: 'SEL_WO',
+	// 		payload: workout
+	// 	});
+	// }
 
 	function setAllEquip(equip) {
 		dispatch({
@@ -142,10 +150,12 @@ export const GlobalProvider = ({ children }) => {
 				musclesBack: state.musclesBack,
 				musclesFront: state.musclesFront,
 				selectedItem: state.selectedItem,
+				// selectedWorkout: state.selectedWorkout,
 				addMusclesBack,
 				addMusclesFront,
 				IsLoading,
 				selectItem,
+				// selectWorkout,
 				setAllEquip,
 				setExDesc,
 				setExEquip,
