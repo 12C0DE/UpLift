@@ -16,7 +16,8 @@ const initialState = {
 	musclesAll: [],
 	musclesBack: 0,
 	musclesFront: 0,
-	selectedItem: 0
+	selectedItem: 0,
+	showLiftCb: false
 	// selectedWorkout: 0
 };
 
@@ -133,6 +134,13 @@ export const GlobalProvider = ({ children }) => {
 		});
 	}
 
+	function toggleLiftCb(showCb) {
+		dispatch({
+			type: 'SHOW_LIFTCB',
+			payload: showCb
+		});
+	}
+
 	return (
 		<GlobalContext.Provider
 			value={{
@@ -150,6 +158,7 @@ export const GlobalProvider = ({ children }) => {
 				musclesBack: state.musclesBack,
 				musclesFront: state.musclesFront,
 				selectedItem: state.selectedItem,
+				showLiftCb: state.showLiftCb,
 				// selectedWorkout: state.selectedWorkout,
 				addMusclesBack,
 				addMusclesFront,
@@ -165,7 +174,8 @@ export const GlobalProvider = ({ children }) => {
 				setExName,
 				setMusclesAll,
 				setMuscles,
-				setMuscles2nd
+				setMuscles2nd,
+				toggleLiftCb
 			}}
 		>
 			{children}

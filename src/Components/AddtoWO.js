@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { WorkoutList } from '../Components/WorkoutList';
+import { GlobalContext } from '../Context/GlobalState';
 import Fbase from '../Firebase/base';
 
-export const AddtoWO = ({ currentUser }) => {
+export const AddtoWO = ({ currentUser, selLifts }) => {
 	const [ showAdd, setShowAdd ] = useState(false);
 	const [ wOuts, setWOuts ] = useState([]);
+	const { showLiftCb, toggleLiftCb } = useContext(GlobalContext);
 
 	function getWOs() {
 		if (!wOuts.length) {
@@ -19,6 +21,7 @@ export const AddtoWO = ({ currentUser }) => {
 	}
 
 	function setupSection() {
+		toggleLiftCb(!showLiftCb);
 		getWOs();
 		setShowAdd(!showAdd);
 	}
@@ -26,7 +29,14 @@ export const AddtoWO = ({ currentUser }) => {
 	return (
 		<div>
 			<button onClick={setupSection}>Add to Workout</button>
-			{showAdd ? <WorkoutList workouts={wOuts} /> : null}
+			{showAdd ? <WorkoutList workouts={wOuts} isCB={true} /> : null}
+			<button
+				onClick={() => {
+					selLifts.map((sel) => console.log(`sellift: ${sel}`));
+				}}
+			>
+				check con
+			</button>
 		</div>
 	);
 };

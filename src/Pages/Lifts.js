@@ -8,8 +8,11 @@ import Fbase from '../Firebase/base';
 export const Lifts = () => {
 	const { currentUser } = useContext(AuthContext);
 	const [ lifts, setLifts ] = useState([]);
+	const [ selLifts, setSelLifts ] = useState([]);
 
-	const { setExDesc, setExEquip, setExName, setMuscles, setMuscles2nd } = useContext(GlobalContext);
+	const { setExDesc, setExEquip, setExName, setMuscles, setMuscles2nd, showLiftCb, toggleLiftCb } = useContext(
+		GlobalContext
+	);
 
 	useEffect(() => {
 		const unsubscribe = Fbase.firestore()
@@ -21,6 +24,7 @@ export const Lifts = () => {
 					...doc.data()
 				}));
 				setLifts(lift);
+				toggleLiftCb(false);
 			});
 		return () => {
 			unsubscribe();
@@ -35,6 +39,12 @@ export const Lifts = () => {
 		setMuscles2nd(ex.muscSec);
 	}
 
+	function toggleLift(e, liftID) {
+		e.target.checked
+			? setSelLifts((selLifts) => [ ...selLifts, liftID ])
+			: setSelLifts(selLifts.filter((lift) => lift !== liftID));
+	}
+
 	return (
 		<div>
 			<h1>Your Lifts</h1>
@@ -42,6 +52,13 @@ export const Lifts = () => {
 			<ul>
 				{lifts.map((l) => (
 					<li key={`li${l.liftID}`}>
+						{showLiftCb ? (
+							<input
+								type="checkbox"
+								checked={selLifts.includes(l.liftID)}
+								onChange={(e) => toggleLift(e, l.liftID)}
+							/>
+						) : null}
 						<Link key={`l${l.liftID}`} to="/exercise" onClick={() => setExValues(l)}>
 							{l.liftName}
 						</Link>
@@ -49,7 +66,7 @@ export const Lifts = () => {
 					</li>
 				))}
 			</ul>
-			<AddtoWO currentUser={currentUser} />
+			<AddtoWO currentUser={currentUser} selLifts={selLifts} />
 			<br />
 			<Link to="/">Back Home</Link>
 		</div>

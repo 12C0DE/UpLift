@@ -70,6 +70,11 @@ export default (state, action) => {
 				...state,
 				categoryShown: action.payload
 			};
+		case 'SHOW_LIFTCB':
+			return {
+				...state,
+				showLiftCb: action.payload
+			};
 		default:
 			return state;
 	}
