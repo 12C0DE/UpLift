@@ -6,6 +6,7 @@ import muscFront from '../img/muscleFront.svg';
 import muscBack from '../img/muscleBack.svg';
 
 export const Exercise = () => {
+	let muscFillID = null;
 	const [ primMusc, setPrimMuscs ] = useState([]);
 	const [ secMuscs, setSecMuscs ] = useState([]);
 	const [ equipName, setEquipName ] = useState([]);
@@ -41,6 +42,11 @@ export const Exercise = () => {
 		[] //find a way to include correct dependencies without it running infinitely
 	);
 
+	function testHover(e, musc) {
+		e.preventDefault();
+		alert(musc);
+	}
+
 	return (
 		<div>
 			<h1>Exercise</h1>
@@ -48,7 +54,14 @@ export const Exercise = () => {
 				<h2>Name: {exName}</h2>
 				<h3>Desc: {exDescription}</h3>
 				<h3>Equipment: {equipName.map((eq) => `${eq.name} `)}</h3>
-				<h3>Primary Muscles: {primMusc.map((musc) => `${musc.name} `)}</h3>
+				<h3>
+					Primary Muscles:{' '}
+					{primMusc.map((musc) => (
+						<a href="" key={`hv_${musc.id}`} onClick={(e) => testHover(e, musc.name)}>
+							{musc.name}{' '}
+						</a>
+					))}
+				</h3>
 				<h3>Secondary Muscles: {secMuscs.map((musc) => `${musc.name} `)}</h3>
 			</div>
 			<div>

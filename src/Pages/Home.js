@@ -3,7 +3,7 @@ import Fbase from '../Firebase/base';
 import { LogoutBtn } from '../Components/LogoutBtn';
 import { AuthContext } from '../Firebase/Auth';
 import { GlobalContext } from '../Context/GlobalState';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
 
 export const Home = () => {
@@ -15,19 +15,20 @@ export const Home = () => {
 		useEffect(
 			() => {
 				if (!fName) {
-					Fbase.firestore().collection('users').where('uid', '==', currentUser.uid).onSnapshot((dt) => {
-						const user = dt.docs.filter((doc) => doc.data).map((doc) => ({
-							id: doc.id,
-							...doc.data()
-						}));
-						console.log('ran getName()');
-						setFName(user[0].fname);
-					});
-
-					retrieveExerciseData();
+					fetch(`/users/${currentUser.uid}`)
+						.then((res) => {
+							if (res.ok) {
+								return res.json();
+							}
+						})
+						.then((jsonRes) => {
+							setFName(jsonRes.fname);
+						});
 				}
 			},
-			[ currentUser.uid ]
+			[
+				currentUser.uid
+			]
 		);
 		return fName;
 	}
@@ -35,7 +36,10 @@ export const Home = () => {
 	function retrieveExerciseData() {
 		if (!musclesAll.length) {
 			axios
-				.all([ axios.get('https://wger.de/api/v2/muscle/'), axios.get('https://wger.de/api/v2/equipment/') ])
+				.all([
+					axios.get('https://wger.de/api/v2/muscle/'),
+					axios.get('https://wger.de/api/v2/equipment/')
+				])
 				.then(
 					axios.spread((muscs, equip) => {
 						setMusclesAll(muscs.data.results);

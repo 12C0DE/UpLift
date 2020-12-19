@@ -29,7 +29,7 @@ export const AddtoWO = ({ currentUser, selLifts }) => {
 	return (
 		<div>
 			<button onClick={setupSection}>Add to Workout</button>
-			{showAdd ? <WorkoutList workouts={wOuts} isCB={true} /> : null}
+			{showAdd ? <WorkoutList workouts={wOuts} lifts={selLifts} isCB={true} uid={currentUser.uid} /> : null}
 			<button
 				onClick={() => {
 					selLifts.map((sel) => console.log(`sellift: ${sel}`));

@@ -8,10 +8,13 @@ export const MuscImg = (props) => {
 		muscSide ? addMusclesFront(musclesFront + 1) : addMusclesBack(musclesBack + 1);
 	}
 
+	let classes = props.isFront ? 'muscFront' : 'muscBack';
+	classes += ' muscHLfill';
+
 	return (
 		<img
 			onLoad={() => updateMuscCount(props.isFront)}
-			className={props.isFront ? 'muscFront' : 'muscBack'}
+			className={classes} //{props.isFront ? 'muscFront' : 'muscBack'}
 			alt={`musc_${props.muscleId}`}
 			style={{ zIndex: `${props.isFrst ? '3' : '2'}` }}
 			src={require(`../img/muscle_${props.muscleId}_${props.isFrst ? '1' : '2'}.svg`)}

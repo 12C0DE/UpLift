@@ -72,9 +72,10 @@ export const AddLift = () => {
 	const onSubmit = (e) => {
 		e.preventDefault();
 
-		// if (!{ name }) {
-		// 	return;
-		// }
+		//if lift name or description is empty, dont save
+		if (!name || !desc) {
+			return;
+		}
 
 		const newLift = {
 			Id: newID,
@@ -162,8 +163,8 @@ export const AddLift = () => {
 				</ul>
 				<button>Add Lift</button>
 				<br />
-				<button>Add to Workout</button>
 			</form>
+			<button>Add to Workout</button>
 			<Link to="/">Back Home</Link>
 		</div>
 	);
