@@ -30,6 +30,9 @@ app.use('/programs', programRoute);
 const workoutRoute = require('./routes/workoutRouter');
 app.use('/workouts', workoutRoute);
 
+const muscleRoute = require('./routes/muscleRouter');
+app.use('/muscles', muscleRoute);
+
 //connect to db
 mongoose.connect(
 	process.env.DB_CONNECTION,

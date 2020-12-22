@@ -1,9 +1,8 @@
 import React, { useContext, useEffect } from 'react';
-import Fbase from '../Firebase/base';
 import { LogoutBtn } from '../Components/LogoutBtn';
 import { AuthContext } from '../Firebase/Auth';
 import { GlobalContext } from '../Context/GlobalState';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 export const Home = () => {
@@ -24,6 +23,7 @@ export const Home = () => {
 						.then((jsonRes) => {
 							setFName(jsonRes.fname);
 						});
+					retrieveExerciseData();
 				}
 			},
 			[
@@ -37,12 +37,14 @@ export const Home = () => {
 		if (!musclesAll.length) {
 			axios
 				.all([
-					axios.get('https://wger.de/api/v2/muscle/'),
+					// axios.get('https://wger.de/api/v2/muscle/'),
+					axios.get('/muscles'),
 					axios.get('https://wger.de/api/v2/equipment/')
 				])
 				.then(
 					axios.spread((muscs, equip) => {
-						setMusclesAll(muscs.data.results);
+						console.log(muscs.data);
+						setMusclesAll(muscs.data);
 						setAllEquip(equip.data.results);
 					})
 				);
