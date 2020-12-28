@@ -1,43 +1,37 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AuthContext } from '../Firebase/Auth';
-import Fbase from '../Firebase/base';
+import React, { useContext, useEffect, useState } from "react";
+import axios from "axios";
+import { AuthContext } from "../Firebase/Auth";
+import { Link } from "react-router-dom";
 
 export const Programs = () => {
-	const { currentUser } = useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
 
-	function GetPrograms() {
-		const [ programs, setPrograms ] = useState([]);
+  function GetPrograms() {
+    const [programs, setPrograms] = useState([]);
 
-		useEffect(() => {
-			const unsubscribe = Fbase.firestore()
-				.collection('programs')
-				.where('uid', '==', currentUser.uid)
-				.onSnapshot((snap) => {
-					const program = snap.docs.map((doc) => ({
-						id: doc.id,
-						...doc.data()
-					}));
-					setPrograms(program);
-				});
-			return () => {
-				unsubscribe();
-			};
-		}, []);
-		return programs;
-	}
+    useEffect(() => {
+      axios.get(`/programs/all/${currentUser.uid}`).then(progs => {
+        setPrograms(progs.data);
+      });
+    }, []);
+    return programs;
+  }
 
-	const progs = GetPrograms();
+  const progs = GetPrograms();
 
-	return (
-		<div>
-			<h1>Programs</h1>
-			<ul>{progs.map((prog) => <li key={`prog${prog.programID}`}>{prog.programName}</li>)}</ul>
-			<Link to="/programs">Create A Program</Link>
-			<br />
-			<Link to="/programs">Update Program</Link>
-			<br />
-			<Link to="/">Back Home</Link>
-		</div>
-	);
+  return (
+    <div>
+      <h1>Programs</h1>
+      <ul>
+        {progs.map(prog => (
+          <li key={`prog${prog.programID}`}>{prog.programName}</li>
+        ))}
+      </ul>
+      <Link to="/programs">Create A Program</Link>
+      <br />
+      <Link to="/programs">Update Program</Link>
+      <br />
+      <Link to="/">Back Home</Link>
+    </div>
+  );
 };

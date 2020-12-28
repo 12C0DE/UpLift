@@ -27,6 +27,7 @@ function NameFetching(props) {
   }, [props.url]);
 
   function setExValues(post) {
+    console.log(`post id: ${post.id}`);
     selectItem(+post.id);
     showCategory(props.category);
 
