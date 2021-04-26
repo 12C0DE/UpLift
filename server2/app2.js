@@ -36,7 +36,7 @@ app.use('/muscles', muscleRoute);
 //connect to db
 mongoose.connect(
 	process.env.DB_CONNECTION,
-	{ useNewUrlParser: true, useUnifiedTopology: true, dbName: 'uplift-data' },
+	{ useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, dbName: 'uplift-data' },
 	() => {
 		console.log('connected to DB');
 	}

@@ -16,35 +16,35 @@ export const ExCats = () => {
 					category="exercisecategory"
 					path="/excats"
 				/>
-				{categoryShown === 'exercisecategory' ? (
-					<NameFetching
+				{
+					categoryShown === 'exercisecategory' ? <NameFetching
 						category="exercisecategory"
 						path="/exercise"
 						url={`https://wger.de/api/v2/exercise/?status=2&language=2&category=${selectedItem}`}
-					/>
-				) : null}
+					/> :
+					null}
 			</div>
 			<div>
 				<h2>Specific Muscles</h2>
-				<NameFetching url="https://wger.de/api/v2/muscle/?status=2" category="muscle" path="/excats" />
-				{categoryShown === 'muscle' ? (
-					<NameFetching
+				<NameFetching url="/muscles" category="muscle" path="/excats" />
+				{
+					categoryShown === 'muscle' ? <NameFetching
 						category="muscle"
 						path="/exercise"
 						url={`https://wger.de/api/v2/exercise/?status=2&language=2&muscles=${selectedItem}`}
-					/>
-				) : null}
+					/> :
+					null}
 			</div>
 			<div>
 				<h2>Equipment</h2>
 				<NameFetching url="https://wger.de/api/v2/equipment/?status=2" category="equipment" path="/excats" />
-				{categoryShown === 'equipment' ? (
-					<NameFetching
+				{
+					categoryShown === 'equipment' ? <NameFetching
 						category="equipment"
 						path="/exercise"
 						url={`https://wger.de/api/v2/exercise/?status=2&language=2&equipment=${selectedItem}`}
-					/>
-				) : null}
+					/> :
+					null}
 			</div>
 			<Link to="/">Back Home</Link>
 		</div>

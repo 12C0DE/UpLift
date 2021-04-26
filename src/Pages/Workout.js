@@ -2,13 +2,19 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { GlobalContext } from '../Context/GlobalState';
 import { AuthContext } from '../Firebase/Auth';
-import Fbase from '../Firebase/base';
+import axios from 'axios';
 
 export const Workout = () => {
 	const { currentUser } = useContext(AuthContext);
 	const { wid } = useParams();
-	const [ workout, setWorkout ] = useState([]);
-	const [ liftArr, setLiftArr ] = useState([]);
+	const [
+		workout,
+		setWorkout
+	] = useState([]);
+	const [
+		liftArr,
+		setLiftArr
+	] = useState([]);
 	let liftIDArr = [];
 
 	const {
@@ -22,22 +28,28 @@ export const Workout = () => {
 	} = useContext(GlobalContext);
 
 	useEffect(() => {
-		const unsubscribe = Fbase.firestore()
-			.collection('workouts')
-			.where('uid', '==', currentUser.uid)
-			.where('workoutID', '==', +wid)
-			.onSnapshot((snap) => {
-				const wrkout = snap.docs.map((doc) => ({
-					id: doc.id,
-					...doc.data()
-				}));
-				setWorkout(wrkout);
-				liftIDArr = wrkout[0].lifts.slice();
-				getLifts();
-			});
-		return () => {
-			unsubscribe();
-		};
+		// const unsubscribe = Fbase.firestore()
+		// 	.collection('workouts')
+		// 	.where('uid', '==', currentUser.uid)
+		// 	.where('workoutID', '==', +wid)
+		// 	.onSnapshot((snap) => {
+		// 		const wrkout = snap.docs.map((doc) => ({
+		// 			id: doc.id,
+		// 			...doc.data()
+		// 		}));
+		// 		setWorkout(wrkout);
+		// 		liftIDArr = wrkout[0].lifts.slice();
+		// 		getLifts();
+		// 	});
+		// return () => {
+		// 	unsubscribe();
+		// };
+
+		axios.get(`/workouts/all/${currentUser.uid}`).then((wo) => {
+			setWorkout(wo.data);
+			liftIDArr = wo[0].lifts.slice();
+			getLifts();
+		});
 	}, []);
 
 	function getLifts() {
@@ -47,7 +59,7 @@ export const Workout = () => {
 			.where('liftID', 'in', liftIDArr)
 			.onSnapshot((snap) => {
 				const lift = snap.docs.map((doc) => ({
-					id: doc.id,
+					id : doc.id,
 					...doc.data()
 				}));
 				setLiftArr(lift);

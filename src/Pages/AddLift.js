@@ -1,168 +1,179 @@
-import React, { useContext, useState } from "react";
-import { GlobalContext } from "../Context/GlobalState";
-import { AuthContext } from "../Firebase/Auth";
-import { Link } from "react-router-dom";
-import axios from "axios";
+import React, { useContext, useState } from 'react';
+import { GlobalContext } from '../Context/GlobalState';
+import { AuthContext } from '../Firebase/Auth';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 export const AddLift = () => {
-  const { currentUser } = useContext(AuthContext);
-  const { allEquip, musclesAll } = useContext(GlobalContext);
+	const { currentUser } = useContext(AuthContext);
+	const { allEquip, musclesAll } = useContext(GlobalContext);
 
-  const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
-  const [equip, setEquip] = useState([]);
-  const [musc, setMusc] = useState([]);
-  const [musc2, setMusc2] = useState([]);
-  const [isPrimary, setIsPrimary] = useState(true);
+	const [
+		name,
+		setName
+	] = useState('');
+	const [
+		desc,
+		setDesc
+	] = useState('');
+	const [
+		equip,
+		setEquip
+	] = useState([]);
+	const [
+		musc,
+		setMusc
+	] = useState([]);
+	const [
+		musc2,
+		setMusc2
+	] = useState([]);
+	const [
+		isPrimary,
+		setIsPrimary
+	] = useState(true);
 
-  function SetArrField(e, liftID, arrType) {
-    switch (arrType) {
-      case "EQUIP":
-        if (e.target.checked) {
-          setEquip(equip => [...equip, liftID]);
-        } else {
-          setEquip(equip.filter(eq => eq !== liftID));
-        }
-        return;
-      case "MUSC":
-        if (e.target.checked) {
-          setMusc(musc => [...musc, liftID]);
-        } else {
-          setMusc(musc.filter(eq => eq !== liftID));
-        }
-        return;
-      case "MUSC2":
-        if (e.target.checked) {
-          setMusc2(musc2 => [...musc2, liftID]);
-        } else {
-          setMusc2(musc2.filter(eq => eq !== liftID));
-        }
-        return;
-      default:
-        return;
-    }
-  }
+	function SetArrField(e, liftID, arrType) {
+		switch (arrType) {
+			case 'EQUIP':
+				if (e.target.checked) {
+					setEquip((equip) => [
+						...equip,
+						liftID
+					]);
+				} else {
+					setEquip(equip.filter((eq) => eq !== liftID));
+				}
+				return;
+			case 'MUSC':
+				if (e.target.checked) {
+					setMusc((musc) => [
+						...musc,
+						liftID
+					]);
+				} else {
+					setMusc(musc.filter((eq) => eq !== liftID));
+				}
+				return;
+			case 'MUSC2':
+				if (e.target.checked) {
+					setMusc2((musc2) => [
+						...musc2,
+						liftID
+					]);
+				} else {
+					setMusc2(musc2.filter((eq) => eq !== liftID));
+				}
+				return;
+			default:
+				return;
+		}
+	}
 
-  const onSubmit = e => {
-    e.preventDefault();
+	const onSubmit = (e) => {
+		e.preventDefault();
 
-    //if lift name or description is empty, dont save
-    if (!name || !desc) {
-      return;
-    }
+		//if lift name or description is empty, dont save
+		if (!name || !desc) {
+			return;
+		}
 
-    const newLift = {
-      liftName: name,
-      liftDesc: desc,
-      muscPrim: musc,
-      muscSec: musc2,
-      equipment: equip,
-      uid: currentUser.uid
-    };
+		const newLift = {
+			liftName  : name,
+			liftDesc  : desc,
+			muscPrim  : musc,
+			muscSec   : musc2,
+			equipment : equip,
+			uid       : currentUser.uid
+		};
 
-    axios
-      .post("/lifts", newLift)
-      .then(() => {
-        //save to context
-        // 		// setExName(name);
-        // 		// setExDesc(desc);
-        // 		// setExEquip(equip);
-        // 		// setMuscles(musc);
-        // 		// setMuscles2nd(musc2);
+		axios
+			.post('/lifts', newLift)
+			.then(() => {
+				//save to context
+				// 		// setExName(name);
+				// 		// setExDesc(desc);
+				// 		// setExEquip(equip);
+				// 		// setMuscles(musc);
+				// 		// setMuscles2nd(musc2);
 
-        setName("");
-        setDesc("");
-        setEquip([]);
-        setMusc([]);
-        setMusc2([]);
-        setIsPrimary(true);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
+				setName('');
+				setDesc('');
+				setEquip([]);
+				setMusc([]);
+				setMusc2([]);
+				setIsPrimary(true);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	};
 
-  return (
-    <div>
-      <h1>Add Lift</h1>
-      <form onSubmit={onSubmit}>
-        <label htmlFor="name">
-          Name
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={e => setName(e.target.value)}
-          />
-        </label>
-        <label htmlFor="description">
-          Description
-          <textarea
-            type="text"
-            id="description"
-            value={desc}
-            onChange={e => setDesc(e.target.value)}
-          />
-        </label>
-        <br />
-        <label htmlFor="equipment">Equipment</label>
-        <ul>
-          {allEquip.map(eq => (
-            <li key={eq.id}>
-              <input
-                key={`cbE${eq.id}`}
-                type="checkbox"
-                onChange={e => SetArrField(e, eq.id, "EQUIP")}
-                checked={equip.includes(eq.id) ? true : false}
-              />
-              <label>{eq.name}</label>
-            </li>
-          ))}
-        </ul>
-        <label>Muscles</label>
-        <input
-          type="checkbox"
-          id="musc1"
-          checked={isPrimary}
-          onChange={() => setIsPrimary(!isPrimary)}
-        />
-        <label>Primary</label>
-        <input
-          type="checkbox"
-          id="musc2"
-          checked={!isPrimary}
-          onChange={() => setIsPrimary(!isPrimary)}
-        />
-        <label>Secondary</label>
-        <ul>
-          {musclesAll.map(mus => (
-            <li key={mus.muscleId}>
-              <input
-                key={`cbM${mus.muscleId}`}
-                type="checkbox"
-                checked={
-                  musc.includes(mus.muscleId) || musc2.includes(mus.muscleId)
-                    ? true
-                    : false
-                }
-                onChange={e =>
-                  SetArrField(
-                    e,
-                    mus.muscleId,
+	return (
+		<div>
+			<h1>Add Lift</h1>
+			<form onSubmit={onSubmit}>
+				<label htmlFor="name">
+					Name
+					<input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} />
+				</label>
+				<label htmlFor="description">
+					Description
+					<textarea type="text" id="description" value={desc} onChange={(e) => setDesc(e.target.value)} />
+				</label>
+				<br />
+				<label htmlFor="equipment">Equipment</label>
+				<ul>
+					{allEquip.map((eq) => (
+						<li key={eq.id}>
+							<input
+								key={`cbE${eq.id}`}
+								type="checkbox"
+								onChange={(e) => SetArrField(e, eq.id, 'EQUIP')}
+								checked={
 
-                    isPrimary ? "MUSC" : "MUSC2"
-                  )
-                }
-              />
-              <label>{mus.name}</label>
-            </li>
-          ))}
-        </ul>
-        <button>Add Lift</button>
-        <br />
-      </form>
-      <button>Add to Workout</button>
-      <Link to="/">Back Home</Link>
-    </div>
-  );
+										equip.includes(eq.id) ? true :
+										false
+								}
+							/>
+							<label>{eq.name}</label>
+						</li>
+					))}
+				</ul>
+				<label>Muscles</label>
+				<input type="checkbox" id="musc1" checked={isPrimary} onChange={() => setIsPrimary(!isPrimary)} />
+				<label>Primary</label>
+				<input type="checkbox" id="musc2" checked={!isPrimary} onChange={() => setIsPrimary(!isPrimary)} />
+				<label>Secondary</label>
+				<ul>
+					{musclesAll.map((mus) => (
+						<li key={mus.id}>
+							<input
+								key={`cbM${mus.id}`}
+								type="checkbox"
+								checked={
+
+										musc.includes(mus.id) || musc2.includes(mus.id) ? true :
+										false
+								}
+								onChange={(e) =>
+									SetArrField(
+										e,
+										mus.id,
+
+											isPrimary ? 'MUSC' :
+											'MUSC2'
+									)}
+							/>
+							<label>{mus.name}</label>
+						</li>
+					))}
+				</ul>
+				<button>Add Lift</button>
+				<br />
+			</form>
+			<button>Add to Workout</button>
+			<Link to="/">Back Home</Link>
+		</div>
+	);
 };

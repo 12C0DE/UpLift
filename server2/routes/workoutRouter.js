@@ -3,9 +3,9 @@ const router = express.Router();
 const Workout = require('../models/Workout');
 
 //get all WOs
-router.get('/', async (req, res) => {
+router.get('/all/:uid', async (req, res) => {
 	try {
-		const WOs = await Workout.find();
+		const WOs = await Workout.find({ uid: req.params.uid });
 		res.json(WOs);
 	} catch (err) {
 		res.json({ message: err });
