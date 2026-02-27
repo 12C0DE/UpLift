@@ -1,12 +1,13 @@
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const currentLiftStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0a0a0a",
     maxWidth: 400,
     alignSelf: "center",
     width: "100%",
+    justifyContent: "space-between",
   },
   header: {
     paddingTop: 24,
@@ -64,9 +65,15 @@ export const styles = StyleSheet.create({
   swipeHint: {
     textAlign: "center",
     color: "#929292",
-    fontSize: 14,
+    fontSize: 10,
     marginTop: 16,
     fontStyle: "italic",
+  },
+  nextLiftText: {
+    fontFamily: "BebasNeue",
+    fontSize: 18,
+    color: "#f5f5f5",
+    letterSpacing: 0.72,
   },
   setsRepsSection: {
     paddingHorizontal: 16,
@@ -134,6 +141,15 @@ export const styles = StyleSheet.create({
     flexWrap: "wrap",
     alignItems: "center",
     justifyContent: "space-evenly",
-    gap: 8,
-  }
+    gap: 4,
+    paddingHorizontal: 40,
+  },
+  lastLift: {
+    fontFamily: "BarlowSemiCondensed_Italic",
+    fontSize: 14,
+    fontStyle: "italic",
+    textAlign: "center",
+    color: "#929292",
+    marginTop: 8,
+  },
 });

@@ -1,7 +1,8 @@
 import { BarbellDisplay, WeightPlate } from "@/components";
+import Entypo from "@expo/vector-icons/Entypo";
 import { useState } from "react";
-import { Text, View } from "react-native";
-import { styles as currentLiftStyles } from "../../assets/index";
+import { Pressable, Text, View } from "react-native";
+import { currentLiftStyles as styles } from "../../assets/index";
 import { BAR_WEIGHT, WEIGHT_LIST } from "../utils/constants";
 
 interface CurrentLiftProps {
@@ -17,8 +18,8 @@ interface SetType {
 
 export default function currentlift({
   liftName,
-  lastWeight,
-  totalSets,
+  lastWeight = 255,
+  totalSets = 4,
 }: CurrentLiftProps) {
   const [totalWeight, setTotalWeight] = useState(lastWeight || 285);
   const [reps, setReps] = useState(5);
@@ -45,7 +46,7 @@ export default function currentlift({
   const plates = calculatePlates(totalWeight);
 
   const weightChangeTextHandler = (text: string) => {
-    const numericValue = parseInt(text);
+    const numericValue = parseFloat(text);
     if (numericValue >= 0 && numericValue <= 1000) {
       setTotalWeight(numericValue);
     } else {
@@ -57,7 +58,7 @@ export default function currentlift({
     weightToAdd: number,
     direction: "up" | "down",
   ) => {
-    const change = direction === "up" ? weightToAdd * 2 : -weightToAdd * 2;
+    const change = direction === "up" ? weightToAdd : -weightToAdd;
     const newWeight = totalWeight + change;
     if (newWeight >= 0 && newWeight <= 1000) {
       setTotalWeight(newWeight);
@@ -65,28 +66,84 @@ export default function currentlift({
   };
 
   return (
-    <View style={currentLiftStyles.container}>
-      <View style={currentLiftStyles.header}>
-        <Text style={currentLiftStyles.exerciseName}>
-          {liftName || "Bench Press"}
-        </Text>
-      </View>
-      <View style={currentLiftStyles.weightSection}>
-        <BarbellDisplay
-          plates={plates}
-          totalWeight={totalWeight}
-          weightChangeHandler={weightChangeTextHandler}
-        />
-      </View>
-      <View style={currentLiftStyles.weightsRow}>
-        {WEIGHT_LIST.toReversed().map((weight) => (
-          <WeightPlate
-            key={`w_${weight}`}
-            weight={weight}
-            onSwipeDown={() => weightChangeHandler(weight, "down")}
-            onSwipeUp={() => weightChangeHandler(weight, "up")}
+    <View style={styles.container}>
+      <View>
+        <View style={styles.header}>
+          <Text style={styles.exerciseName}>{liftName || "Bench Press"}</Text>
+        </View>
+        <View style={styles.weightSection}>
+          <BarbellDisplay
+            plates={plates}
+            totalWeight={totalWeight}
+            weightChangeHandler={weightChangeTextHandler}
           />
-        ))}
+          <Text style={styles.lastLift}>
+            {lastWeight && `Last: ${lastWeight} lbs`}
+          </Text>
+        </View>
+      </View>
+      <View>
+        <View style={styles.weightsRow}>
+          {WEIGHT_LIST.toReversed().map((weight) => (
+            <WeightPlate
+              key={`w_${weight}`}
+              weight={weight}
+              onSwipeDown={() => weightChangeHandler(weight, "down")}
+              onSwipeUp={() => weightChangeHandler(weight, "up")}
+            />
+          ))}
+        </View>
+        <Text style={styles.swipeHint}>Swipe up or down to change weight</Text>
+      </View>
+      <View style={styles.setsRepsSection}>
+        <View style={styles.setsContainer}>
+          <Text style={styles.sectionLabel}>Sets</Text>
+          <View style={styles.setsRow}>
+            <View style={styles.numberBox}>
+              <Text style={styles.numberText}>{sets.currentSet}</Text>
+            </View>
+            <Text style={styles.ofText}>of</Text>
+            <View style={styles.numberBox}>
+              <Text style={styles.numberText}>{totalSets}</Text>
+            </View>
+          </View>
+        </View>
+        <View style={styles.repsContainer}>
+          <Text style={styles.sectionLabel}>Reps</Text>
+          <View style={[styles.numberBox, styles.numberBoxCentered]}>
+            <Text style={styles.numberText}>{reps}</Text>
+          </View>
+        </View>
+      </View>
+      <View style={styles.navContainer}>
+        <Pressable
+          style={styles.navButton}
+          onPress={() => {
+            if (sets.currentSet > 1) {
+              setSets({ ...sets, currentSet: sets.currentSet - 1 });
+            } else {
+              console.log("Previous exercise");
+            }
+          }}
+        >
+          <Entypo name="arrow-bold-left" size={36} color="white" />
+        </Pressable>
+        <Pressable
+          style={styles.navButton}
+          onPress={() => {
+            if (sets.currentSet < totalSets) {
+              setSets({ ...sets, currentSet: sets.currentSet + 1 });
+            } else {
+              console.log("Next exercise");
+            }
+          }}
+        >
+          {sets.currentSet < totalSets ? (
+            <Entypo name="arrow-bold-right" size={36} color="white" />
+          ) : (
+            <Text style={styles.nextLiftText}>Next Lift</Text>
+          )}
+        </Pressable>
       </View>
     </View>
   );

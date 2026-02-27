@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View } from "react-native";
-import Svg, { Circle } from "react-native-svg";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import Svg, { Circle } from "react-native-svg";
 import { scheduleOnRN } from "react-native-worklets";
+import { weightPlateStyles as styles } from "../assets/styles/weightPlate.styles";
 
 interface WeightPlateProps {
   weight: number;
@@ -101,24 +102,3 @@ export const WeightPlate = ({
     </GestureDetector>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  plateWrapper: {
-    width: 80,
-    height: 80,
-    marginHorizontal: 15,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  weightText: {
-    fontFamily: "BebasNeue",
-    fontSize: 44,
-    color: "#0a0a0a",
-    letterSpacing: 1.32,
-    textAlign: "center",
-  },
-});

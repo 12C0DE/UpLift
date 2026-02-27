@@ -9,12 +9,11 @@ type BarbellDisplayProps = {
 
 const getPlateSize = (weight: number) => {
   const plateMap: Record<number, [number, number]> = {
-    35: [60, 22],
     45: [67, 22],
-    25: [54, 22],
-    10: [48, 16],
-    5: [42, 16],
-    2.5: [36, 12],
+    35: [60, 20],
+    25: [54, 18],
+    10: [48, 12],
+    5: [42, 8],
   };
 
   return plateMap[weight] || 48;
@@ -40,8 +39,8 @@ export const BarbellDisplay = ({
       </View>
       <View>
         <TextInput
-          keyboardType="number-pad"
-          maxLength={3}
+          keyboardType="numbers-and-punctuation"
+          maxLength={5}
           value={totalWeight.toString()}
           style={bbStyles.weightInput}
           onChangeText={(text) => weightChangeHandler(text)}

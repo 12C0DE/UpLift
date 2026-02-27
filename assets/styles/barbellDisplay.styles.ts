@@ -1,7 +1,7 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const barbellDisplayStyles = StyleSheet.create({
-    container: {
+  container: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -30,6 +30,6 @@ export const barbellDisplayStyles = StyleSheet.create({
     fontFamily: "BebasNeue",
     textAlign: "center",
     color: "#eee",
-    borderColor: "#262626"
-  }
-})
+    borderColor: "#262626",
+  },
+});

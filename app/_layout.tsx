@@ -1,7 +1,7 @@
-import { useEffect } from "react";
-import { useFonts, BebasNeue_400Regular } from "@expo-google-fonts/bebas-neue";
 import { BarlowSemiCondensed_400Regular_Italic } from "@expo-google-fonts/barlow-semi-condensed";
+import { BebasNeue_400Regular, useFonts } from "@expo-google-fonts/bebas-neue";
 import { SplashScreen, Stack } from "expo-router";
+import { useEffect } from "react";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,8 +22,8 @@ export default function RootLayout() {
   if (!loaded && !error) return null;
 
   return (
-  <Stack screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="tabs" />
-  </Stack>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="tabs" />
+    </Stack>
   );
 }
