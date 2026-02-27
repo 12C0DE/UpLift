@@ -23,7 +23,12 @@ export default function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="tabs" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="descriptionModal" options={{
+        presentation: "formSheet",
+        headerShown: true,
+        headerTitle: "Description"
+      }} />
     </Stack>
   );
 }

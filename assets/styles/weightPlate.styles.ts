@@ -11,7 +11,6 @@ export const weightPlateStyles = StyleSheet.create({
     marginHorizontal: 12,
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 4,
   },
   weightText: {
     fontFamily: "BebasNeue",

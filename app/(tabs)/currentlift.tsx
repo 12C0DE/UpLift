@@ -2,11 +2,13 @@ import { BarbellDisplay, WeightPlate } from "@/components";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { currentLiftStyles as styles } from "../../assets/index";
+import { currentLiftStyles as styles } from "@/assets";
 import { BAR_WEIGHT, WEIGHT_LIST } from "../utils/constants";
+import { router } from "expo-router";
 
 interface CurrentLiftProps {
   liftName: string;
+  desc: string;
   lastWeight?: number;
   totalSets: number;
 }
@@ -17,7 +19,8 @@ interface SetType {
 }
 
 export default function currentlift({
-  liftName,
+  liftName = "Bench",
+  desc = "Lay on a flat bench and press barbell to your chest and back up.",
   lastWeight = 255,
   totalSets = 4,
 }: CurrentLiftProps) {
@@ -47,10 +50,14 @@ export default function currentlift({
 
   const weightChangeTextHandler = (text: string) => {
     const numericValue = parseFloat(text);
-    if (numericValue >= 0 && numericValue <= 1000) {
-      setTotalWeight(numericValue);
-    } else {
+
+    if (numericValue >= 1000) return;
+
+    if (isNaN(numericValue) || numericValue < 0) {
       setTotalWeight(0);
+      return;
+    } else {
+      setTotalWeight(numericValue);
     }
   };
 
@@ -69,7 +76,23 @@ export default function currentlift({
     <View style={styles.container}>
       <View>
         <View style={styles.header}>
-          <Text style={styles.exerciseName}>{liftName || "Bench Press"}</Text>
+          <View style={{width: 16}}></View>
+          <Text style={styles.exerciseName}>{liftName}</Text>
+          <View>
+          <Pressable
+          style={styles.descButton}
+          hitSlop={24}
+          onPress={() => router.push({
+            pathname: "/descriptionModal" as any,
+            params: {
+              title: liftName,
+              description: desc
+            }
+          })}
+        >
+          <Entypo name="info-with-circle" size={18} color="#f5f5f5" />
+        </Pressable>
+        </View>
         </View>
         <View style={styles.weightSection}>
           <BarbellDisplay
@@ -126,7 +149,11 @@ export default function currentlift({
             }
           }}
         >
-          <Entypo name="arrow-bold-left" size={36} color="white" />
+          {sets.currentSet === 1 ? (
+            <Text style={styles.nextLiftText}>Prev Lift</Text>
+          ) : (
+            <Entypo name="arrow-bold-left" size={36} color="white" />
+          )}
         </Pressable>
         <Pressable
           style={styles.navButton}

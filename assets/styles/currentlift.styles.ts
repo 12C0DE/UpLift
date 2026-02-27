@@ -12,13 +12,23 @@ export const currentLiftStyles = StyleSheet.create({
   header: {
     paddingTop: 24,
     paddingBottom: 16,
+    flexDirection: "row",
+    flex: 1,
+    alignContent: 'center',
+    justifyContent: "center",
   },
+  descButton: {
+    color: "#f5f5f5",
+    marginRight: 4
+  },  
   exerciseName: {
     fontFamily: "BebasNeue",
     fontSize: 40,
     textAlign: "center",
     color: "#f5f5f5",
     letterSpacing: 1.2,
+    maxWidth: 350,
+    marginHorizontal: 8
   },
   weightSection: {
     paddingHorizontal: 16,
@@ -42,8 +52,8 @@ export const currentLiftStyles = StyleSheet.create({
     fontSize: 64,
     color: "#f9f9f9",
   },
-  lastWeightText: {
-    fontFamily: "BarlowSemiCondensed_Italic",
+  lastLift: {
+    // fontFamily: "BarlowSemiCondensed_Italic",
     fontSize: 14,
     fontStyle: "italic",
     textAlign: "center",
@@ -129,9 +139,9 @@ export const currentLiftStyles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     height: 77,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: "#404040",
+    // borderTopWidth: 1,
+    // borderBottomWidth: 1,
+    // borderColor: "#404040",
   },
   navButton: {
     padding: 16,
@@ -143,13 +153,5 @@ export const currentLiftStyles = StyleSheet.create({
     justifyContent: "space-evenly",
     gap: 4,
     paddingHorizontal: 40,
-  },
-  lastLift: {
-    fontFamily: "BarlowSemiCondensed_Italic",
-    fontSize: 14,
-    fontStyle: "italic",
-    textAlign: "center",
-    color: "#929292",
-    marginTop: 8,
   },
 });
