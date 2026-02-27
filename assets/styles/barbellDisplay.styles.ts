@@ -20,14 +20,14 @@ export const barbellDisplayStyles = StyleSheet.create({
     borderColor: "#797979",
     borderRadius: 2,
   },
-
-  WeightInput: {
+  weightInput: {
     borderWidth: 2,
     borderRadius: 5,
     width: "100%",
     maxWidth: 120,
     height: 70,
     fontSize: 50,
+    fontFamily: "BebasNeue",
     textAlign: "center",
     color: "#eee",
     borderColor: "#262626"

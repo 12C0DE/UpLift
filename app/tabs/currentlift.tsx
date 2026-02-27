@@ -78,11 +78,16 @@ export default function currentlift({
           weightChangeHandler={weightChangeTextHandler}
         />
       </View>
-      <WeightPlate
-        weight={45}
-        onSwipeDown={() => console.log("down")}
-        onSwipeUp={() => console.log("up")}
-      />
+      <View style={currentLiftStyles.weightsRow}>
+        {WEIGHT_LIST.toReversed().map((weight) => (
+          <WeightPlate
+            key={`w_${weight}`}
+            weight={weight}
+            onSwipeDown={() => weightChangeHandler(weight, "down")}
+            onSwipeUp={() => weightChangeHandler(weight, "up")}
+          />
+        ))}
+      </View>
     </View>
   );
 }

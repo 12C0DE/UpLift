@@ -129,4 +129,11 @@ export const styles = StyleSheet.create({
   navButton: {
     padding: 16,
   },
+  weightsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    gap: 8,
+  }
 });

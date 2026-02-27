@@ -33,23 +33,36 @@ export const WeightPlate = ({
       triggered.value = false;
     })
     .onUpdate((e) => {
-      const clamped = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, e.translationY * 0.3));
+      const clamped = Math.max(
+        -MAX_DRAG,
+        Math.min(MAX_DRAG, e.translationY * 0.3),
+      );
       translateY.value = clamped;
 
       if (!triggered.value) {
-        if (e.translationY < -SWIPE_THRESHOLD || e.velocityY < -VELOCITY_THRESHOLD) {
+        if (
+          e.translationY < -SWIPE_THRESHOLD ||
+          e.velocityY < -VELOCITY_THRESHOLD
+        ) {
           triggered.value = true;
           scheduleOnRN(onSwipeUp);
-        } else if (e.translationY > SWIPE_THRESHOLD || e.velocityY > VELOCITY_THRESHOLD) {
+        } else if (
+          e.translationY > SWIPE_THRESHOLD ||
+          e.velocityY > VELOCITY_THRESHOLD
+        ) {
           triggered.value = true;
           scheduleOnRN(onSwipeDown);
         }
       }
     })
     .onEnd(() => {
-      translateY.value = withSpring(0, { damping: 20, stiffness: 300, overshootClamping: true });
+      translateY.value = withSpring(0, {
+        damping: 20,
+        stiffness: 300,
+        overshootClamping: true,
+      });
     });
-    const tapGesture = Gesture.Tap()
+  const tapGesture = Gesture.Tap()
     .onBegin(() => {
       scale.value = withSpring(0.95);
     })
@@ -57,14 +70,14 @@ export const WeightPlate = ({
       scale.value = withSpring(1);
     });
 
-    const composed = Gesture.Simultaneous(gesture, tapGesture);
+  const composed = Gesture.Simultaneous(gesture, tapGesture);
 
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ translateY: translateY.value }, { scale: scale.value }]
-    }));
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
+  }));
 
-    return (
-        <GestureDetector gesture={composed}>
+  return (
+    <GestureDetector gesture={composed}>
       <Animated.View style={[styles.container, animatedStyle]}>
         <View style={styles.plateWrapper}>
           <Svg
@@ -86,7 +99,7 @@ export const WeightPlate = ({
         </View>
       </Animated.View>
     </GestureDetector>
-    )
+  );
 };
 
 const styles = StyleSheet.create({
@@ -97,6 +110,7 @@ const styles = StyleSheet.create({
   plateWrapper: {
     width: 80,
     height: 80,
+    marginHorizontal: 15,
     alignItems: "center",
     justifyContent: "center",
   },
