@@ -24,7 +24,7 @@ export default function CurrentLift({
   desc = "Lay on a flat bench and press barbell to your chest and back up.",
   lastWeight = 255,
   totalSets = 4,
-  reps = 5
+  reps = 5,
 }: CurrentLiftProps) {
   const [totalWeight, setTotalWeight] = useState(lastWeight || 285);
   const [sets, setSets] = useState<SetType>({
@@ -77,23 +77,25 @@ export default function CurrentLift({
     <View style={styles.container}>
       <View>
         <View style={styles.header}>
-          <View style={{width: 16}}></View>
+          <View style={{ width: 16 }}></View>
           <Text style={styles.exerciseName}>{liftName}</Text>
           <View>
-          <Pressable
-          style={styles.descButton}
-          hitSlop={24}
-          onPress={() => router.push({
-            pathname: "/descriptionModal" as any,
-            params: {
-              title: liftName,
-              description: desc
-            }
-          })}
-        >
-          <Entypo name="info-with-circle" size={18} color="#f5f5f5" />
-        </Pressable>
-        </View>
+            <Pressable
+              style={styles.descButton}
+              hitSlop={24}
+              onPress={() =>
+                router.push({
+                  pathname: "/descriptionModal" as any,
+                  params: {
+                    title: liftName,
+                    description: desc,
+                  },
+                })
+              }
+            >
+              <Entypo name="info-with-circle" size={18} color="#929292" />
+            </Pressable>
+          </View>
         </View>
         <View style={styles.weightSection}>
           <BarbellDisplay

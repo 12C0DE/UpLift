@@ -94,7 +94,7 @@ export default function Logs({
     if (item.type === "header") {
       return (
         <View style={[styles.row, styles.headerRow]}>
-          <TblCell width={COL_WORKOUT} header>
+          <TblCell width={COL_WORKOUT} header align="center">
             Workout
           </TblCell>
           <TblCell width={COL_SETS} header align="center">
@@ -103,33 +103,13 @@ export default function Logs({
           <TblCell width={COL_REPS} header align="center">
             Reps
           </TblCell>
-          <TblCell width={COL_DESC} header>
-            Desc
+          <TblCell width={COL_DESC} header align="center">
+            Description
           </TblCell>
-          {dates.map((date, idx) => (
-            <View
-              key={idx}
-              style={[styles.cell, styles.headerCell, { width: COL_WEIGHT }]}
-            >
-              <Text
-                style={[
-                  styles.cellText,
-                  styles.headerText,
-                  { textAlign: "center", fontSize: 10 },
-                ]}
-              >
-                Weight
-              </Text>
-              <Text
-                style={[
-                  styles.cellText,
-                  styles.headerText,
-                  { textAlign: "center" },
-                ]}
-              >
-                {date}
-              </Text>
-            </View>
+          {dates.map((_, idx) => (
+            <TblCell key={idx} width={COL_WEIGHT} header align="center">
+              {dates.length - idx}
+            </TblCell>
           ))}
         </View>
       );
@@ -144,7 +124,11 @@ export default function Logs({
             {item.title}
           </TblCell>
           <View
-            style={[styles.cell, styles.sectionCell, { width: remainingWidth }]}
+            style={[
+              styles.cell,
+              styles.sectionCell,
+              { width: COL_SETS + COL_REPS + COL_DESC },
+            ]}
           >
             <Text
               style={[
@@ -156,6 +140,16 @@ export default function Logs({
               {item.week}
             </Text>
           </View>
+          {dates.map((dt, idx) => (
+            <TblCell
+              key={`dt_${idx}`}
+              width={COL_WEIGHT}
+              section
+              align="center"
+            >
+              {dt}
+            </TblCell>
+          ))}
         </View>
       );
     }

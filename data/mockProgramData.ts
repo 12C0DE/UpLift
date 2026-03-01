@@ -12,22 +12,20 @@ export const mockData = {
           reps: "5",
           description:
             "SIT BACK AND DOWN. 15° TOE FLARE, DRIVE YOUR KNEES OUT LATERALLY",
-          weights: [185, 225],
+          weights: [185, 225, 100, 120, 156],
         },
         {
           name: "Romanian Deadlift",
           sets: 2,
           reps: "8-10",
-          description:
-            "FOCUS ON KEEPING YOUR BACK FLAT, FEEL THE STRETCH IN YOUR HAMSTRINGS DURING THE ECCENTRIC",
-          weights: [null, null],
+          description: "FOCUS ON KEEPING YOUR BACK FLAT",
+          weights: [null, null, null, null, null],
         },
         {
           name: "Cable Pull Thru",
           sets: 2,
           reps: "10-12",
-          description:
-            "FOCUS ON THRUSTING YOUR HIPS FORWARD AND SQUEEZING YOUR GLUTES",
+          description: "",
           weights: [null, null],
         },
         {
