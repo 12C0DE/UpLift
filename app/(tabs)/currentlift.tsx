@@ -1,16 +1,17 @@
+import { currentLiftStyles as styles } from "@/assets";
 import { BarbellDisplay, WeightPlate } from "@/components";
 import Entypo from "@expo/vector-icons/Entypo";
+import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { currentLiftStyles as styles } from "@/assets";
 import { BAR_WEIGHT, WEIGHT_LIST } from "../utils/constants";
-import { router } from "expo-router";
 
 interface CurrentLiftProps {
   liftName: string;
   desc: string;
   lastWeight?: number;
   totalSets: number;
+  reps?: number;
 }
 
 interface SetType {
@@ -18,14 +19,14 @@ interface SetType {
   currentSet: number;
 }
 
-export default function currentlift({
+export default function CurrentLift({
   liftName = "Bench",
   desc = "Lay on a flat bench and press barbell to your chest and back up.",
   lastWeight = 255,
   totalSets = 4,
+  reps = 5
 }: CurrentLiftProps) {
   const [totalWeight, setTotalWeight] = useState(lastWeight || 285);
-  const [reps, setReps] = useState(5);
   const [sets, setSets] = useState<SetType>({
     totalSets,
     currentSet: 1,
