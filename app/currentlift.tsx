@@ -4,7 +4,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { BAR_WEIGHT, WEIGHT_LIST } from "../utils/constants";
+import { BAR_WEIGHT, WEIGHT_LIST } from "@/utils";
 
 interface CurrentLiftProps {
   liftName: string;
