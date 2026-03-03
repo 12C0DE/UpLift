@@ -7,7 +7,7 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
 import { scheduleOnRN } from "react-native-worklets";
-import { weightPlateStyles as styles } from "../assets/styles/weightPlate.styles";
+import { weightPlateStyles as styles } from '@/assets';
 
 interface WeightPlateProps {
   weight: number;

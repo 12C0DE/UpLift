@@ -4,7 +4,7 @@ export const currentLiftStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0a0a0a",
-    maxWidth: 400,
+    // maxWidth: 400,
     alignSelf: "center",
     width: "100%",
     justifyContent: "space-between",
@@ -150,8 +150,10 @@ export const currentLiftStyles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
-    justifyContent: "space-evenly",
+    justifyContent: "center",
+    marginHorizontal: "auto",
     gap: 4,
     paddingHorizontal: 40,
+    maxWidth: 400
   },
 });

@@ -52,7 +52,7 @@ export default function CurrentLift({
   const weightChangeTextHandler = (text: string) => {
     const numericValue = parseFloat(text);
 
-    if (numericValue >= 1000) return;
+    if (numericValue >= 1999) return;
 
     if (isNaN(numericValue) || numericValue < 0) {
       setTotalWeight(0);

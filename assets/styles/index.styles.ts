@@ -1,0 +1,91 @@
+import { StyleSheet } from "react-native";
+
+export const indexStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#0a0a0a",
+    alignSelf: "center",
+    width: "100%",
+    justifyContent: "space-evenly",
+    paddingBottom: 24,
+  },
+  header: {
+    paddingTop: 24,
+    paddingBottom: 16,
+    flexDirection: "row",
+    flex: 1,
+    alignContent: "center",
+    justifyContent: "center",
+  },
+  title: {
+    fontFamily: "BebasNeue",
+    fontSize: 40,
+    textAlign: "center",
+    color: "#f5f5f5",
+    letterSpacing: 1.2,
+    maxWidth: 350,
+    marginHorizontal: 8,
+    marginBottom: 24,
+  },
+  subText: {
+    fontFamily: "italicFont",
+    fontSize: 12,
+    textAlign: "center",
+    color: "#929292",
+    marginBottom: 16,
+  },
+  progButton: {
+    width: "60%",
+    paddingVertical: 16,
+    backgroundColor: "#f6a800",
+    color: "#0a0a0a",
+    marginHorizontal: "auto",
+    marginBottom: 32,
+  },
+  progLayout: {
+    // flex: 1,
+    // flexDirection: "row",
+    gap: 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rowLayout: {
+    flex: 1,
+    flexDirection: "row",
+    alignContent: "center",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  progText: {
+    fontFamily: "BebasNeue",
+    fontSize: 24,
+  },
+  workoutText: {
+    fontSize: 18,
+    fontWeight: 600,
+    marginBottom: 12,
+  },
+  otherButtonsContainer: {
+    flex: 1,
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    justifyContent: "space-between",
+    marginBottom: 8,
+    width: "60%",
+    marginHorizontal: "auto",
+  },
+  otherButton: {
+    backgroundColor: "#262626",
+    width: "48%",
+    justifyContent: "center",
+  },
+  otherButtonText: {
+    fontSize: 16,
+    color: "#f5f5f5",
+    fontFamily: "BebasNeue",
+  },
+  otherButtonLayout: {
+    alignItems: "center",
+    gap: 4,
+  },
+});
