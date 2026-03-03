@@ -21,7 +21,7 @@ const index = () => {
                 <Text style={styles.progText}>Start Workout</Text>
               </View>
               <View>
-                <Text style={styles.workoutText}>-- {prog.name} --</Text>
+                <Text style={styles.workoutText}>{`-- ${prog.name} --`}</Text>
               </View>
               <View>
                 <Text
@@ -34,7 +34,6 @@ const index = () => {
                   Last lift: {prog.lastWorkout}
                 </Text>
               </View>
-              <View></View>
             </View>
           </Pressable>
         ))}
@@ -53,6 +52,7 @@ const index = () => {
           </View>
         </Pressable>
       </View>
+      <View style={{height: 65}}/>
     </View>
   );
 };
