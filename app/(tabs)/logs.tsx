@@ -4,26 +4,7 @@ import { mockData } from "@/data/mockProgramData";
 import { FlashList } from "@shopify/flash-list";
 import React, { useRef } from "react";
 import { ScrollView, Text, View } from "react-native";
-
-interface Exercise {
-  name: string;
-  sets: number;
-  reps: string;
-  description: string;
-  weights: (number | null)[];
-}
-
-interface WorkoutSection {
-  title: string;
-  week: string;
-  exercises: Exercise[];
-}
-
-interface WorkoutLogProps {
-  programName: string;
-  dates: string[];
-  sections: WorkoutSection[];
-}
+import { Exercise, WorkoutSection, WorkoutLogProps } from "@/types";
 
 type HeaderRow = { type: "header" };
 type SectionRow = {

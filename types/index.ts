@@ -1,1 +1,1 @@
-export * from './ProgramType';
+export * from './types';

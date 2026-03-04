@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { View } from "react-native";
 import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
+import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -47,7 +48,7 @@ export default function TabsLayout() {
           if (route.name === "index") title = "Home";
           else if (route.name === "currentlift") title = "Current Lift";
           else if (route.name === "logs") title = "Logs";
-          else if (route.name === "settings") title = "Settings";
+          else if (route.name === "programs") title = "Programs";
           return (
             <Animated.Text entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)} style={{ color, fontSize: 12, fontWeight: 500, textWrap: "nowrap" }}>
               {title}
@@ -65,6 +66,19 @@ export default function TabsLayout() {
               key="index"
             >
               <Ionicons name="home" size={size} color={color} />
+            </AnimatedView>
+          ),
+        }}
+      />
+       <Tabs.Screen
+        name="programs"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <AnimatedView
+              layout={LinearTransition.springify().mass(0.8)}
+              key="settings"
+            >
+              <SimpleLineIcons name="notebook" size={size} color={color} />
             </AnimatedView>
           ),
         }}
@@ -91,19 +105,6 @@ export default function TabsLayout() {
               key="logs"
             >
               <Ionicons name="calendar-outline" size={size} color={color} />
-            </AnimatedView>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <AnimatedView
-              layout={LinearTransition.springify().mass(0.8)}
-              key="settings"
-            >
-              <Ionicons name="settings" size={size} color={color} />
             </AnimatedView>
           ),
         }}
