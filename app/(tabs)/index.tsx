@@ -13,7 +13,7 @@ const index = () => {
       </View>
       <View>
         <Text style={styles.subText}>Recently used</Text>
-        {mockPrograms.map((prog) => (
+        {mockPrograms.slice(0, 3).map((prog) => (
           <Pressable key={prog.id} style={styles.progButton}>
             <View style={styles.progLayout}>
               <View style={styles.rowLayout}>

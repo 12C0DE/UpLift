@@ -2,6 +2,7 @@ export interface ProgramType {
   id: string;
   name: string;
   lastWorkout?: string;
+  totalWorkouts?: number;
 }
 
 export interface Exercise {
