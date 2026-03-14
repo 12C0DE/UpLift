@@ -1,8 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
+import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import { Tabs } from "expo-router";
 import { View } from "react-native";
-import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
-import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -38,7 +42,7 @@ export default function TabsLayout() {
           flexDirection: "row",
           justifyContent: "center",
           alignItems: "center",
-          marginHorizontal: 10
+          marginHorizontal: 10,
         },
         tabBarInactiveTintColor: "#999",
         tabBarActiveTintColor: "white",
@@ -50,7 +54,11 @@ export default function TabsLayout() {
           else if (route.name === "logs") title = "Logs";
           else if (route.name === "programs") title = "Programs";
           return (
-            <Animated.Text entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)} style={{ color, fontSize: 12, fontWeight: 500, textWrap: "nowrap" }}>
+            <Animated.Text
+              entering={FadeIn.duration(200)}
+              exiting={FadeOut.duration(200)}
+              style={{ color, fontSize: 12, fontWeight: 500 }}
+            >
               {title}
             </Animated.Text>
           );
@@ -70,7 +78,7 @@ export default function TabsLayout() {
           ),
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="programs"
         options={{
           tabBarIcon: ({ color, size }) => (
