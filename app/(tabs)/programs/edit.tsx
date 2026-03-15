@@ -1,7 +1,10 @@
-import { ProgramsStylesheet as styles } from "@/assets";
+// import { ProgramsStylesheet as styles } from "@/assets";
+import { EditProgramStyles as styles } from "@/assets";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
+import { TextInput } from "react-native-gesture-handler";
+import { v4 as uuidv4 } from "uuid";
 
 interface Exercise {
   name: string;
@@ -43,7 +46,8 @@ const EditProgram = ({
 
   useEffect(() => {
     navigation.setOptions({
-      title: id ? "Edit Program" : "Create Program",
+      // title: id ? "Edit Program" : "Create Program",
+      title: "Back",
     });
   }, [id]);
 
@@ -100,17 +104,36 @@ const EditProgram = ({
     setSections(newSections);
   };
 
-  const handleSave = () => {};
+  const handleSave = () => {
+    if (!programName.trim()) {
+      return;
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.header}>
-        <Text style={styles.title}>Edit Program</Text>
-      </View> */}
+      <View style={styles.header}>
+        <Text style={styles.title}>
+          {existingProgram ? "Edit Program" : "Create Program"}
+        </Text>
+        <TextInput
+          style={styles.programName}
+          value={programName}
+          onChangeText={setProgramName}
+          placeholder="Program Name"
+          placeholderTextColor="#888"
+        />
+      </View>
+      <View style={styles.sectionsContainer}>
+        {sections.map((section, index) => (
+          <View key={uuidv4()} style={styles.section}>
+            <View style={styles.rowLayout}></View>
+          </View>
+        ))}
+      </View>
     </View>
   );
 };
-
 export default EditProgram;
 
 // import { useLocalSearchParams, useNavigation } from "expo-router";
