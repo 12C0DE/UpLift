@@ -23,7 +23,7 @@ export default function TabsLayout() {
           height: 60,
           minWidth: 250,
           maxWidth: 500,
-          width: "40%",
+          width: "50%",
           marginHorizontal: "auto",
           paddingHorizontal: 30,
           paddingVertical: 8,
