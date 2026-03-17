@@ -257,6 +257,22 @@ const EditProgram = ({
           </Pressable>
         </View>
       </ScrollView>
+      <View style={styles.footer}>
+        <Pressable
+          style={[styles.footerBtn, styles.footerCancelBtn]}
+          onPress={onCancel}
+        >
+          <Text style={[styles.footerBtnText, { color: "#f6f6f6" }]}>
+            Cancel
+          </Text>
+        </Pressable>
+        <Pressable
+          style={[styles.footerBtn, styles.footerSaveBtn]}
+          onPress={handleSave}
+        >
+          <Text style={[styles.footerBtnText, { color: "#0a0a0a" }]}>Save</Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
