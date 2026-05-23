@@ -6,6 +6,7 @@ import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { Text } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -29,24 +30,34 @@ export default function RootLayout() {
   if (!loaded && !error) return null;
 
   //db checks
-  if (dbError) return <Text>Migration error: {dbError.message}</Text>
-  if (!success) return null; // db still running
+  if (dbError) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Text>Migration error: {dbError.message}</Text>
+      </GestureHandlerRootView>
+    );
+  }
+  if (!success) {
+    return <GestureHandlerRootView style={{ flex: 1 }} />;
+  } // db still running
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {/* the tabs navigator is one screen in the parent stack */}
-      <Stack.Screen name="(tabs)" />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* the tabs navigator is one screen in the parent stack */}
+        <Stack.Screen name="(tabs)" />
 
-      {/* a bottom‑up presentation for a form/modal */}
-      <Stack.Screen
-        name="descriptionModal"
-        options={{
-          presentation: "modal", // or "formSheet" on iOS
-          gestureEnabled: true,
-          headerShown: true,
-          headerTitle: "Description",
-        }}
-      />
-    </Stack>
+        {/* a bottom‑up presentation for a form/modal */}
+        <Stack.Screen
+          name="descriptionModal"
+          options={{
+            presentation: "modal", // or "formSheet" on iOS
+            gestureEnabled: true,
+            headerShown: true,
+            headerTitle: "Description",
+          }}
+        />
+      </Stack>
+    </GestureHandlerRootView>
   );
 }

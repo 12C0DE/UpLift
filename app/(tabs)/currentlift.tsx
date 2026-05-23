@@ -1,10 +1,11 @@
 import { currentLiftStyles as styles } from "@/assets";
 import { BarbellDisplay, WeightPlate } from "@/components";
+import { BAR_WEIGHT, WEIGHT_LIST } from "@/utils";
 import Entypo from "@expo/vector-icons/Entypo";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { BAR_WEIGHT, WEIGHT_LIST } from "@/utils";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface CurrentLiftProps {
   liftName: string;
@@ -74,7 +75,7 @@ export default function CurrentLift({
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View>
         <View style={styles.header}>
           <View style={{ width: 16 }}></View>
@@ -175,6 +176,6 @@ export default function CurrentLift({
           )}
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

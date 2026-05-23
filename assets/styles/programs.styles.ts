@@ -86,4 +86,11 @@ export const ProgramsStylesheet = StyleSheet.create({
     marginHorizontal: "auto",
     marginBottom: 32,
   },
+  errorText: {
+    fontFamily: "subHeaderText",
+    fontSize: 18,
+    color: "#f44336",
+    textAlign: "center",
+    marginTop: 32,
+  }
 });

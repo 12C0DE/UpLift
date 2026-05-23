@@ -19,7 +19,7 @@ export const indexStyles = StyleSheet.create({
   },
   title: {
     fontFamily: "BebasNeue",
-    fontSize: 40,
+    fontSize: 64,
     textAlign: "center",
     color: "#f5f5f5",
     letterSpacing: 1.2,
@@ -41,6 +41,7 @@ export const indexStyles = StyleSheet.create({
     color: "#0a0a0a",
     marginHorizontal: "auto",
     marginBottom: 32,
+    maxHeight: 100
   },
   progLayout: {
     // flex: 1,
@@ -78,6 +79,7 @@ export const indexStyles = StyleSheet.create({
     backgroundColor: "#262626",
     width: "48%",
     justifyContent: "center",
+    maxHeight: 100
   },
   otherButtonText: {
     fontSize: 16,

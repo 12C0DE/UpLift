@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
+import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import { Tabs } from "expo-router";
 import { View } from "react-native";
 import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
-import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -17,12 +17,12 @@ export default function TabsLayout() {
           justifyContent: "center",
           alignSelf: "center",
           height: 60,
-          minWidth: 250,
-          maxWidth: 500,
-          width: "40%",
+          minWidth: 300,
+          maxWidth: 700,
+          width: "60%",
           marginHorizontal: "auto",
           paddingHorizontal: 30,
-          paddingVertical: 8,
+          paddingVertical: 16,
           borderRadius: 40,
           borderWidth: 1,
           borderTopWidth: 1,

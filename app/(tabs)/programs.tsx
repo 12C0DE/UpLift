@@ -1,12 +1,17 @@
 import { ProgramsStylesheet as styles } from "@/assets";
 import { mockProgramSimpleData as mockData } from "@/data";
-import { WorkoutSection } from "@/types";
+import { getPrograms } from "@/db/queries/programs";
 import Entypo from "@expo/vector-icons/Entypo";
+import { useEffect, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Program {
-  programName: string;
-  sections: WorkoutSection[];
+  id: string;
+  name: string;
+  createdAt: string;
+  modifiedAt: string;
+  lastWorkout?: string;
 }
 
 interface ProgramsPageProps {
@@ -16,9 +21,35 @@ interface ProgramsPageProps {
   onBack: () => void;
 }
 
-const programs = () => {
+const Programs = () => {
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [ isError, setIsError ] = useState(false);
+
+  useEffect(() =>{
+    const fetchPrograms = async () => {
+      try {
+        const programsData = await getPrograms();
+        setPrograms(programsData);
+      } catch (error) {
+        setIsError(true);
+        console.error("Error fetching programs:", error);
+      }
+    };
+
+    fetchPrograms();
+  }, []);
+
+  if (isError) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Failed to load programs. Please try again later.</Text>
+      </View>
+    )
+  }
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+    {/* <View style={styles.container}> */}
       <View style={styles.header}>
         <Text style={styles.title}>Programs</Text>
       </View>
@@ -56,8 +87,8 @@ const programs = () => {
         keyExtractor={(item) => item.id}
       />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
-export default programs;
+export default Programs;

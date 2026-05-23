@@ -1,13 +1,14 @@
-import { Pressable, Text, View } from "react-native";
 import { indexStyles as styles } from "@/assets";
-import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
-import Entypo from "@expo/vector-icons/Entypo";
-import { Ionicons } from "@expo/vector-icons";
 import { mockProgramSimpleData as mockPrograms } from "@/data";
+import { Ionicons } from "@expo/vector-icons";
+import Entypo from "@expo/vector-icons/Entypo";
+import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import { Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const index = () => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Uplift</Text>
       </View>
@@ -53,7 +54,7 @@ const index = () => {
         </Pressable>
       </View>
       <View style={{height: 65}}/>
-    </View>
+    </SafeAreaView>
   );
 };
 
