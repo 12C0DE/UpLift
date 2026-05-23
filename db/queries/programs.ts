@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { db } from '../index';
 import { programs } from '../schema';
 
@@ -6,9 +6,15 @@ export const getPrograms = async () => {
     return await db.select().from(programs);
 }
 
-export const getProgramById = (id: string) => {
-    return db.select().from(programs).where(eq(programs.id, id)).get();
+export const getRecentPrograms = async (limit: number = 3) => {
+    return await db.select().from(programs)
+    .orderBy(desc(programs.modifiedAt))
+    .limit(limit);
 }
+
+export const getProgramById = (id: string) => {
+        return db.select().from(programs).where(eq(programs.id, id)).get();
+    }
 
 export const createProgram = (id: string, name: string) => {
     const createDate = new Date().toISOString();

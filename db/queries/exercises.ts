@@ -24,7 +24,8 @@ export const createExercise = async (workoutId: string, name: string, sets?: num
 
 export const updateExercise = async (id: string, name: string, sets?: number, reps?: number, description?: string, orderIndex?: number) => {
     return await db.update(exercises)
-        .set({ name, sets, reps, description, orderIndex, modifiedAt: new Date().toISOString() });
+        .set({ name, sets, reps, description, orderIndex, modifiedAt: new Date().toISOString() })
+        .where(eq(exercises.id, id));
 }
 
 export const deleteExercise = (id: string) => {

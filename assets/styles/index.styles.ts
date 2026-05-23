@@ -34,6 +34,13 @@ export const indexStyles = StyleSheet.create({
     color: "#929292",
     marginBottom: 16,
   },
+  emptyProg: {
+    width: "60%",
+    paddingVertical: 16,
+    marginHorizontal: "auto",
+    marginBottom: 32,
+    height: 70
+  },
   progButton: {
     width: "60%",
     paddingVertical: 16,

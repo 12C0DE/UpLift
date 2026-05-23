@@ -8,6 +8,7 @@ export const currentLiftStyles = StyleSheet.create({
     alignSelf: "center",
     width: "100%",
     justifyContent: "space-between",
+    maxHeight: 700
   },
   header: {
     paddingTop: 24,

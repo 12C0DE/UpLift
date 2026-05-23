@@ -1,20 +1,21 @@
 import { ProgramsStylesheet as styles } from "@/assets";
-import { mockProgramSimpleData as mockData } from "@/data";
 import { getPrograms } from "@/db/queries/programs";
 import Entypo from "@expo/vector-icons/Entypo";
-import { useEffect, useState } from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
+import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-interface Program {
+export interface Program {
   id: string;
   name: string;
   createdAt: string;
   modifiedAt: string;
+  totalWorkouts?: number;
   lastWorkout?: string;
 }
 
-interface ProgramsPageProps {
+export interface ProgramsPageProps {
   programs: Program[];
   onCreateProgram: () => void;
   onSelectProgram: (programId: string) => void;
@@ -23,21 +24,38 @@ interface ProgramsPageProps {
 
 const Programs = () => {
   const [programs, setPrograms] = useState<Program[]>([]);
-  const [ isError, setIsError ] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
-  useEffect(() =>{
-    const fetchPrograms = async () => {
-      try {
-        const programsData = await getPrograms();
-        setPrograms(programsData);
-      } catch (error) {
-        setIsError(true);
-        console.error("Error fetching programs:", error);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
 
-    fetchPrograms();
-  }, []);
+      const fetchPrograms = async () => {
+        setIsLoading(true);
+        setIsError(false);
+
+        try {
+          const programsData = await getPrograms();
+          if (!isActive) return;
+          setPrograms(programsData);
+        } catch (error) {
+          if (!isActive) return;
+          setIsError(true);
+          console.error("Error fetching programs:", error);
+        } finally {
+          if (!isActive) return;
+          setIsLoading(false);
+        }
+      };
+
+      fetchPrograms();
+
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
 
   if (isError) {
     return (
@@ -47,45 +65,61 @@ const Programs = () => {
     )
   }
 
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <ActivityIndicator size="large" color="white" />
+          <Text style={[styles.subText, { marginTop: 12 }]}>Loading programs...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-    {/* <View style={styles.container}> */}
       <View style={styles.header}>
         <Text style={styles.title}>Programs</Text>
       </View>
       <Pressable style={styles.addButton}>
-        <View style={styles.addLayout}>
+        {/* <View style={styles.addLayout}> */}
           <View style={styles.rowLayout}>
             <Entypo name="plus" size={36} color="black" />
             <Text style={styles.addText}>Create New Program</Text>
-          </View>
+          {/* </View> */}
         </View>
       </Pressable>
-      <Text style={styles.headerText}>Your Programs</Text>
-      <View style={{height: "65%", paddingBottom: 48}}>
-      <FlatList
-        data={mockData}
-        renderItem={({ item }) => (
-          <Pressable key={item.id} style={styles.progButton}>
-            <View style={styles.rowLayout}>
-              <View style={styles.colLayout}>
-                <Text style={styles.progText}>{item.name}</Text>
-                <Text style={styles.subText}>
-                  {item.totalWorkouts &&
-                    `${item.totalWorkouts} workouts logged`}
-                </Text>
-                <Text style={styles.subText}>
-                  {item.lastWorkout && `Last workout: ${item.lastWorkout}`}
-                </Text>
-              </View>
-              <View>
-                <Entypo name="chevron-right" size={32} color="white" />
-              </View>
-            </View>
-          </Pressable>
+      <View style={{ height: "65%", paddingBottom: 48 }}>
+        {programs.length === 0 && (
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+            <Text numberOfLines={2} style={styles.subText}>
+              {`No programs found.\nCreate your first program to get started!`}
+            </Text>
+          </View>
         )}
-        keyExtractor={(item) => item.id}
-      />
+        <FlatList
+          data={programs}
+          renderItem={({ item }) => (
+            <Pressable key={item.id} style={styles.progButton}>
+              <View style={styles.rowLayout}>
+                <View style={styles.colLayout}>
+                  <Text style={styles.progText}>{item.name}</Text>
+                  <Text style={styles.subText}>
+                    {Boolean(item.totalWorkouts) &&
+                      `${item.totalWorkouts} workouts logged`}
+                  </Text>
+                  <Text style={styles.subText}>
+                    {Boolean(item.lastWorkout) && `Last workout: ${item.lastWorkout}`}
+                  </Text>
+                </View>
+                <View>
+                  <Entypo name="chevron-right" size={32} color="white" />
+                </View>
+              </View>
+            </Pressable>
+          )}
+          keyExtractor={(item) => item.id}
+        />
       </View>
     </SafeAreaView>
   );

@@ -4,6 +4,7 @@ import { BarlowSemiCondensed_400Regular, BarlowSemiCondensed_400Regular_Italic, 
 import { BebasNeue_400Regular, useFonts } from "@expo-google-fonts/bebas-neue";
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { SplashScreen, Stack } from "expo-router";
+import { openDatabaseAsync } from 'expo-sqlite';
 import { useEffect } from "react";
 import { Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -24,10 +25,19 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded || error) SplashScreen.hideAsync();
-  }, [loaded, error]);
+    if ((loaded || error) && (success || dbError)) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error, success, dbError]);
 
-  if (!loaded && !error) return null;
+  useEffect(() => {
+    if (!__DEV__) return;
+
+    // Open the same DB in async mode in dev so Expo SQLite inspector can attach.
+    void openDatabaseAsync("uplift.db");
+  }, []);
+
+  if ((!loaded && !error) || !success) return null;
 
   //db checks
   if (dbError) {

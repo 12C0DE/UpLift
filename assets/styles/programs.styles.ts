@@ -34,6 +34,7 @@ export const ProgramsStylesheet = StyleSheet.create({
     color: "#0a0a0a",
     marginHorizontal: "auto",
     marginBottom: 32,
+    height: 70
   },
   addLayout: {
     gap: 2,
@@ -59,6 +60,7 @@ export const ProgramsStylesheet = StyleSheet.create({
   addText: {
     fontFamily: "BebasNeue",
     fontSize: 24,
+    color: "#0a0a0a",
   },
   headerText: {
     fontFamily: "subHeaderText",
