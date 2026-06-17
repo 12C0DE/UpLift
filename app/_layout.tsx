@@ -34,7 +34,7 @@ export default function RootLayout() {
     if (!__DEV__) return;
 
     // Open the same DB in async mode in dev so Expo SQLite inspector can attach.
-    void openDatabaseAsync("uplift.db");
+    void openDatabaseAsync("uplift.db", { enableChangeListener: true });
   }, []);
 
   if ((!loaded && !error) || !success) return null;

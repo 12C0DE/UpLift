@@ -1,14 +1,19 @@
 import { EditProgramStyles as styles } from "@/assets";
+import {
+  createProgram,
+  getProgramById,
+  updateProgram,
+} from "@/db/queries/programs";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from "@expo/vector-icons/Feather";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 
 interface Exercise {
   name: string;
-  sets: number;
+  sets: number | null;
   reps: string;
   description: string;
 }
@@ -24,12 +29,6 @@ interface ProgramData {
   sections: WorkoutSection[];
 }
 
-interface CreateEditProgramProps {
-  existingProgram?: ProgramData;
-  onSave: (program: ProgramData) => void;
-  onCancel: () => void;
-}
-
 const defaultExercise: Exercise = {
   name: "",
   sets: 1,
@@ -43,25 +42,35 @@ const defaultWoSection: WorkoutSection = {
   exercises: [defaultExercise],
 };
 
-const EditProgram = ({
-  existingProgram,
-  onSave,
-  onCancel,
-}: CreateEditProgramProps) => {
-  const { id } = useLocalSearchParams();
+const EditProgram = () => {
+  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
+  const programId = Array.isArray(id) ? id[0] : id;
   const navigation = useNavigation();
-  const [programName, setProgramName] = useState(
-    existingProgram?.programName || "",
-  );
-  const [sections, setSections] = useState<WorkoutSection[]>(
-    existingProgram?.sections || [defaultWoSection],
-  );
+  const [programName, setProgramName] = useState("");
+  const [sections, setSections] = useState<WorkoutSection[]>([defaultWoSection]);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({
       title: "Back",
     });
-  }, [id]);
+  }, [navigation, programId]);
+
+  useEffect(() => {
+    const loadProgram = async () => {
+      if (!programId) return;
+
+      try {
+        const program = await getProgramById(programId);
+        if (!program) return;
+        setProgramName(program.name);
+      } catch (error) {
+        console.error("Error loading program:", error);
+      }
+    };
+
+    void loadProgram();
+  }, [programId]);
 
   //* SECTION Handlers
 
@@ -131,17 +140,42 @@ const EditProgram = ({
     setSections(newSections);
   };
 
-  const handleSave = () => {
+  const onSave = async (program: ProgramData) => {
+    setIsSaving(true);
+
+    try {
+      if (programId) {
+        await updateProgram(programId, program.programName);
+      } else {
+        await createProgram(program.programName);
+      }
+
+      router.back();
+    } catch (error) {
+      console.error("Error saving program:", error);
+      Alert.alert("Save failed", "Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSave = async () => {
     if (!programName.trim()) {
       return;
     }
+
+    const programData: ProgramData = {
+      programName: programName.trim(),
+      sections,
+    };
+    await onSave(programData);
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>
-          {existingProgram ? "Edit Program" : "Create Program"}
+          {programId ? "Edit Program" : "Create Program"}
         </Text>
         <TextInput
           style={styles.programName}
@@ -165,12 +199,20 @@ const EditProgram = ({
                   <TextInput
                     style={styles.sectionInput}
                     value={section.title}
+                    onChangeText={(text) => {
+                      const updatedSection = { ...section, title: text };
+                      updateSectionHandler(sectionIdx, updatedSection);
+                    }}
                     placeholder="Workout Title"
                     placeholderTextColor={"#7a7a7a"}
                   />
                   <TextInput
                     style={styles.sectionInput}
                     value={section.week}
+                    onChangeText={(text) => {
+                      const updatedSection = { ...section, week: text };
+                      updateSectionHandler(sectionIdx, updatedSection);
+                    }}
                     placeholder="Week (optional)"
                     placeholderTextColor={"#7a7a7a"}
                   />
@@ -190,6 +232,14 @@ const EditProgram = ({
                       <TextInput
                         style={styles.exerciseInput}
                         value={exercise.name}
+                        onChangeText={(text) => {
+                          const updatedExercise = { ...exercise, name: text };
+                          updateExerciseHandler(
+                            sectionIdx,
+                            exerciseIdx,
+                            updatedExercise,
+                          );
+                        }}
                         placeholder="Exercise Name"
                         placeholderTextColor={"rgb(122, 122, 122)"}
                       />
@@ -209,7 +259,16 @@ const EditProgram = ({
                         <TextInput
                           keyboardType="number-pad"
                           style={styles.exerciseInput}
-                          value={exercise.sets.toString()}
+                          value={exercise.sets?.toString() ?? ""}
+                          onChangeText={(text) => {
+                            const sets = Number.parseInt(text) || null;
+                            const updatedExercise = { ...exercise, sets };
+                            updateExerciseHandler(
+                              sectionIdx,
+                              exerciseIdx,
+                              updatedExercise,
+                            );
+                          }}
                           placeholder="Sets"
                           placeholderTextColor={"#7a7a7a"}
                         />
@@ -219,7 +278,15 @@ const EditProgram = ({
                         <TextInput
                           style={styles.exerciseInput}
                           keyboardType="number-pad"
-                          value={exercise.reps}
+                          value={exercise.reps?.toString() ?? ""}
+                          onChangeText={(text) => {
+                            const updatedExercise = { ...exercise, reps: text };
+                            updateExerciseHandler(
+                              sectionIdx,
+                              exerciseIdx,
+                              updatedExercise,
+                            );
+                          }}
                           placeholder="8-10"
                           placeholderTextColor={"#7a7a7a"}
                         />
@@ -229,6 +296,14 @@ const EditProgram = ({
                       style={styles.exerciseInput}
                       numberOfLines={2}
                       value={exercise.description}
+                      onChangeText={(text) => {
+                        const updatedExercise = { ...exercise, description: text };
+                        updateExerciseHandler(
+                          sectionIdx,
+                          exerciseIdx,
+                          updatedExercise,
+                        );
+                      }}
                       placeholder="Description"
                       placeholderTextColor={"#7a7a7a"}
                     />
@@ -260,7 +335,7 @@ const EditProgram = ({
       <View style={styles.footer}>
         <Pressable
           style={[styles.footerBtn, styles.footerCancelBtn]}
-          onPress={onCancel}
+          onPress={() => router.back()}
         >
           <Text style={[styles.footerBtnText, { color: "#f6f6f6" }]}>
             Cancel
@@ -269,8 +344,11 @@ const EditProgram = ({
         <Pressable
           style={[styles.footerBtn, styles.footerSaveBtn]}
           onPress={handleSave}
+          disabled={isSaving}
         >
-          <Text style={[styles.footerBtnText, { color: "#0a0a0a" }]}>Save</Text>
+          <Text style={[styles.footerBtnText, { color: "#0a0a0a" }]}>
+            {isSaving ? "Saving..." : "Save"}
+          </Text>
         </Pressable>
       </View>
     </View>

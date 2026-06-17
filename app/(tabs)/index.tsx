@@ -10,6 +10,7 @@ import { Program } from "./programs";
 
 const MIN_RECENT_PROGRAM_SLOTS = 3;
 
+//* Programs Index Page
 const Index = () => {
   const [recentPrograms, setRecentPrograms] = useState<Program[]>([]);
   const emptySlotsNeeded = Math.max(

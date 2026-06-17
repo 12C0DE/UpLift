@@ -1,9 +1,11 @@
 import { desc, eq } from 'drizzle-orm';
 import { db } from '../index';
 import { programs } from '../schema';
+import { createUuid } from '../uuid';
 
 export const getPrograms = async () => {
-    return await db.select().from(programs);
+    return await db.select().from(programs)
+    .orderBy(desc(programs.modifiedAt));
 }
 
 export const getRecentPrograms = async (limit: number = 3) => {
@@ -16,7 +18,8 @@ export const getProgramById = (id: string) => {
         return db.select().from(programs).where(eq(programs.id, id)).get();
     }
 
-export const createProgram = (id: string, name: string) => {
+export const createProgram = (name: string) => {
+    const id = createUuid();
     const createDate = new Date().toISOString();
     return db.insert(programs).values({ id, name, createdAt: createDate, modifiedAt: createDate });
 }

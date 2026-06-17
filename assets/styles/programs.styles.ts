@@ -8,6 +8,13 @@ export const ProgramsStylesheet = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
   },
+  loadingText: {
+    fontFamily: "subHeaderText",
+    fontSize: 18,
+    color: "#929292",
+    textAlign: "center",
+    marginTop: 32,
+  },
   header: {
     paddingTop: 24,
     paddingBottom: 16,
