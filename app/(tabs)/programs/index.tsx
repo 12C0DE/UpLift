@@ -16,7 +16,7 @@ const PROGRAM_SLOTS = 3;
 // }
 
 export interface Program {
-  id: string;
+  id: number;
   name: string;
   createdAt: string;
   modifiedAt: string;
@@ -27,7 +27,7 @@ export interface Program {
 interface ProgramsPageProps {
   programs: Program[];
   onCreateProgram: () => void;
-  onSelectProgram: (programId: string) => void;
+  onSelectProgram: (programId: number) => void;
   onBack: () => void;
 }
 
@@ -124,7 +124,7 @@ const Programs = () => {
               </View>
             </Pressable>
           )}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
         />
       </View>
     </SafeAreaView>
