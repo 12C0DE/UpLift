@@ -1,9 +1,11 @@
 import { EditProgramStyles as styles } from "@/assets";
+import { createExercise } from "@/db/queries/exercises";
 import {
   createProgram,
   getProgramById,
   updateProgram,
 } from "@/db/queries/programs";
+import { createWorkout } from "@/db/queries/workout";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from "@expo/vector-icons/Feather";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
@@ -43,8 +45,9 @@ const defaultWoSection: WorkoutSection = {
 };
 
 const EditProgram = () => {
-  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
-  const programId = Array.isArray(id) ? id[0] : id;
+  const { id } = useLocalSearchParams();
+  const programIdValue = Array.isArray(id) ? id[0] : id;
+  const programId = typeof programIdValue === "string" ? Number(programIdValue) : undefined;
   const navigation = useNavigation();
   const [programName, setProgramName] = useState("");
   const [sections, setSections] = useState<WorkoutSection[]>([defaultWoSection]);
@@ -52,7 +55,8 @@ const EditProgram = () => {
 
   useEffect(() => {
     navigation.setOptions({
-      title: "Back",
+      title: programId ? "Edit Program" : "Create Program",
+      backButtonTitle: "Back",
     });
   }, [navigation, programId]);
 
@@ -140,6 +144,36 @@ const EditProgram = () => {
     setSections(newSections);
   };
 
+  const saveExercises = async (workoutId: number, exercises: Exercise[]) => {
+    for (let eIdx = 0; eIdx < exercises.length; eIdx++) {
+      const exercise = exercises[eIdx];
+      const repsNum = exercise.reps ? Number.parseInt(exercise.reps, 10) : undefined;
+      await createExercise(
+        workoutId,
+        exercise.name,
+        exercise.sets ?? undefined,
+        repsNum !== undefined && !Number.isNaN(repsNum) ? repsNum : undefined,
+        exercise.description,
+        eIdx,
+      );
+    }
+  };
+
+  const saveSections = async (newProgramId: number, sections: WorkoutSection[]) => {
+    for (let sIdx = 0; sIdx < sections.length; sIdx++) {
+      const section = sections[sIdx];
+      const weekNum = section.week ? Number.parseInt(section.week, 10) : undefined;
+      const workoutResult = await createWorkout(
+        newProgramId,
+        section.title,
+        weekNum !== undefined && !Number.isNaN(weekNum) ? weekNum : undefined,
+        undefined,
+        sIdx,
+      );
+      await saveExercises(workoutResult[0].id, section.exercises);
+    }
+  };
+
   const onSave = async (program: ProgramData) => {
     setIsSaving(true);
 
@@ -147,7 +181,8 @@ const EditProgram = () => {
       if (programId) {
         await updateProgram(programId, program.programName);
       } else {
-        await createProgram(program.programName);
+        const result = await createProgram(program.programName);
+        await saveSections(result[0].id, program.sections);
       }
 
       router.back();

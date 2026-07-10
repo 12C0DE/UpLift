@@ -1,0 +1,13 @@
+diff --git a/node_modules/expo-sqlite/build/SQLiteDevToolsClient.js b/node_modules/expo-sqlite/build/SQLiteDevToolsClient.js
+index 17bee2b..3cc5363 100644
+--- a/node_modules/expo-sqlite/build/SQLiteDevToolsClient.js
++++ b/node_modules/expo-sqlite/build/SQLiteDevToolsClient.js
+@@ -10,7 +10,7 @@ export async function registerDatabaseForDevToolsAsync(database) {
+         return;
+     }
+     await maybeInitClientAsync();
+-    registeredDatabases.set(database.databasePath, new WeakRef(database));
++    registeredDatabases.set(database.databasePath, { deref: () => database });
+ }
+ export async function unregisterDatabaseForDevToolsAsync(database) {
+     if (!__DEV__) {

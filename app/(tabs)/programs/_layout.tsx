@@ -12,7 +12,7 @@ export default function ProgramsLayout() {
         name="edit"
         options={{
           headerShown: true,
-          title: "Edit Program",
+          // title: "Edit Program",
           headerBackTitle: "Programs",
           headerStyle: {
             backgroundColor: "#0a0a0a",
