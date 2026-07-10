@@ -1,10 +1,11 @@
 import { LogsStyles as styles } from "@/assets";
 import { TblCell } from "@/components";
 import { mockData } from "@/data/mockProgramData";
+import { Exercise, WorkoutLogProps, WorkoutSection } from "@/types";
 import { FlashList } from "@shopify/flash-list";
 import React, { useRef } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { Exercise, WorkoutSection, WorkoutLogProps } from "@/types";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type HeaderRow = { type: "header" };
 type SectionRow = {
@@ -164,7 +165,7 @@ export default function Logs({
   };
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen}>
       <View style={styles.titleBar}>
         <Text style={styles.titleText}>{programName}</Text>
       </View>
@@ -186,7 +187,7 @@ export default function Logs({
           />
         </View>
       </ScrollView>
-      <Text>Logs</Text>
-    </View>
+        <View style={{ height: 60 }} />
+    </SafeAreaView>
   );
 }

@@ -9,8 +9,8 @@ import { createWorkout } from "@/db/queries/workout";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from "@expo/vector-icons/Feather";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import { useEffect, useState } from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { Suspense, useEffect, useState } from "react";
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 
 interface Exercise {
@@ -44,6 +44,31 @@ const defaultWoSection: WorkoutSection = {
   exercises: [defaultExercise],
 };
 
+type DbExercise = Awaited<ReturnType<typeof import('@/db/queries/exercises').getExercisesByWorkout>>[number];
+
+const formatExercise = (ex: DbExercise): Exercise => ({
+  name: ex.name,
+  sets: ex.sets ?? null,
+  reps: ex.reps?.toString() ?? "",
+  description: ex.description ?? "",
+});
+
+const loadSections = async (programId: number): Promise<WorkoutSection[]> => {
+  const { getWorkoutsByProgram } = await import('@/db/queries/workout');
+  const { getExercisesByWorkout } = await import('@/db/queries/exercises');
+  const sectionsData = await getWorkoutsByProgram(programId);
+  return Promise.all(
+    sectionsData.map(async (section) => {
+      const dbExercises = await getExercisesByWorkout(section.id);
+      return {
+        title: section.title,
+        week: section.week?.toString() ?? "",
+        exercises: dbExercises.map(formatExercise),
+      };
+    }),
+  );
+};
+
 const EditProgram = () => {
   const { id } = useLocalSearchParams();
   const programIdValue = Array.isArray(id) ? id[0] : id;
@@ -52,24 +77,36 @@ const EditProgram = () => {
   const [programName, setProgramName] = useState("");
   const [sections, setSections] = useState<WorkoutSection[]>([defaultWoSection]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(!!programId);
 
   useEffect(() => {
     navigation.setOptions({
-      title: programId ? "Edit Program" : "Create Program",
+      title: programId ? "Edit" : "Create",
       backButtonTitle: "Back",
     });
   }, [navigation, programId]);
 
   useEffect(() => {
     const loadProgram = async () => {
-      if (!programId) return;
+      if (!programId) {
+        setProgramName("");
+        setSections([defaultWoSection]);
+        setIsLoading(false);
+        return;
+      }
 
+      setIsLoading(true);
       try {
         const program = await getProgramById(programId);
         if (!program) return;
         setProgramName(program.name);
+
+        const formattedSections = await loadSections(programId);
+        setSections(formattedSections.length > 0 ? formattedSections : [defaultWoSection]);
       } catch (error) {
         console.error("Error loading program:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -206,11 +243,19 @@ const EditProgram = () => {
     await onSave(programData);
   };
 
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>
-          {programId ? "Edit Program" : "Create Program"}
+          {"Program"}
         </Text>
         <TextInput
           style={styles.programName}
@@ -229,6 +274,9 @@ const EditProgram = () => {
         <View style={styles.sectionsContainer}>
           {sections.map((section, sectionIdx) => (
             <View key={`sec-${sectionIdx}`} style={styles.section}>
+              { !!programId && <Pressable style={styles.workoutBtn}>
+                <Text>Start Workout</Text>
+              </Pressable>}
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionInputContainer}>
                   <TextInput
@@ -289,7 +337,7 @@ const EditProgram = () => {
                       </Pressable>
                     </View>
                     <View style={styles.exerciseRow}>
-                      <View>
+                      <View style={{ flex: 1 }}>
                         <Text style={styles.exerciseLabel}>Sets</Text>
                         <TextInput
                           keyboardType="number-pad"
@@ -308,7 +356,7 @@ const EditProgram = () => {
                           placeholderTextColor={"#7a7a7a"}
                         />
                       </View>
-                      <View>
+                      <View style={{ flex: 1 }}>
                         <Text style={styles.exerciseLabel}>Reps</Text>
                         <TextInput
                           style={styles.exerciseInput}
@@ -365,6 +413,7 @@ const EditProgram = () => {
             <Entypo name="plus" size={24} color="#f6f6f6" />
             <Text style={styles.addBtnText}>New Workout</Text>
           </Pressable>
+          <View style={{ height: 60 }} />
         </View>
       </ScrollView>
       <View style={styles.footer}>
@@ -389,4 +438,11 @@ const EditProgram = () => {
     </View>
   );
 };
-export default EditProgram;
+
+const EditProgramScreen = () => (
+  <Suspense fallback={<ActivityIndicator size="large" style={{ flex: 1 }} />}>
+    <EditProgram />
+  </Suspense>
+);
+
+export default EditProgramScreen;

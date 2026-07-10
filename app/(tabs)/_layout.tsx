@@ -17,14 +17,12 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
-          bottom: 25,
+          bottom: 15,
+          left: 0,
+          right: 0,
+          marginHorizontal: 50,
           justifyContent: "center",
-          alignSelf: "center",
           height: 60,
-          minWidth: 300,
-          maxWidth: 700,
-          width: "60%",
-          marginHorizontal: "auto",
           paddingHorizontal: 30,
           paddingVertical: 16,
           borderRadius: 40,
@@ -80,6 +78,7 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="programs"
+        href="/programs"
         options={{
           tabBarIcon: ({ color, size }) => (
             <AnimatedView

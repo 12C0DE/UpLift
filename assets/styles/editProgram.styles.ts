@@ -19,6 +19,15 @@ export const EditProgramStyles = StyleSheet.create({
     color: "#f6f6f6",
     letterSpacing: 1.2,
   },
+  workoutBtn: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    backgroundColor: "#f6a800",
+    borderWidth: 2,
+    borderColor: "#5a5353",
+    // borderRadius: 6,
+    alignSelf: "center",
+  },
   programName: {
     width: "100%",
     padding: 16,
