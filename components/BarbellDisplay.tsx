@@ -39,7 +39,9 @@ export const BarbellDisplay = ({
       </View>
       <View>
         <TextInput
-          keyboardType="numbers-and-punctuation"
+          // keyboardType="numbers-and-punctuation"
+          keyboardType="number-pad"
+          enablesReturnKeyAutomatically
           maxLength={5}
           value={totalWeight.toString()}
           style={bbStyles.weightInput}

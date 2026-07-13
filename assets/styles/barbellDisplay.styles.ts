@@ -25,6 +25,7 @@ export const barbellDisplayStyles = StyleSheet.create({
     borderRadius: 5,
     width: "100%",
     maxWidth: 120,
+    minWidth: 95,
     height: 70,
     fontSize: 50,
     fontFamily: "BebasNeue",
