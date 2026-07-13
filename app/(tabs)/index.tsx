@@ -45,7 +45,7 @@ const Index = () => {
         <Text style={styles.title}>Uplift</Text>
       </View>
       <View>
-        <Text style={styles.subText}>Recently used</Text>
+        <Text style={styles.subText}>Recent workouts</Text>
         {recentProgramSlots.map((slot) => {
           if (!slot.prog) {
             return <View key={slot.key} style={styles.emptyProg} />;
@@ -57,12 +57,13 @@ const Index = () => {
             <Pressable
               key={prog.id}
               style={styles.progButton}
-              onPress={() => router.push(`/programs/edit?id=${prog.id}`)}
+              // onPress={() => router.push(`/programs/edit?id=${prog.id}`)}
+              onPress={() => router.push(`/currentlift?programId=${prog.id}&start=1`)}
             >
               <View style={styles.progLayout}>
                 <View style={styles.rowLayout}>
-                  <Entypo name="controller-play" size={24} color="black" />
                   <Text style={styles.progText}>Start Workout</Text>
+                  <Entypo name="controller-play" size={24} color="black" />
                 </View>
                 <View>
                   <Text style={styles.workoutText}>{`-- ${prog.name} --`}</Text>

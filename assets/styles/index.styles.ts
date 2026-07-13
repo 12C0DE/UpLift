@@ -58,7 +58,7 @@ export const indexStyles = StyleSheet.create({
     justifyContent: "center",
   },
   rowLayout: {
-    flex: 1,
+    // flex: 1,
     flexDirection: "row",
     alignContent: "center",
     justifyContent: "center",
