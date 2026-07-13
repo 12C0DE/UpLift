@@ -4,7 +4,7 @@ import { BAR_WEIGHT, WEIGHT_LIST } from "@/utils";
 import Entypo from "@expo/vector-icons/Entypo";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Keyboard, Pressable, Text, TouchableWithoutFeedback, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface CurrentLiftProps {
@@ -49,6 +49,8 @@ export default function CurrentLift({
   };
 
   const plates = calculatePlates(totalWeight);
+  const topRowWeights = WEIGHT_LIST.toReversed().slice(0, 3);
+  const bottomRowWeights = WEIGHT_LIST.toReversed().slice(3);
 
   const weightChangeTextHandler = (text: string) => {
     const numericValue = parseFloat(text);
@@ -75,75 +77,91 @@ export default function CurrentLift({
   };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <SafeAreaView style={styles.container}>
       <View>
-        <View style={styles.header}>
-          <View style={{ width: 16 }}></View>
-          <Text style={styles.exerciseName}>{liftName}</Text>
-          <View>
-            <Pressable
-              style={styles.descButton}
-              hitSlop={24}
-              onPress={() =>
-                router.push({
-                  pathname: "/descriptionModal" as any,
-                  params: {
-                    title: liftName,
-                    description: desc,
-                  },
-                })
-              }
-            >
-              <Entypo name="info-with-circle" size={18} color="#929292" />
-            </Pressable>
+        <View>
+          <View style={styles.header}>
+            <View style={{ flex: 1 }} />
+            <Text style={styles.exerciseName}>{liftName}</Text>
+            <View style={{ flex: 1}}>
+              <Pressable
+                style={styles.descButton}
+                hitSlop={24}
+                onPress={() =>
+                  router.push({
+                    pathname: "/descriptionModal" as any,
+                    params: {
+                      title: liftName,
+                      description: desc,
+                    },
+                  })
+                }
+              >
+                <Entypo name="info-with-circle" size={18} color="#929292" />
+              </Pressable>
+            </View>
           </View>
-        </View>
-        <View style={styles.weightSection}>
-          <BarbellDisplay
-            plates={plates}
-            totalWeight={totalWeight}
-            weightChangeHandler={weightChangeTextHandler}
-          />
-          <Text style={styles.lastLift}>
-            {lastWeight && `Last: ${lastWeight} lbs`}
-          </Text>
-        </View>
-      </View>
-      <View>
-        <View style={styles.weightsRow}>
-          {WEIGHT_LIST.toReversed().map((weight) => (
-            <WeightPlate
-              key={`w_${weight}`}
-              weight={weight}
-              onSwipeDown={() => weightChangeHandler(weight, "down")}
-              onSwipeUp={() => weightChangeHandler(weight, "up")}
+          <View style={styles.weightSection}>
+            <BarbellDisplay
+              plates={plates}
+              totalWeight={totalWeight}
+              weightChangeHandler={weightChangeTextHandler}
             />
-          ))}
-        </View>
-        <Text style={styles.swipeHint}>Swipe up or down to change weight</Text>
-      </View>
-      <View style={styles.setsRepsSection}>
-        <View style={styles.setsContainer}>
-          <Text style={styles.sectionLabel}>Sets</Text>
-          <View style={styles.setsRow}>
-            <View style={styles.numberBox}>
-              <Text style={styles.numberText}>{sets.currentSet}</Text>
-            </View>
-            <Text style={styles.ofText}>of</Text>
-            <View style={styles.numberBox}>
-              <Text style={styles.numberText}>{totalSets}</Text>
-            </View>
+            <Text style={styles.lastLift}>
+              {lastWeight && `Last: ${lastWeight} lbs`}
+            </Text>
           </View>
         </View>
-        <View style={styles.repsContainer}>
-          <Text style={styles.sectionLabel}>Reps</Text>
-          <View style={[styles.numberBox, styles.numberBoxCentered]}>
-            <Text style={styles.numberText}>{reps}</Text>
+        <View>
+          <View style={styles.weightsStack}>
+            <View style={styles.weightsRow}>
+              {topRowWeights.map((weight) => (
+                <WeightPlate
+                  key={`w_${weight}`}
+                  weight={weight}
+                  onSwipeDown={() => weightChangeHandler(weight, "down")}
+                  onSwipeUp={() => weightChangeHandler(weight, "up")}
+                />
+              ))}
+            </View>
+            <View style={styles.weightsRow}>
+              {bottomRowWeights.map((weight) => (
+                <WeightPlate
+                  key={`w_${weight}`}
+                  weight={weight}
+                  onSwipeDown={() => weightChangeHandler(weight, "down")}
+                  onSwipeUp={() => weightChangeHandler(weight, "up")}
+                />
+              ))}
+            </View>
+          </View>
+          <Text style={styles.swipeHint}>Swipe up or down to change weight</Text>
+        </View>
+        <View style={styles.setsRepsSection}>
+          <View style={styles.setsContainer}>
+            <Text style={styles.sectionLabel}>Sets</Text>
+            <View style={styles.setsRow}>
+              <View style={styles.numberBox}>
+                <Text style={styles.numberText}>{sets.currentSet}</Text>
+              </View>
+              <Text style={styles.ofText}>of</Text>
+              <View style={styles.numberBox}>
+                <Text style={styles.numberText}>{totalSets}</Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.repsContainer}>
+            <Text style={styles.sectionLabel}>Reps</Text>
+            <View style={[styles.numberBox, styles.numberBoxCentered]}>
+              <Text style={styles.numberText}>{reps}</Text>
+            </View>
           </View>
         </View>
       </View>
       <View style={styles.navContainer}>
         <Pressable
+          hitSlop={24}
           style={styles.navButton}
           onPress={() => {
             if (sets.currentSet > 1) {
@@ -154,12 +172,13 @@ export default function CurrentLift({
           }}
         >
           {sets.currentSet === 1 ? (
-            <Text style={styles.nextLiftText}>Prev Lift</Text>
+              <Text style={styles.nextLiftText}>Prev Lift</Text>
           ) : (
-            <Entypo name="arrow-bold-left" size={36} color="white" />
+            <Entypo name="arrow-bold-left" size={42} color="white" />
           )}
         </Pressable>
         <Pressable
+          hitSlop={24}
           style={styles.navButton}
           onPress={() => {
             if (sets.currentSet < totalSets) {
@@ -170,12 +189,13 @@ export default function CurrentLift({
           }}
         >
           {sets.currentSet < totalSets ? (
-            <Entypo name="arrow-bold-right" size={36} color="white" />
+            <Entypo name="arrow-bold-right" size={42} color="white" />
           ) : (
             <Text style={styles.nextLiftText}>Next Lift</Text>
           )}
         </Pressable>
       </View>
     </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }

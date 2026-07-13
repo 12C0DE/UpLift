@@ -4,18 +4,16 @@ export const currentLiftStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0a0a0a",
-    // maxWidth: 400,
     alignSelf: "center",
     width: "100%",
-    justifyContent: "space-between",
-    maxHeight: 700
+    justifyContent: "space-evenly",
+    paddingBottom: 36,
   },
   header: {
-    paddingTop: 24,
-    paddingBottom: 16,
+    // paddingTop: 0,
+    // paddingBottom: 12,
     flexDirection: "row",
-    flex: 1,
-    alignContent: 'center',
+    alignItems: "center",
     justifyContent: "center",
   },
   descButton: {
@@ -29,7 +27,8 @@ export const currentLiftStyles = StyleSheet.create({
     color: "#f5f5f5",
     letterSpacing: 1.2,
     maxWidth: 350,
-    marginHorizontal: 8
+    marginHorizontal: 8,
+    flex: 1
   },
   weightSection: {
     paddingHorizontal: 16,
@@ -82,13 +81,13 @@ export const currentLiftStyles = StyleSheet.create({
   },
   nextLiftText: {
     fontFamily: "BebasNeue",
-    fontSize: 18,
+    fontSize: 22,
     color: "#f5f5f5",
     letterSpacing: 0.72,
   },
   setsRepsSection: {
     paddingHorizontal: 16,
-    paddingVertical: 24,
+    paddingTop: 16,
   },
   setsContainer: {
     alignItems: "center",
@@ -135,14 +134,9 @@ export const currentLiftStyles = StyleSheet.create({
   },
   navContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 24,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    height: 77,
-    // borderTopWidth: 1,
-    // borderBottomWidth: 1,
-    // borderColor: "#404040",
   },
   navButton: {
     padding: 16,
@@ -152,9 +146,11 @@ export const currentLiftStyles = StyleSheet.create({
     flexWrap: "wrap",
     alignItems: "center",
     justifyContent: "center",
-    marginHorizontal: "auto",
-    gap: 4,
-    paddingHorizontal: 40,
-    maxWidth: 400
+    gap: 2,
+  },
+  weightsStack: {
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 20,
   },
 });

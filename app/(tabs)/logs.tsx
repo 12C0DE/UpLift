@@ -2,8 +2,10 @@ import { LogsStyles as styles } from "@/assets";
 import { TblCell } from "@/components";
 import { mockData } from "@/data/mockProgramData";
 import { Exercise, WorkoutLogProps, WorkoutSection } from "@/types";
+import { useFocusEffect } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
-import React, { useRef } from "react";
+import * as ScreenOrientation from "expo-screen-orientation";
+import React, { useCallback, useRef } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -52,6 +54,24 @@ export default function Logs({
   dates = mockData.dates,
   sections = mockData.sections,
 }: WorkoutLogProps) {
+  useFocusEffect(
+    useCallback(() => {
+      ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.ALL,
+      ).catch(() => {
+        // Ignore lock errors so the screen can still render.
+      });
+
+      return () => {
+        ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.PORTRAIT_UP,
+        ).catch(() => {
+          // Ignore lock errors on cleanup.
+        });
+      };
+    }, []),
+  );
+
   const rows = buildRows(sections, dates.length);
   const tableWidth =
     COL_WORKOUT + COL_SETS + COL_REPS + COL_DESC + COL_WEIGHT * dates.length;
@@ -98,8 +118,6 @@ export default function Logs({
     }
 
     if (item.type === "section") {
-      const remainingWidth =
-        COL_SETS + COL_REPS + COL_DESC + COL_WEIGHT * item.dateCount;
       return (
         <View style={[styles.row, styles.sectionRow]}>
           <TblCell width={COL_WORKOUT} section>
@@ -180,7 +198,6 @@ export default function Logs({
           <FlashList
             data={rows}
             renderItem={renderRow}
-            // estimatedItemSize={52}
             keyExtractor={(_, idx) => String(idx)}
             getItemType={(item) => item.type}
             showsVerticalScrollIndicator={false}
