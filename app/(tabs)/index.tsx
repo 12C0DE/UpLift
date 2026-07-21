@@ -57,7 +57,6 @@ const Index = () => {
             <Pressable
               key={prog.id}
               style={styles.progButton}
-              // onPress={() => router.push(`/programs/edit?id=${prog.id}`)}
               onPress={() => router.push(`/currentlift?programId=${prog.id}&start=1`)}
             >
               <View style={styles.progLayout}>

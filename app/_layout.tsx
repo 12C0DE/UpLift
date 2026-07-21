@@ -57,6 +57,13 @@ export default function RootLayout() {
             gestureEnabled: true,
             headerShown: true,
             headerTitle: "Description",
+            headerTitleStyle: {
+              color: "white",
+              fontSize: 20,
+            },
+            headerStyle: {
+              backgroundColor: "#0a0a0a",
+            }
           }}
         />
       </Stack>

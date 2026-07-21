@@ -1,5 +1,7 @@
 import { currentLiftStyles as styles } from "@/assets";
 import { BarbellDisplay, WeightPlate } from "@/components";
+import { getExercisesByWorkout } from "@/db/queries/exercises";
+import { getLastWeight, logWeight } from "@/db/queries/weights";
 import { getWorkoutsByProgram } from "@/db/queries/workout";
 import { BAR_WEIGHT, WEIGHT_LIST } from "@/utils";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -26,19 +28,8 @@ interface CurrentLiftProps {
   reps?: number;
 }
 
-interface SetType {
-  totalSets: number;
-  currentSet: number;
-}
-
-interface ProgramOption {
-  id: number;
-  name: string;
-  totalWorkouts?: number;
-  lastWorkout?: string;
-}
-
 type WorkoutOption = Awaited<ReturnType<typeof getWorkoutsByProgram>>[number];
+type ExerciseType = Awaited<ReturnType<typeof getExercisesByWorkout>>[number];
 
 const firstParam = (value: string | string[] | undefined) => {
   if (Array.isArray(value)) return value[0];
@@ -46,8 +37,8 @@ const firstParam = (value: string | string[] | undefined) => {
 };
 
 export default function CurrentLift({
-  liftName = "Bench",
-  desc = "Lay on a flat bench and press barbell to your chest and back up.",
+  liftName = "",
+  desc = "",
   lastWeight = 0,
   totalSets = 3,
   reps = 5,
@@ -63,15 +54,15 @@ export default function CurrentLift({
   const programIdParam = firstParam(params.programId);
   const workoutTitleParam = firstParam(params.workoutTitle);
   const workoutSummaryParam = firstParam(params.workoutSummary);
-
-  const activeLiftName = workoutTitleParam ?? liftName;
-  const activeLiftDescription = workoutSummaryParam ?? desc;
+  const workoutIdParam = firstParam(params.workoutId);
 
   const [totalWeight, setTotalWeight] = useState(lastWeight || 0);
-  const [sets, setSets] = useState<SetType>({
-    totalSets,
-    currentSet: 1,
-  });
+  const [currentSet, setCurrentSet] = useState(1);
+  const [workoutExercises, setWorkoutExercises] = useState<ExerciseType[]>([]);
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+  const [exerciseWeights, setExerciseWeights] = useState<Record<number, Record<number, number>>>({})
+  const [isSaving, setIsSaving] = useState(false);
+  const [workoutSaved, setWorkoutSaved] = useState(false);
   const [isStartModalVisible, setIsStartModalVisible] = useState(
     Boolean(startParam),
   );
@@ -81,6 +72,12 @@ export default function CurrentLift({
   );
   const [isLoadingStartData, setIsLoadingStartData] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
+
+  const currentExercise: ExerciseType | null = workoutExercises[currentExerciseIndex] ?? null;
+  const activeLiftName = currentExercise?.name ?? workoutTitleParam ?? liftName;
+  const activeLiftDescription = currentExercise?.description ?? workoutSummaryParam ?? desc;
+  const activeTotalSets = currentExercise?.sets ?? totalSets;
+  const activeReps = currentExercise?.reps ?? reps;
 
   useEffect(() => {
     setIsStartModalVisible(Boolean(startParam));
@@ -124,6 +121,60 @@ export default function CurrentLift({
     };
   }, [isStartModalVisible, selectedProgramId]);
 
+  useEffect(() => {
+    if (!workoutIdParam) {
+      setWorkoutExercises([]);
+      setCurrentExerciseIndex(0);
+      setCurrentSet(1);
+      return;
+    }
+
+    let isActive = true;
+
+    const loadExercises = async () => {
+
+      try {
+        const exercisesData = await getExercisesByWorkout(Number(workoutIdParam));
+        if (!isActive) return;
+        setWorkoutExercises(exercisesData);
+        setCurrentExerciseIndex(0);
+        setCurrentSet(1);
+        setWorkoutSaved(false);
+
+        const lastWeightResults = await Promise.all(
+          exercisesData.map(ex => getLastWeight(ex.id))
+        );
+        if (!isActive) return;
+
+        const weightMap: Record<number, Record<number, number>> = {};
+        exercisesData.forEach((ex, i) => {
+          const lw = lastWeightResults[i];
+          const lastWt = lw?.weight ?? 0;
+          const numSets = ex.sets ?? totalSets;
+          weightMap[ex.id] = {};
+          for (let s = 1; s <= numSets; s++) {
+            weightMap[ex.id][s] = lastWt;
+          }
+        });
+        setExerciseWeights(weightMap);
+
+        if (exercisesData.length > 0) {
+          setTotalWeight(weightMap[exercisesData[0].id]?.[1] ?? 0);
+        }
+      } catch (error) {
+        console.error("Error loading exercises:", error);
+      } finally {
+        // exercises loaded
+      }
+    };
+
+    loadExercises();
+
+    return () => {
+      isActive = false;
+    };
+  }, [workoutIdParam, totalSets]);
+
   const calculatePlates = (weight: number): number[] => {
     const weightsPerSide = (weight - BAR_WEIGHT) / 2;
     const plates: number[] = [];
@@ -143,16 +194,37 @@ export default function CurrentLift({
   const topRowWeights = WEIGHT_LIST.toReversed().slice(0, 3);
   const bottomRowWeights = WEIGHT_LIST.toReversed().slice(3);
 
+  const getRightNavContent = () => {
+    if (currentSet < activeTotalSets) {
+      return <Entypo name="arrow-bold-right" size={42} color="white" />;
+    }
+    if (workoutExercises.length === 0) {
+      return <Text style={styles.nextLiftText}>Next Lift</Text>;
+    }
+    if (currentExerciseIndex < workoutExercises.length - 1) {
+      return <Text style={styles.nextLiftText}>Next Lift</Text>;
+    }
+    if (workoutSaved) {
+      return <Text style={styles.nextLiftText}>Workout Done</Text>;
+    }
+    if (isSaving) {
+      return <ActivityIndicator color="white" size="small" />;
+    }
+    return <Text style={styles.nextLiftText}>Finish</Text>;
+  };
+
   const weightChangeTextHandler = (text: string) => {
     const numericValue = parseFloat(text);
 
     if (numericValue >= 1999) return;
 
-    if (isNaN(numericValue) || numericValue < 0) {
-      setTotalWeight(0);
-      return;
-    } else {
-      setTotalWeight(numericValue);
+    const newWeight = isNaN(numericValue) || numericValue < 0 ? 0 : numericValue;
+    setTotalWeight(newWeight);
+    if (currentExercise) {
+      setExerciseWeights(prev => ({
+        ...prev,
+        [currentExercise.id]: { ...prev[currentExercise.id], [currentSet]: newWeight },
+      }));
     }
   };
 
@@ -164,12 +236,22 @@ export default function CurrentLift({
     const newWeight = totalWeight + change;
     if (newWeight >= 0 && newWeight <= 1000) {
       setTotalWeight(newWeight);
+      if (currentExercise) {
+        setExerciseWeights(prev => ({
+          ...prev,
+          [currentExercise.id]: { ...prev[currentExercise.id], [currentSet]: newWeight },
+        }));
+      }
     }
   };
 
   const closeStartModal = () => {
     setIsStartModalVisible(false);
-    router.replace("/currentlift" as any);
+    if (workouts.length > 0) {
+      router.replace("/currentlift" as any);
+    } else {
+      router.replace("/");
+    }
   };
 
   const selectWorkout = async (workout: WorkoutOption) => {
@@ -184,6 +266,27 @@ export default function CurrentLift({
           : workout.title,
       },
     });
+  };
+
+  const handleSaveWorkout = async () => {
+    if (isSaving || workoutSaved) return;
+    setIsSaving(true);
+    try {
+      const savePromises: Promise<unknown>[] = [];
+      workoutExercises.forEach(ex => {
+        const numSets = ex.sets ?? totalSets;
+        for (let s = 1; s <= numSets; s++) {
+          const weight = exerciseWeights[ex.id]?.[s];
+          if (weight != null) savePromises.push(logWeight(ex.id, weight));
+        }
+      });
+      await Promise.all(savePromises);
+      setWorkoutSaved(true);
+    } catch (error) {
+      console.error("Error saving workout:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const modalBody = (
@@ -299,18 +402,18 @@ export default function CurrentLift({
             <Text style={styles.sectionLabel}>Sets</Text>
             <View style={styles.setsRow}>
               <View style={styles.numberBox}>
-                <Text style={styles.numberText}>{sets.currentSet}</Text>
-              </View>
-              <Text style={styles.ofText}>of</Text>
-              <View style={styles.numberBox}>
-                <Text style={styles.numberText}>{totalSets}</Text>
+              <Text style={styles.numberText}>{currentSet}</Text>
+            </View>
+            <Text style={styles.ofText}>of</Text>
+            <View style={styles.numberBox}>
+              <Text style={styles.numberText}>{activeTotalSets}</Text>
               </View>
             </View>
           </View>
           <View style={styles.repsContainer}>
             <Text style={styles.sectionLabel}>Reps</Text>
             <View style={[styles.numberBox, styles.numberBoxCentered]}>
-              <Text style={styles.numberText}>{reps}</Text>
+              <Text style={styles.numberText}>{activeReps}</Text>
             </View>
           </View>
         </View>
@@ -320,15 +423,22 @@ export default function CurrentLift({
           hitSlop={24}
           style={styles.navButton}
           onPress={() => {
-            if (sets.currentSet > 1) {
-              setSets({ ...sets, currentSet: sets.currentSet - 1 });
-            } else {
-              console.log("Previous exercise");
+            if (currentSet > 1) {
+              const prevSet = currentSet - 1;
+              setCurrentSet(prevSet);
+              setTotalWeight(exerciseWeights[currentExercise?.id ?? -1]?.[prevSet] ?? 0);
+            } else if (currentExerciseIndex > 0) {
+              const prevIndex = currentExerciseIndex - 1;
+              const prevExercise = workoutExercises[prevIndex];
+              const prevSets = prevExercise?.sets ?? totalSets;
+              setCurrentExerciseIndex(prevIndex);
+              setCurrentSet(prevSets);
+              setTotalWeight(exerciseWeights[prevExercise?.id ?? -1]?.[prevSets] ?? 0);
             }
           }}
         >
-          {sets.currentSet === 1 ? (
-              <Text style={styles.nextLiftText}>Prev Lift</Text>
+          {currentSet === 1 && currentExerciseIndex === 0 ? (
+            <Text style={styles.nextLiftText}>Prev Lift</Text>
           ) : (
             <Entypo name="arrow-bold-left" size={42} color="white" />
           )}
@@ -337,18 +447,28 @@ export default function CurrentLift({
           hitSlop={24}
           style={styles.navButton}
           onPress={() => {
-            if (sets.currentSet < totalSets) {
-              setSets({ ...sets, currentSet: sets.currentSet + 1 });
-            } else {
-              console.log("Next exercise");
+            if (workoutSaved) return;
+            if (currentSet < activeTotalSets) {
+              const nextSet = currentSet + 1;
+              setCurrentSet(nextSet);
+              if (currentExercise) {
+                setExerciseWeights(prev => ({
+                  ...prev,
+                  [currentExercise.id]: { ...prev[currentExercise.id], [nextSet]: totalWeight },
+                }));
+              }
+            } else if (workoutExercises.length > 0 && currentExerciseIndex < workoutExercises.length - 1) {
+              const nextIndex = currentExerciseIndex + 1;
+              const nextExercise = workoutExercises[nextIndex];
+              setCurrentExerciseIndex(nextIndex);
+              setCurrentSet(1);
+              setTotalWeight(exerciseWeights[nextExercise?.id ?? -1]?.[1] ?? 0);
+            } else if (workoutExercises.length > 0) {
+              handleSaveWorkout();
             }
           }}
         >
-          {sets.currentSet < totalSets ? (
-            <Entypo name="arrow-bold-right" size={42} color="white" />
-          ) : (
-            <Text style={styles.nextLiftText}>Next Lift</Text>
-          )}
+          {getRightNavContent()}
         </Pressable>
       </View>
     </SafeAreaView>
