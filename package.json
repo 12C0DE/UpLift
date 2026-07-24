@@ -7,8 +7,8 @@
     "reset-project": "node ./scripts/reset-project.js",
     "db-migrate": "npx drizzle-kit generate",
     "view-db": "npx drizzle-kit studio",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
     "postinstall": "patch-package"
