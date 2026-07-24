@@ -1,3 +1,4 @@
+import { ActiveWorkoutProvider } from '@/context/ActiveWorkoutContext';
 import { db } from '@/db';
 import migrations from '@/db/migrations/migrations';
 import { BarlowSemiCondensed_400Regular, BarlowSemiCondensed_400Regular_Italic, BarlowSemiCondensed_500Medium } from "@expo-google-fonts/barlow-semi-condensed";
@@ -45,6 +46,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <ActiveWorkoutProvider>
       <Stack screenOptions={{ headerShown: false }}>
         {/* the tabs navigator is one screen in the parent stack */}
         <Stack.Screen name="(tabs)" />
@@ -67,6 +69,7 @@ export default function RootLayout() {
           }}
         />
       </Stack>
+      </ActiveWorkoutProvider>
     </GestureHandlerRootView>
   );
 }

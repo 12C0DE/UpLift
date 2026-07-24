@@ -1,12 +1,13 @@
 import { currentLiftStyles as styles } from "@/assets";
 import { BarbellDisplay, WeightPlate } from "@/components";
+import { useActiveWorkout } from "@/context/ActiveWorkoutContext";
 import { getExercisesByWorkout } from "@/db/queries/exercises";
 import { getLastWeight, logWeight } from "@/db/queries/weights";
 import { getWorkoutsByProgram } from "@/db/queries/workout";
 import { BAR_WEIGHT, WEIGHT_LIST } from "@/utils";
 import Entypo from "@expo/vector-icons/Entypo";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -55,6 +56,8 @@ export default function CurrentLift({
   const workoutTitleParam = firstParam(params.workoutTitle);
   const workoutSummaryParam = firstParam(params.workoutSummary);
   const workoutIdParam = firstParam(params.workoutId);
+
+  const { setWorkoutData, updateWeights, markSaved } = useActiveWorkout();
 
   const [totalWeight, setTotalWeight] = useState(lastWeight || 0);
   const [currentSet, setCurrentSet] = useState(1);
@@ -161,6 +164,15 @@ export default function CurrentLift({
         if (exercisesData.length > 0) {
           setTotalWeight(weightMap[exercisesData[0].id]?.[1] ?? 0);
         }
+
+        setWorkoutData({
+          programId: programIdParam ? Number(programIdParam) : null,
+          workoutId: Number(workoutIdParam),
+          workoutTitle: workoutTitleParam ?? null,
+          workoutWeek: null,
+          exercises: exercisesData,
+          exerciseWeights: weightMap,
+        });
       } catch (error) {
         console.error("Error loading exercises:", error);
       } finally {
@@ -173,7 +185,16 @@ export default function CurrentLift({
     return () => {
       isActive = false;
     };
-  }, [workoutIdParam, totalSets]);
+  }, [workoutIdParam, totalSets, setWorkoutData, workoutTitleParam, programIdParam]);
+
+  const prevExerciseWeightsRef = useRef(exerciseWeights);
+  useEffect(() => {
+    if (prevExerciseWeightsRef.current === exerciseWeights) return;
+    prevExerciseWeightsRef.current = exerciseWeights;
+    if (workoutIdParam && workoutExercises.length > 0) {
+      updateWeights(exerciseWeights);
+    }
+  }, [exerciseWeights, workoutIdParam, workoutExercises.length, updateWeights]);
 
   const calculatePlates = (weight: number): number[] => {
     const weightsPerSide = (weight - BAR_WEIGHT) / 2;
@@ -259,6 +280,7 @@ export default function CurrentLift({
     router.replace({
       pathname: "/currentlift" as any,
       params: {
+        programId: String(selectedProgramId ?? ""),
         workoutId: String(workout.id),
         workoutTitle: workout.title,
         workoutSummary: workout.exercises?.length
@@ -282,6 +304,7 @@ export default function CurrentLift({
       });
       await Promise.all(savePromises);
       setWorkoutSaved(true);
+      markSaved();
     } catch (error) {
       console.error("Error saving workout:", error);
     } finally {

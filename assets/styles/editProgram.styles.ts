@@ -52,8 +52,10 @@ export const EditProgramStyles = StyleSheet.create({
   },
   sectionHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 6,
+    marginTop: 4,
     marginBottom: 12,
     paddingBottom: 12,
     borderBottomWidth: 2,
@@ -93,14 +95,11 @@ export const EditProgramStyles = StyleSheet.create({
   exerciseHeader: {
     flexDirection: "row",
     gap: 6,
-    alignContent: "center",
-    alignItems: "baseline",
     justifyContent: "center",
   },
   exerciseInput: {
-    width: "100%",
+    width: "90%",
     paddingHorizontal: 12,
-    paddingVertical: 8,
     backgroundColor: "#0a0a0a",
     borderWidth: 1,
     // borderRadius: 6,
@@ -108,10 +107,12 @@ export const EditProgramStyles = StyleSheet.create({
     fontWeight: "600",
     color: "#f6f6f6",
     marginVertical: 4,
+    height: 32,
   },
   exerciseRow: {
     flexDirection: "row",
     gap: 8,
+    width: "94%",
   },
   exerciseInputContainer: {
     flex: 1,

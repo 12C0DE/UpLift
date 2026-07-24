@@ -176,7 +176,7 @@ const EditProgram = () => {
     updatedExercise: Exercise,
   ) => {
     const newSections = [...sections];
-
+    console.log('updatedExercise', updatedExercise);
     newSections[sectionIndex].exercises[exerciseToUpdate] = updatedExercise;
     setSections(newSections);
   };
@@ -211,12 +211,83 @@ const EditProgram = () => {
     }
   };
 
+  const updateSections = async (existingProgramId: number, sections: WorkoutSection[]) => {
+    const { getWorkoutsByProgram, updateWorkout } = await import('@/db/queries/workout');
+    const { getExercisesByWorkout, updateExercise } = await import('@/db/queries/exercises');
+
+    const existingSections = await getWorkoutsByProgram(existingProgramId);
+
+    for (let sIdx = 0; sIdx < sections.length; sIdx++) {
+      const section = sections[sIdx];
+      const weekNum = section.week ? Number.parseInt(section.week, 10) : undefined;
+
+      if (sIdx < existingSections.length) {
+        // Update existing workout
+        const existingWorkout = existingSections[sIdx];
+        await updateWorkout(existingWorkout.id, section.title, weekNum !== undefined && !Number.isNaN(weekNum) ? weekNum : undefined, +sIdx);
+
+        // Update exercises
+        const existingExercises = await getExercisesByWorkout(existingWorkout.id);
+        for (let eIdx = 0; eIdx < section.exercises.length; eIdx++) {
+          const exercise = section.exercises[eIdx];
+          const repsNum = exercise.reps ? Number.parseInt(exercise.reps, 10) : undefined;
+
+          if (eIdx < existingExercises.length) {
+            // Update existing exercise
+            const existingExercise = existingExercises[eIdx];
+            await updateExercise(
+              existingExercise.id,
+              exercise.name,
+              exercise.sets ?? undefined,
+              repsNum !== undefined && !Number.isNaN(repsNum) ? repsNum : undefined,
+              exercise.description,
+              eIdx,
+            );
+          } else {
+            // Create new exercise
+            await createExercise(
+              existingWorkout.id,
+              exercise.name,
+              exercise.sets ?? undefined,
+              repsNum !== undefined && !Number.isNaN(repsNum) ? repsNum : undefined,
+              exercise.description,
+              eIdx,
+            );
+          }
+        }
+
+        // Delete any extra exercises
+        for (let eIdx = section.exercises.length; eIdx < existingExercises.length; eIdx++) {
+          const existingExercise = existingExercises[eIdx];
+          await import('@/db/queries/exercises').then(({ deleteExercise }) => deleteExercise(existingExercise.id));
+        }
+      } else {
+        // Create new workout and its exercises
+        const workoutResult = await createWorkout(
+          existingProgramId,
+          section.title,
+          weekNum !== undefined && !Number.isNaN(weekNum) ? weekNum : undefined,
+          undefined,
+          sIdx,
+        );
+        await saveExercises(workoutResult[0].id, section.exercises);
+      }
+    }
+
+    // Delete any extra workouts
+    for (let sIdx = sections.length; sIdx < existingSections.length; sIdx++) {
+      const existingWorkout = existingSections[sIdx];
+      await import('@/db/queries/workout').then(({ deleteWorkout }) => deleteWorkout(existingWorkout.id));
+    }
+  };
+
   const onSave = async (program: ProgramData) => {
     setIsSaving(true);
 
     try {
       if (programId) {
         await updateProgram(programId, program.programName);
+        await updateSections(programId, program.sections);
       } else {
         const result = await createProgram(program.programName);
         await saveSections(result[0].id, program.sections);
@@ -274,7 +345,10 @@ const EditProgram = () => {
         <View style={styles.sectionsContainer}>
           {sections.map((section, sectionIdx) => (
             <View key={`sec-${sectionIdx}`} style={styles.section}>
-              { !!programId && <Pressable style={styles.workoutBtn}>
+              { !!programId && <Pressable style={styles.workoutBtn} 
+              // onPress={() => router.push(`//${programId})}
+              onPress={() => router.push(`/currentlift?programId=${programId}&start=1`)}
+                >
                 <Text>Start Workout</Text>
               </Pressable>}
               <View style={styles.sectionHeader}>
@@ -376,7 +450,8 @@ const EditProgram = () => {
                       </View>
                     </View>
                     <TextInput
-                      style={styles.exerciseInput}
+                      multiline
+                      style={[styles.exerciseInput, {height: 60, textAlignVertical: "top"}]}
                       numberOfLines={2}
                       value={exercise.description}
                       onChangeText={(text) => {

@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "../index";
 import { weightEntries } from "../schema";
 
@@ -45,5 +45,14 @@ export const updateWeightEntry = (id: number, weight: number) => {
 
 export const deleteWeightEntry = (id: number) => {
     return db.delete(weightEntries).where(eq(weightEntries.id, id));
+}
+
+export const getWeightEntriesByExercises = async (exerciseIds: number[]) => {
+    if (exerciseIds.length === 0) return [];
+    return await db
+        .select()
+        .from(weightEntries)
+        .where(inArray(weightEntries.exerciseId, exerciseIds))
+        .orderBy(desc(weightEntries.loggedAt));
 }
 

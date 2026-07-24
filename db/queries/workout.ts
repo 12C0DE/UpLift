@@ -37,12 +37,11 @@ export const createWorkout = async (
         .returning({ id: workouts.id });
 }
 
-export const updateWorkout = async (id: number, title: string, week?: number, exercises?: string[], orderIndex?: number) => {
+export const updateWorkout = async (id: number, title: string, week?: number, orderIndex?: number) => {
     return await db.update(workouts)
         .set({
             title,
             week,
-            exercises,
             orderIndex,
             modifiedAt: new Date().toISOString()
         })
