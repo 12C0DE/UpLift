@@ -39,7 +39,6 @@ export const BarbellDisplay = ({
       </View>
       <View>
         <TextInput
-          // keyboardType="numbers-and-punctuation"
           keyboardType="number-pad"
           enablesReturnKeyAutomatically
           maxLength={5}

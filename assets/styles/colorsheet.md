@@ -11,3 +11,4 @@ The app uses a dark theme by default. Below are the color values used throughout
 | Subtitle / hints | `#6d6969` | `#929292` |
 | Nav border | `#000` | `#404040` |
 | Chevron icons | `#000` | `#f5f5f5` |
+| Main Color | `#f6a800` |

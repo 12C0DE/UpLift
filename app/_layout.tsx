@@ -5,6 +5,7 @@ import { BarlowSemiCondensed_400Regular, BarlowSemiCondensed_400Regular_Italic, 
 import { BebasNeue_400Regular, useFonts } from "@expo-google-fonts/bebas-neue";
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { SplashScreen, Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -47,28 +48,29 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ActiveWorkoutProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        {/* the tabs navigator is one screen in the parent stack */}
-        <Stack.Screen name="(tabs)" />
+        <StatusBar style="light" />
+        <Stack screenOptions={{ headerShown: false }}>
+          {/* the tabs navigator is one screen in the parent stack */}
+          <Stack.Screen name="(tabs)" />
 
-        {/* a bottom‑up presentation for a form/modal */}
-        <Stack.Screen
-          name="descriptionModal"
-          options={{
-            presentation: "modal", // or "formSheet" on iOS
-            gestureEnabled: true,
-            headerShown: true,
-            headerTitle: "Description",
-            headerTitleStyle: {
-              color: "white",
-              fontSize: 20,
-            },
-            headerStyle: {
-              backgroundColor: "#0a0a0a",
-            }
-          }}
-        />
-      </Stack>
+          {/* a bottom‑up presentation for a form/modal */}
+          <Stack.Screen
+            name="descriptionModal"
+            options={{
+              presentation: "modal", // or "formSheet" on iOS
+              gestureEnabled: true,
+              headerShown: true,
+              headerTitle: "Description",
+              headerTitleStyle: {
+                color: "white",
+                fontSize: 20,
+              },
+              headerStyle: {
+                backgroundColor: "#0a0a0a",
+              }
+            }}
+          />
+        </Stack>
       </ActiveWorkoutProvider>
     </GestureHandlerRootView>
   );

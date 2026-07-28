@@ -6,11 +6,13 @@ import { getProgramById } from "@/db/queries/programs";
 import { getWeightEntriesByExercises } from "@/db/queries/weights";
 import { getWorkoutsByProgram } from "@/db/queries/workout";
 
-import { useFocusEffect } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import * as ScreenOrientation from "expo-screen-orientation";
+import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useRef, useState } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type HeaderRow = { type: "header"; dateCount: number };
@@ -203,6 +205,8 @@ function buildWorkoutSection(
 }
 
 export default function Logs() {
+  const isFocused = useIsFocused();
+
   const {
     programId,
     workoutId,
@@ -213,6 +217,7 @@ export default function Logs() {
   const [programName, setProgramName] = useState<string | null>(null);
   const [sections, setSections] = useState<LogSection[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDescription, setShowDescription] = useState(true);
 
   const isInProgress =
     workoutId !== null && !isWorkoutSaved && Object.keys(exerciseWeights).length > 0;
@@ -222,12 +227,12 @@ export default function Logs() {
       // Lock orientation to all
       ScreenOrientation.lockAsync(
         ScreenOrientation.OrientationLock.ALL,
-      ).catch(() => {});
+      ).catch(() => { });
 
       return () => {
         ScreenOrientation.lockAsync(
           ScreenOrientation.OrientationLock.PORTRAIT_UP,
-        ).catch(() => {});
+        ).catch(() => { });
       };
     }, []),
   );
@@ -287,11 +292,12 @@ export default function Logs() {
   const globalColCount =
     sections.length > 0 ? Math.max(...sections.map((s) => s.dates.length)) : 0;
   const rows = buildRows(sections, globalColCount);
+  const descriptionWidth = showDescription ? COL_DESC : 0;
   const tableWidth =
     COL_WORKOUT +
     COL_SETS +
     COL_REPS +
-    COL_DESC +
+    descriptionWidth +
     COL_WEIGHT * globalColCount;
 
   const headerScrollRef = useRef<ScrollView>(null);
@@ -318,9 +324,11 @@ export default function Logs() {
           <TblCell width={COL_REPS} header align="center">
             Reps
           </TblCell>
-          <TblCell width={COL_DESC} header align="center">
-            Description
-          </TblCell>
+          {showDescription ? (
+            <TblCell width={COL_DESC} header align="center">
+              Description
+            </TblCell>
+          ) : null}
           {Array.from({ length: item.dateCount }, (_, idx) => (
             <TblCell key={idx} width={COL_WEIGHT} header align="center">
               {item.dateCount - idx}
@@ -340,7 +348,7 @@ export default function Logs() {
             style={[
               styles.cell,
               styles.sectionCell,
-              { width: COL_SETS + COL_REPS + COL_DESC },
+              { width: COL_SETS + COL_REPS + descriptionWidth },
             ]}
           >
             <Text
@@ -379,9 +387,11 @@ export default function Logs() {
           <TblCell width={COL_REPS} align="center">
             {item.reps}
           </TblCell>
-          <TblCell width={COL_DESC} small>
-            {item.description}
-          </TblCell>
+          {showDescription ? (
+            <TblCell width={COL_DESC} small>
+              {item.description}
+            </TblCell>
+          ) : null}
           {Array.from({ length: item.colCount }, (_, i) => (
             <TblCell key={i} width={COL_WEIGHT} align="center">{""}</TblCell>
           ))}
@@ -397,7 +407,7 @@ export default function Logs() {
             {String(item.setNumber)}
           </TblCell>
           <TblCell width={COL_REPS} align="center">{""}</TblCell>
-          <TblCell width={COL_DESC} align="center">{""}</TblCell>
+          {showDescription ? <TblCell width={COL_DESC} align="center">{""}</TblCell> : null}
           {item.weights.map((weight, idx) => (
             <TblCell key={idx} width={COL_WEIGHT} align="center" weightValue>
               {weight != null ? String(weight) : ""}
@@ -451,13 +461,36 @@ export default function Logs() {
   };
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <View style={styles.titleBar}>
-        <Text style={styles.titleText}>{titleLabel}</Text>
-      </View>
-
-      {renderBody()}
-      <View style={{ height: 60 }} />
-    </SafeAreaView>
+    <View style={styles.screen}>
+      {isFocused ? <StatusBar style="dark" backgroundColor="#f6a800" /> : null}
+      <SafeAreaView edges={["top"]} style={styles.statusBarArea} />
+      <SafeAreaView edges={["left", "right", "bottom"]} style={styles.screenBody}>
+        <View style={styles.titleBar}>
+          <View style={styles.titleRow}>
+            <Text
+              style={styles.titleText}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
+              {titleLabel}
+            </Text>
+            <Pressable
+              style={styles.toggleButton}
+              onPress={() => setShowDescription((prev) => !prev)}
+            >
+              <Text style={styles.toggleButtonText}>
+                <Ionicons
+                  name={showDescription ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                />
+                {" Desc"}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+        {renderBody()}
+        <View style={{ height: 60 }} />
+      </SafeAreaView>
+    </View>
   );
 }

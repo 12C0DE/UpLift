@@ -3,19 +3,45 @@ import { StyleSheet } from "react-native";
 export const LogsStyles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: "#f6a800",
+  },
+  screenBody: {
+    flex: 1,
     backgroundColor: "#0a0a0a",
+  },
+  statusBarArea: {
+    backgroundColor: "#f6a800",
   },
   titleBar: {
     backgroundColor: "#f6a800",
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingHorizontal: 12,
+    paddingBottom: 8,
     alignItems: "center",
+  },
+  titleRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   titleText: {
     fontFamily: "BebasNeue",
     fontSize: 32,
     color: "#0a0a0a",
     letterSpacing: 2,
+  },
+  toggleButton: {
+    backgroundColor: "#0a0a0a",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  toggleButtonText: {
+    color: "#f6a800",
+    fontFamily: "BebasNeue",
+    fontSize: 18,
+    letterSpacing: 0.8,
+
   },
   row: {
     flexDirection: "row",

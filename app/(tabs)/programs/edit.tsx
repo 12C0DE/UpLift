@@ -176,7 +176,6 @@ const EditProgram = () => {
     updatedExercise: Exercise,
   ) => {
     const newSections = [...sections];
-    console.log('updatedExercise', updatedExercise);
     newSections[sectionIndex].exercises[exerciseToUpdate] = updatedExercise;
     setSections(newSections);
   };

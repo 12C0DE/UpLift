@@ -1,4 +1,4 @@
-import { currentLiftStyles as styles } from "@/assets";
+import { currentLiftModalStyles as modalStyles, currentLiftStyles as styles } from "@/assets";
 import { BarbellDisplay, WeightPlate } from "@/components";
 import { useActiveWorkout } from "@/context/ActiveWorkoutContext";
 import { getExercisesByWorkout } from "@/db/queries/exercises";
@@ -14,7 +14,6 @@ import {
   Keyboard,
   Modal,
   Pressable,
-  StyleSheet,
   Text,
   TouchableWithoutFeedback,
   View,
@@ -334,237 +333,174 @@ export default function CurrentLift({
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-    <SafeAreaView style={styles.container}>
-      <Modal
-        visible={isStartModalVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={closeStartModal}
-      >
-        <View style={modalStyles.backdrop}>
-          <Pressable style={modalStyles.backdropPressable} onPress={closeStartModal} />
-          <View style={modalStyles.sheet}>
-            <View style={modalStyles.sheetHeader}>
-              <Text style={modalStyles.sheetTitle}>Choose Workout</Text>
-              <Pressable onPress={closeStartModal} hitSlop={20}>
-                <Text style={modalStyles.closeText}>X</Text>
-              </Pressable>
-            </View>
+      <SafeAreaView style={styles.container}>
+        <Modal
+          visible={isStartModalVisible}
+          animationType="fade"
+          transparent
+          onRequestClose={closeStartModal}
+        >
+          <View style={modalStyles.backdrop}>
+            <Pressable style={modalStyles.backdropPressable} onPress={closeStartModal} />
+            <View style={modalStyles.sheet}>
+              <View style={modalStyles.sheetHeader}>
+                <Text style={modalStyles.sheetTitle}>Choose Workout</Text>
+                <Pressable onPress={closeStartModal} hitSlop={20}>
+                  <Text style={modalStyles.closeText}>X</Text>
+                </Pressable>
+              </View>
 
-            {startError ? <Text style={modalStyles.errorText}>{startError}</Text> : null}
+              {startError ? <Text style={modalStyles.errorText}>{startError}</Text> : null}
 
-            {isLoadingStartData ? (
-              <ActivityIndicator color="#f5f5f5" size="large" />
-            ) : (
-              modalBody
-            )}
+              {isLoadingStartData ? (
+                <ActivityIndicator color="#f5f5f5" size="large" />
+              ) : (
+                modalBody
+              )}
+            </View>
           </View>
-        </View>
-      </Modal>
-      <View>
+        </Modal>
         <View>
-          <View style={styles.header}>
-            <View style={{ flex: 1 }} />
-            <Text style={styles.exerciseName}>{activeLiftName}</Text>
-            <View style={{ flex: 1}}>
-              <Pressable
-                style={styles.descButton}
-                hitSlop={24}
-                onPress={() =>
-                  router.push({
-                    pathname: "/descriptionModal" as any,
-                    params: {
-                      title: activeLiftName,
-                      description: activeLiftDescription,
-                    },
-                  })
-                }
-              >
-                <Entypo name="info-with-circle" size={18} color="#929292" />
-              </Pressable>
+          <View>
+            <View style={styles.header}>
+              <View style={styles.headerContent}>
+                <Text
+                  style={styles.exerciseName}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
+                  {activeLiftName}
+                </Text>
+                <Pressable
+                  style={styles.descButton}
+                  hitSlop={32}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/descriptionModal" as any,
+                      params: {
+                        title: activeLiftName,
+                        description: activeLiftDescription,
+                      },
+                    })
+                  }
+                >
+                  <Entypo name="info-with-circle" size={18} color="#929292" />
+                </Pressable>
+              </View>
+            </View>
+            <View style={styles.weightSection}>
+              <BarbellDisplay
+                plates={plates}
+                totalWeight={totalWeight}
+                weightChangeHandler={weightChangeTextHandler}
+              />
+              <Text style={styles.lastLift}>
+                {lastWeight ? `Last: ${lastWeight} lbs` : null}
+              </Text>
             </View>
           </View>
-          <View style={styles.weightSection}>
-            <BarbellDisplay
-              plates={plates}
-              totalWeight={totalWeight}
-              weightChangeHandler={weightChangeTextHandler}
-            />
-            <Text style={styles.lastLift}>
-              {lastWeight ? `Last: ${lastWeight} lbs` : null}
-            </Text>
+          <View>
+            <View style={styles.weightsStack}>
+              <View style={styles.weightsRow}>
+                {topRowWeights.map((weight) => (
+                  <WeightPlate
+                    key={`w_${weight}`}
+                    weight={weight}
+                    onSwipeDown={() => weightChangeHandler(weight, "down")}
+                    onSwipeUp={() => weightChangeHandler(weight, "up")}
+                  />
+                ))}
+              </View>
+              <View style={styles.weightsRow}>
+                {bottomRowWeights.map((weight) => (
+                  <WeightPlate
+                    key={`w_${weight}`}
+                    weight={weight}
+                    onSwipeDown={() => weightChangeHandler(weight, "down")}
+                    onSwipeUp={() => weightChangeHandler(weight, "up")}
+                  />
+                ))}
+              </View>
+            </View>
+            <Text style={styles.swipeHint}>Swipe up or down to change weight</Text>
           </View>
-        </View>
-        <View>
-          <View style={styles.weightsStack}>
-            <View style={styles.weightsRow}>
-              {topRowWeights.map((weight) => (
-                <WeightPlate
-                  key={`w_${weight}`}
-                  weight={weight}
-                  onSwipeDown={() => weightChangeHandler(weight, "down")}
-                  onSwipeUp={() => weightChangeHandler(weight, "up")}
-                />
-              ))}
+          <View style={styles.setsRepsSection}>
+            <View style={styles.setsContainer}>
+              <Text style={styles.sectionLabel}>Sets</Text>
+              <View style={styles.setsRow}>
+                <View style={styles.numberBox}>
+                  <Text style={styles.numberText}>{currentSet}</Text>
+                </View>
+                <Text style={styles.ofText}>of</Text>
+                <View style={styles.numberBox}>
+                  <Text style={styles.numberText}>{activeTotalSets}</Text>
+                </View>
+              </View>
             </View>
-            <View style={styles.weightsRow}>
-              {bottomRowWeights.map((weight) => (
-                <WeightPlate
-                  key={`w_${weight}`}
-                  weight={weight}
-                  onSwipeDown={() => weightChangeHandler(weight, "down")}
-                  onSwipeUp={() => weightChangeHandler(weight, "up")}
-                />
-              ))}
-            </View>
-          </View>
-          <Text style={styles.swipeHint}>Swipe up or down to change weight</Text>
-        </View>
-        <View style={styles.setsRepsSection}>
-          <View style={styles.setsContainer}>
-            <Text style={styles.sectionLabel}>Sets</Text>
-            <View style={styles.setsRow}>
-              <View style={styles.numberBox}>
-              <Text style={styles.numberText}>{currentSet}</Text>
-            </View>
-            <Text style={styles.ofText}>of</Text>
-            <View style={styles.numberBox}>
-              <Text style={styles.numberText}>{activeTotalSets}</Text>
+            <View style={styles.repsContainer}>
+              <Text style={styles.sectionLabel}>Reps</Text>
+              <View style={[styles.numberBox, styles.numberBoxCentered]}>
+                <Text style={styles.numberText}>{activeReps}</Text>
               </View>
             </View>
           </View>
-          <View style={styles.repsContainer}>
-            <Text style={styles.sectionLabel}>Reps</Text>
-            <View style={[styles.numberBox, styles.numberBoxCentered]}>
-              <Text style={styles.numberText}>{activeReps}</Text>
-            </View>
-          </View>
         </View>
-      </View>
-      <View style={styles.navContainer}>
-        <Pressable
-          hitSlop={24}
-          style={styles.navButton}
-          onPress={() => {
-            if (currentSet > 1) {
-              const prevSet = currentSet - 1;
-              setCurrentSet(prevSet);
-              setTotalWeight(exerciseWeights[currentExercise?.id ?? -1]?.[prevSet] ?? 0);
-            } else if (currentExerciseIndex > 0) {
-              const prevIndex = currentExerciseIndex - 1;
-              const prevExercise = workoutExercises[prevIndex];
-              const prevSets = prevExercise?.sets ?? totalSets;
-              setCurrentExerciseIndex(prevIndex);
-              setCurrentSet(prevSets);
-              setTotalWeight(exerciseWeights[prevExercise?.id ?? -1]?.[prevSets] ?? 0);
-            }
-          }}
-        >
-          {currentSet === 1 && currentExerciseIndex === 0 ? (
-            <Text style={styles.nextLiftText}>Prev Lift</Text>
-          ) : (
-            <Entypo name="arrow-bold-left" size={42} color="white" />
-          )}
-        </Pressable>
-        <Pressable
-          hitSlop={24}
-          style={styles.navButton}
-          onPress={() => {
-            if (workoutSaved) return;
-            if (currentSet < activeTotalSets) {
-              const nextSet = currentSet + 1;
-              setCurrentSet(nextSet);
-              if (currentExercise) {
-                setExerciseWeights(prev => ({
-                  ...prev,
-                  [currentExercise.id]: { ...prev[currentExercise.id], [nextSet]: totalWeight },
-                }));
+        <View style={styles.navContainer}>
+          <Pressable
+            hitSlop={24}
+            style={styles.navButton}
+            onPress={() => {
+              if (currentSet > 1) {
+                const prevSet = currentSet - 1;
+                setCurrentSet(prevSet);
+                setTotalWeight(exerciseWeights[currentExercise?.id ?? -1]?.[prevSet] ?? 0);
+              } else if (currentExerciseIndex > 0) {
+                const prevIndex = currentExerciseIndex - 1;
+                const prevExercise = workoutExercises[prevIndex];
+                const prevSets = prevExercise?.sets ?? totalSets;
+                setCurrentExerciseIndex(prevIndex);
+                setCurrentSet(prevSets);
+                setTotalWeight(exerciseWeights[prevExercise?.id ?? -1]?.[prevSets] ?? 0);
               }
-            } else if (workoutExercises.length > 0 && currentExerciseIndex < workoutExercises.length - 1) {
-              const nextIndex = currentExerciseIndex + 1;
-              const nextExercise = workoutExercises[nextIndex];
-              setCurrentExerciseIndex(nextIndex);
-              setCurrentSet(1);
-              setTotalWeight(exerciseWeights[nextExercise?.id ?? -1]?.[1] ?? 0);
-            } else if (workoutExercises.length > 0) {
-              handleSaveWorkout();
-            }
-          }}
-        >
-          {getRightNavContent()}
-        </Pressable>
-      </View>
-    </SafeAreaView>
+            }}
+          >
+            {currentSet === 1 && currentExerciseIndex === 0 ? (
+              <Text style={styles.nextLiftText}>Prev Lift</Text>
+            ) : (
+              <Entypo name="arrow-bold-left" size={42} color="white" />
+            )}
+          </Pressable>
+          <Pressable
+            hitSlop={24}
+            style={styles.navButton}
+            onPress={() => {
+              if (workoutSaved) return;
+              if (currentSet < activeTotalSets) {
+                const nextSet = currentSet + 1;
+                setCurrentSet(nextSet);
+                if (currentExercise) {
+                  setExerciseWeights(prev => ({
+                    ...prev,
+                    [currentExercise.id]: { ...prev[currentExercise.id], [nextSet]: totalWeight },
+                  }));
+                }
+              } else if (workoutExercises.length > 0 && currentExerciseIndex < workoutExercises.length - 1) {
+                const nextIndex = currentExerciseIndex + 1;
+                const nextExercise = workoutExercises[nextIndex];
+                setCurrentExerciseIndex(nextIndex);
+                setCurrentSet(1);
+                setTotalWeight(exerciseWeights[nextExercise?.id ?? -1]?.[1] ?? 0);
+              } else if (workoutExercises.length > 0) {
+                handleSaveWorkout();
+              }
+            }}
+          >
+            {getRightNavContent()}
+          </Pressable>
+        </View>
+      </SafeAreaView>
     </TouchableWithoutFeedback>
   );
 }
 
-const modalStyles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
-    justifyContent: "flex-start",
-    paddingVertical: 100,
-  },
-  backdropPressable: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  sheet: {
-    backgroundColor: "#121212",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#2f2f2f",
-    padding: 20,
-    maxHeight: "80%",
-  },
-  sheetHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-  sheetTitle: {
-    fontFamily: "BebasNeue",
-    fontSize: 32,
-    color: "#f5f5f5",
-    letterSpacing: 0.8,
-  },
-  closeText: {
-    color: "#9a9a9a",
-    fontSize: 14,
-  },
-  sectionLabel: {
-    color: "#d6d6d6",
-    fontSize: 14,
-    marginBottom: 12,
-  },
-  itemButton: {
-    backgroundColor: "#1f1f1f",
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#333",
-  },
-  itemTitle: {
-    color: "#f5f5f5",
-    fontFamily: "BebasNeue",
-    fontSize: 26,
-    letterSpacing: 0.6,
-  },
-  itemSubtitle: {
-    color: "#9a9a9a",
-    fontSize: 13,
-    marginTop: 4,
-  },
-  emptyText: {
-    color: "#9a9a9a",
-    textAlign: "center",
-    marginTop: 16,
-  },
-  errorText: {
-    color: "#ff8a8a",
-    marginBottom: 12,
-  },
-});
+

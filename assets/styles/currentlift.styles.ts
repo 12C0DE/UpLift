@@ -10,15 +10,21 @@ export const currentLiftStyles = StyleSheet.create({
     paddingBottom: 36,
   },
   header: {
-    // paddingTop: 0,
-    // paddingBottom: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    // paddingHorizontal: 8,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "99%",
   },
   descButton: {
     color: "#f5f5f5",
-    marginRight: 4
+    marginLeft: 6,
+    marginRight: 0,
   },  
   exerciseName: {
     fontFamily: "BebasNeue",
@@ -26,13 +32,14 @@ export const currentLiftStyles = StyleSheet.create({
     textAlign: "center",
     color: "#f5f5f5",
     letterSpacing: 1.2,
-    maxWidth: 350,
-    marginHorizontal: 8,
-    flex: 1
+    marginHorizontal: 1,
+    flexShrink: 1,
+    marginLeft: 24,
+
+    // paddingHorizontal: 2,
   },
   weightSection: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
+    padding: 16,
   },
   barbellContainer: {
     justifyContent: "center",
@@ -152,5 +159,77 @@ export const currentLiftStyles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     paddingHorizontal: 20,
+  },
+});
+
+export const currentLiftModalStyles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    justifyContent: "flex-start",
+    paddingVertical: 100,
+  },
+  backdropPressable: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  sheet: {
+    backgroundColor: "#121212",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#2f2f2f",
+    padding: 20,
+    maxHeight: "60%",
+  },
+  sheetHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  sheetTitle: {
+    fontFamily: "BebasNeue",
+    fontSize: 32,
+    color: "#f5f5f5",
+    letterSpacing: 0.8,
+    textDecorationLine: "underline",
+    textDecorationColor: "#f6a800",
+  },
+  closeText: {
+    color: "#9a9a9a",
+    fontSize: 14,
+  },
+  sectionLabel: {
+    color: "#d6d6d6",
+    fontSize: 14,
+    marginBottom: 12,
+  },
+  itemButton: {
+    backgroundColor: "#1f1f1f",
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  itemTitle: {
+    color: "#f5f5f5",
+    fontFamily: "BebasNeue",
+    fontSize: 20,
+    letterSpacing: 0.6,
+  },
+  itemSubtitle: {
+    color: "#9a9a9a",
+    fontSize: 13,
+    marginTop: 4,
+  },
+  emptyText: {
+    color: "#9a9a9a",
+    textAlign: "center",
+    marginTop: 16,
+  },
+  errorText: {
+    color: "#ff8a8a",
+    marginBottom: 12,
   },
 });
