@@ -316,7 +316,10 @@ export default function CurrentLift({
       data={workouts}
       keyExtractor={(item) => String(item.id)}
       renderItem={({ item }) => (
-        <Pressable style={modalStyles.itemButton} onPress={() => selectWorkout(item)}>
+        <Pressable 
+          style={modalStyles.itemButton} 
+          onPress={() => selectWorkout(item)}
+        >
           <Text style={modalStyles.itemTitle}>{item.title}</Text>
           <Text style={modalStyles.itemSubtitle}>
             {item.exercises?.length
@@ -326,7 +329,9 @@ export default function CurrentLift({
         </Pressable>
       )}
       ListEmptyComponent={
-        <Text style={modalStyles.emptyText}>No workouts found for this program.</Text>
+        <Text style={modalStyles.emptyText}>
+          No workouts found for this program.
+        </Text>
       }
     />
   );
@@ -341,7 +346,10 @@ export default function CurrentLift({
           onRequestClose={closeStartModal}
         >
           <View style={modalStyles.backdrop}>
-            <Pressable style={modalStyles.backdropPressable} onPress={closeStartModal} />
+            <Pressable 
+              style={modalStyles.backdropPressable} 
+              onPress={closeStartModal} 
+            />
             <View style={modalStyles.sheet}>
               <View style={modalStyles.sheetHeader}>
                 <Text style={modalStyles.sheetTitle}>Choose Workout</Text>
