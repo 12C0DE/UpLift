@@ -13,7 +13,8 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "bundleIdentifier": "com.12code.uplift"
+      "bundleIdentifier": "com.12code.uplift",
+      "buildNumber": "7"
     },
     "android": {
       "adaptiveIcon": {
