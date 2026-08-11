@@ -1,27 +1,9 @@
-if (!Array.prototype.toReversed) {
-	Object.defineProperty(Array.prototype, "toReversed", {
-		value: function toReversedPolyfill() {
-			return this.slice().reverse();
-		},
-		writable: true,
-		configurable: true,
-	});
-}
-
-if (!Array.prototype.toSorted) {
-	Object.defineProperty(Array.prototype, "toSorted", {
-		value: function toSortedPolyfill(compareFn) {
-			return this.slice().sort(compareFn);
-		},
-		writable: true,
-		configurable: true,
-	});
-}
-
 const { getDefaultConfig } = require("expo/metro-config");
 
+/** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
-config.resolver.assetExts.push("sql");
+// Enable Drizzle ORM inline .sql imports
+config.resolver.sourceExts.push("sql");
 
 module.exports = config;
