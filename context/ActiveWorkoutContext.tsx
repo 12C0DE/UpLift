@@ -1,7 +1,8 @@
-import { getExercisesByWorkout } from "@/db/queries/exercises";
+import { getExercisesWithLastWeightByWorkout } from "@/db/queries/exercises";
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-type ExerciseType = Awaited<ReturnType<typeof getExercisesByWorkout>>[number];
+type ExerciseType = Awaited<ReturnType<typeof getExercisesWithLastWeightByWorkout>>[number];
+
 
 export interface ActiveWorkoutState {
   programId: number | null;

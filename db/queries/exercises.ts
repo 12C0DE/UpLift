@@ -2,12 +2,29 @@ import { eq } from 'drizzle-orm';
 import { db } from '../index';
 import { exercises } from '../schema';
 
+import { getLastWeightsForExercises } from './weights';
+
 export const getExercisesByWorkout = async (workoutId: number) => {
     return await db.select()
         .from(exercises)
         .where(eq(exercises.workoutId, workoutId))
         .orderBy(exercises.orderIndex);
 }
+
+export const getExercisesWithLastWeightByWorkout = async (workoutId: number) => {
+    const exerciseList = await getExercisesByWorkout(workoutId);
+    if (exerciseList.length === 0) return [];
+
+    const exerciseIds = exerciseList.map((ex) => ex.id);
+    const lastWeightsMap = await getLastWeightsForExercises(exerciseIds);
+
+    return exerciseList.map((ex) => ({
+        ...ex,
+        lastWeight: lastWeightsMap[ex.id]?.weight ?? null,
+        lastLoggedAt: lastWeightsMap[ex.id]?.loggedAt ?? null,
+    }));
+}
+
 
 export const getExerciseById = async (id: number) => {
     return await db.select()

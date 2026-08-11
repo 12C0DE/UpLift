@@ -12,31 +12,38 @@ export const currentLiftStyles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    // paddingHorizontal: 8,
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    // paddingVertical: 4,
+  },
+  headerSpacer: {
+    width: 8,
   },
   headerContent: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    width: "99%",
+    paddingHorizontal: 4,
+  },
+  menuButton: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
   },
   descButton: {
     color: "#f5f5f5",
     marginLeft: 6,
     marginRight: 0,
-  },  
+  },
   exerciseName: {
     fontFamily: "BebasNeue",
-    fontSize: 40,
+    fontSize: 36,
     textAlign: "center",
     color: "#f5f5f5",
     letterSpacing: 1.2,
-    marginHorizontal: 1,
     flexShrink: 1,
-    marginLeft: 24,
-
-    // paddingHorizontal: 2,
   },
   weightSection: {
     padding: 16,
@@ -165,9 +172,10 @@ export const currentLiftStyles = StyleSheet.create({
 export const currentLiftModalStyles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
-    justifyContent: "flex-start",
-    paddingVertical: 100,
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 40,
   },
   backdropPressable: {
     ...StyleSheet.absoluteFillObject,
@@ -178,7 +186,15 @@ export const currentLiftModalStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#2f2f2f",
     padding: 20,
-    maxHeight: "60%",
+    maxHeight: "75%",
+  },
+  menuSheet: {
+    backgroundColor: "#121212",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#2f2f2f",
+    padding: 20,
+    width: "100%",
   },
   sheetHeader: {
     flexDirection: "row",
@@ -188,15 +204,30 @@ export const currentLiftModalStyles = StyleSheet.create({
   },
   sheetTitle: {
     fontFamily: "BebasNeue",
-    fontSize: 32,
+    fontSize: 28,
     color: "#f5f5f5",
     letterSpacing: 0.8,
-    textDecorationLine: "underline",
-    textDecorationColor: "#f6a800",
+  },
+  menuHeaderSub: {
+    color: "#9a9a9a",
+    fontSize: 13,
+    marginBottom: 16,
   },
   closeText: {
     color: "#9a9a9a",
+    fontSize: 24,
+    fontWeight: "bold",
+    padding: 4,
+  },
+  backHeaderButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+  },
+  backHeaderText: {
+    color: "#f6a800",
     fontSize: 14,
+    fontFamily: "BebasNeue",
   },
   sectionLabel: {
     color: "#d6d6d6",
@@ -221,7 +252,17 @@ export const currentLiftModalStyles = StyleSheet.create({
   itemSubtitle: {
     color: "#9a9a9a",
     fontSize: 13,
+  },
+  itemRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: 4,
+  },
+  lastLiftedText: {
+    color: "#9a9a9a",
+    fontSize: 12,
+    fontStyle: "italic",
   },
   emptyText: {
     color: "#9a9a9a",
@@ -232,4 +273,196 @@ export const currentLiftModalStyles = StyleSheet.create({
     color: "#ff8a8a",
     marginBottom: 12,
   },
+  /* Options Cards */
+  optionCard: {
+    backgroundColor: "#1f1f1f",
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  optionCardDisabled: {
+    opacity: 0.5,
+  },
+  optionIconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: "#2a2a2a",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 14,
+  },
+  optionTextContent: {
+    flex: 1,
+  },
+  optionTitle: {
+    fontFamily: "BebasNeue",
+    fontSize: 20,
+    color: "#f5f5f5",
+    letterSpacing: 0.6,
+  },
+  optionSub: {
+    fontSize: 12,
+    color: "#9a9a9a",
+    marginTop: 2,
+  },
+  runningBadge: {
+    backgroundColor: "#f6a800",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  runningBadgeText: {
+    color: "#0a0a0a",
+    fontFamily: "BebasNeue",
+    fontSize: 14,
+  },
+  /* Rest Timer Styles */
+  timerDisplayBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#1a1a1a",
+    borderRadius: 20,
+    paddingVertical: 20,
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: "#2f2f2f",
+  },
+  timerReadout: {
+    fontFamily: "BebasNeue",
+    fontSize: 64,
+    color: "#ffffff",
+    letterSpacing: 2,
+  },
+  timerStatusText: {
+    color: "#9a9a9a",
+    fontSize: 13,
+    marginTop: 4,
+  },
+  timerPresetRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 16,
+    marginHorizontal: 16,
+  },
+  presetBtn: {
+    backgroundColor: "#1f1f1f",
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  presetBtnActive: {
+    backgroundColor: "#f6a800",
+    borderColor: "#f6a800",
+  },
+  presetBtnText: {
+    fontFamily: "BebasNeue",
+    textTransform: 'lowercase',
+    fontSize: 28,
+    color: "#d6d6d6",
+  },
+  presetBtnTextActive: {
+    color: "#0a0a0a",
+  },
+  timerControlsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    marginTop: 8,
+  },
+  timerSecondaryBtn: {
+    backgroundColor: "#262626",
+    borderRadius: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  secondaryBtnText: {
+    fontFamily: "BebasNeue",
+    fontSize: 16,
+    color: "#f5f5f5",
+  },
+  timerResetBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#262626",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 16
+  },
+  timerMainPlayBtn: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: "#f6a800",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  /* Finish Confirmation Styles */
+  confirmBox: {
+    alignItems: "center",
+    paddingVertical: 12,
+  },
+  warningIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "rgba(255, 82, 82, 0.15)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  confirmHeading: {
+    fontFamily: "BebasNeue",
+    fontSize: 26,
+    color: "#f5f5f5",
+    marginBottom: 8,
+  },
+  confirmDescription: {
+    color: "#9a9a9a",
+    fontSize: 14,
+    textAlign: "center",
+    paddingHorizontal: 12,
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  confirmActionsRow: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+  confirmCancelBtn: {
+    flex: 1,
+    backgroundColor: "#262626",
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  confirmCancelText: {
+    fontFamily: "BebasNeue",
+    fontSize: 18,
+    color: "#f5f5f5",
+  },
+  confirmFinishBtn: {
+    flex: 1,
+    backgroundColor: "#ff5252",
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  confirmFinishText: {
+    fontFamily: "BebasNeue",
+    fontSize: 18,
+    color: "#ffffff",
+  },
 });
+

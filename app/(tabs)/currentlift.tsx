@@ -1,8 +1,8 @@
 import { currentLiftModalStyles as modalStyles, currentLiftStyles as styles } from "@/assets";
-import { BarbellDisplay, WeightPlate } from "@/components";
+import { BarbellDisplay, WeightPlate, WorkoutMenuModal, WorkoutSummaryData, WorkoutSummaryModal } from "@/components";
 import { useActiveWorkout } from "@/context/ActiveWorkoutContext";
-import { getExercisesByWorkout } from "@/db/queries/exercises";
-import { getLastWeight, logWeight } from "@/db/queries/weights";
+import { getExercisesWithLastWeightByWorkout } from "@/db/queries/exercises";
+import { logWeight } from "@/db/queries/weights";
 import { getWorkoutsByProgram } from "@/db/queries/workout";
 import { BAR_WEIGHT, WEIGHT_LIST } from "@/utils";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -29,7 +29,7 @@ interface CurrentLiftProps {
 }
 
 type WorkoutOption = Awaited<ReturnType<typeof getWorkoutsByProgram>>[number];
-type ExerciseType = Awaited<ReturnType<typeof getExercisesByWorkout>>[number];
+type ExerciseType = Awaited<ReturnType<typeof getExercisesWithLastWeightByWorkout>>[number];
 
 const firstParam = (value: string | string[] | undefined) => {
   if (Array.isArray(value)) return value[0];
@@ -56,7 +56,7 @@ export default function CurrentLift({
   const workoutSummaryParam = firstParam(params.workoutSummary);
   const workoutIdParam = firstParam(params.workoutId);
 
-  const { setWorkoutData, updateWeights, markSaved } = useActiveWorkout();
+  const { setWorkoutData, updateWeights, markSaved, clearWorkout } = useActiveWorkout();
 
   const [totalWeight, setTotalWeight] = useState(lastWeight || 0);
   const [currentSet, setCurrentSet] = useState(1);
@@ -74,6 +74,10 @@ export default function CurrentLift({
   );
   const [isLoadingStartData, setIsLoadingStartData] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
+  const [isMenuModalVisible, setIsMenuModalVisible] = useState(false);
+  const [isSummaryModalVisible, setIsSummaryModalVisible] = useState(false);
+  const [summaryData, setSummaryData] = useState<WorkoutSummaryData | null>(null);
+  const workoutStartTimeRef = useRef<number>(Date.now());
 
   const currentExercise: ExerciseType | null = workoutExercises[currentExerciseIndex] ?? null;
   const activeLiftName = currentExercise?.name ?? workoutTitleParam ?? liftName;
@@ -136,22 +140,17 @@ export default function CurrentLift({
     const loadExercises = async () => {
 
       try {
-        const exercisesData = await getExercisesByWorkout(Number(workoutIdParam));
+        const exercisesData = await getExercisesWithLastWeightByWorkout(Number(workoutIdParam));
         if (!isActive) return;
         setWorkoutExercises(exercisesData);
         setCurrentExerciseIndex(0);
         setCurrentSet(1);
         setWorkoutSaved(false);
-
-        const lastWeightResults = await Promise.all(
-          exercisesData.map(ex => getLastWeight(ex.id))
-        );
-        if (!isActive) return;
+        workoutStartTimeRef.current = Date.now();
 
         const weightMap: Record<number, Record<number, number>> = {};
-        exercisesData.forEach((ex, i) => {
-          const lw = lastWeightResults[i];
-          const lastWt = lw?.weight ?? 0;
+        exercisesData.forEach((ex) => {
+          const lastWt = ex.lastWeight ?? 0;
           const numSets = ex.sets ?? totalSets;
           weightMap[ex.id] = {};
           for (let s = 1; s <= numSets; s++) {
@@ -185,6 +184,7 @@ export default function CurrentLift({
       isActive = false;
     };
   }, [workoutIdParam, totalSets, setWorkoutData, workoutTitleParam, programIdParam]);
+
 
   const prevExerciseWeightsRef = useRef(exerciseWeights);
   useEffect(() => {
@@ -289,6 +289,50 @@ export default function CurrentLift({
     });
   };
 
+  const calculateAndShowSummary = (weightsMap: Record<number, Record<number, number>>) => {
+    const durationSeconds = Math.max(1, Math.round((Date.now() - workoutStartTimeRef.current) / 1000));
+    let exercisesWithWeightCount = 0;
+    let totalVolume = 0;
+    let maxWeight = 0;
+    let maxWeightExerciseName = "";
+
+    const exerciseList = workoutExercises.length > 0 ? workoutExercises : (currentExercise ? [currentExercise] : []);
+
+    exerciseList.forEach(ex => {
+      const numSets = ex.sets ?? totalSets;
+      const repsCount = ex.reps ?? reps;
+      let hasWeightAboveZero = false;
+
+      for (let s = 1; s <= numSets; s++) {
+        const w = weightsMap[ex.id]?.[s] ?? 0;
+        if (w > 0) {
+          hasWeightAboveZero = true;
+          totalVolume += w * repsCount;
+          if (w > maxWeight) {
+            maxWeight = w;
+            maxWeightExerciseName = ex.name;
+          }
+        }
+      }
+
+      if (hasWeightAboveZero) {
+        exercisesWithWeightCount++;
+      }
+    });
+
+    const summary: WorkoutSummaryData = {
+      durationSeconds,
+      exercisesWithWeightCount,
+      totalExercisesCount: exerciseList.length,
+      totalVolume,
+      maxWeight,
+      maxWeightExerciseName,
+    };
+
+    setSummaryData(summary);
+    setIsSummaryModalVisible(true);
+  };
+
   const handleSaveWorkout = async () => {
     if (isSaving || workoutSaved) return;
     setIsSaving(true);
@@ -304,6 +348,7 @@ export default function CurrentLift({
       await Promise.all(savePromises);
       setWorkoutSaved(true);
       markSaved();
+      calculateAndShowSummary(exerciseWeights);
     } catch (error) {
       console.error("Error saving workout:", error);
     } finally {
@@ -311,12 +356,102 @@ export default function CurrentLift({
     }
   };
 
+  const handleFinishWorkoutEarly = async () => {
+    if (isSaving || workoutSaved) return;
+    setIsSaving(true);
+    try {
+      const updatedWeights: Record<number, Record<number, number>> = { ...exerciseWeights };
+      const savePromises: Promise<unknown>[] = [];
+
+      if (workoutExercises.length > 0) {
+        workoutExercises.forEach((ex, exIndex) => {
+          const numSets = ex.sets ?? totalSets;
+          if (!updatedWeights[ex.id]) {
+            updatedWeights[ex.id] = {};
+          }
+          for (let s = 1; s <= numSets; s++) {
+            let weight = updatedWeights[ex.id]?.[s] ?? 0;
+            if (exIndex > currentExerciseIndex || (exIndex === currentExerciseIndex && s > currentSet)) {
+              weight = 0;
+            }
+            updatedWeights[ex.id][s] = weight;
+            savePromises.push(logWeight(ex.id, weight));
+          }
+        });
+      } else if (currentExercise) {
+        const numSets = currentExercise.sets ?? totalSets;
+        if (!updatedWeights[currentExercise.id]) {
+          updatedWeights[currentExercise.id] = {};
+        }
+        for (let s = 1; s <= numSets; s++) {
+          let weight = updatedWeights[currentExercise.id]?.[s] ?? 0;
+          if (s > currentSet) {
+            weight = 0;
+          }
+          updatedWeights[currentExercise.id][s] = weight;
+          savePromises.push(logWeight(currentExercise.id, weight));
+        }
+      }
+
+      setExerciseWeights(updatedWeights);
+      await Promise.all(savePromises);
+      setWorkoutSaved(true);
+      markSaved();
+      setIsMenuModalVisible(false);
+      calculateAndShowSummary(updatedWeights);
+    } catch (error) {
+      console.error("Error finishing workout early:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleReturnHome = () => {
+    setIsSummaryModalVisible(false);
+    clearWorkout();
+    router.replace("/" as any);
+  };
+
+  const handleSelectDescription = () => {
+    setIsMenuModalVisible(false);
+    router.push({
+      pathname: "/descriptionModal" as any,
+      params: {
+        title: activeLiftName,
+        description: activeLiftDescription,
+      },
+    });
+  };
+
+  const formatDate = (isoStr?: string | null) => {
+    if (!isoStr) return "";
+    const d = new Date(isoStr);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
+
+  const renderLastLiftText = () => {
+    if (currentExercise && currentExercise.lastWeight != null) {
+      const formattedDate = formatDate(currentExercise.lastLoggedAt);
+      const dateText = formattedDate ? ` (${formattedDate})` : "";
+      return `Last: ${currentExercise.lastWeight} lbs${dateText}`;
+    }
+    if (lastWeight && lastWeight > 0) {
+      return `Last: ${lastWeight} lbs`;
+    }
+    return null;
+  };
+
   const modalBody = (
+
     <FlatList
       data={workouts}
       keyExtractor={(item) => String(item.id)}
       renderItem={({ item }) => (
-        <Pressable style={modalStyles.itemButton} onPress={() => selectWorkout(item)}>
+        <Pressable
+          style={modalStyles.itemButton}
+          onPress={() => selectWorkout(item)}
+        >
           <Text style={modalStyles.itemTitle}>{item.title}</Text>
           <Text style={modalStyles.itemSubtitle}>
             {item.exercises?.length
@@ -326,7 +461,9 @@ export default function CurrentLift({
         </Pressable>
       )}
       ListEmptyComponent={
-        <Text style={modalStyles.emptyText}>No workouts found for this program.</Text>
+        <Text style={modalStyles.emptyText}>
+          No workouts found for this program.
+        </Text>
       }
     />
   );
@@ -341,7 +478,10 @@ export default function CurrentLift({
           onRequestClose={closeStartModal}
         >
           <View style={modalStyles.backdrop}>
-            <Pressable style={modalStyles.backdropPressable} onPress={closeStartModal} />
+            <Pressable
+              style={modalStyles.backdropPressable}
+              onPress={closeStartModal}
+            />
             <View style={modalStyles.sheet}>
               <View style={modalStyles.sheetHeader}>
                 <Text style={modalStyles.sheetTitle}>Choose Workout</Text>
@@ -360,9 +500,23 @@ export default function CurrentLift({
             </View>
           </View>
         </Modal>
+        <WorkoutMenuModal
+          visible={isMenuModalVisible}
+          onClose={() => setIsMenuModalVisible(false)}
+          onSelectDescription={handleSelectDescription}
+          onFinishWorkoutEarly={handleFinishWorkoutEarly}
+          isSaving={isSaving}
+          workoutSaved={workoutSaved}
+        />
+        <WorkoutSummaryModal
+          visible={isSummaryModalVisible}
+          summaryData={summaryData}
+          onReturnHome={handleReturnHome}
+        />
         <View>
           <View>
             <View style={styles.header}>
+              <View style={styles.headerSpacer} />
               <View style={styles.headerContent}>
                 <Text
                   style={styles.exerciseName}
@@ -371,22 +525,14 @@ export default function CurrentLift({
                 >
                   {activeLiftName}
                 </Text>
-                <Pressable
-                  style={styles.descButton}
-                  hitSlop={32}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/descriptionModal" as any,
-                      params: {
-                        title: activeLiftName,
-                        description: activeLiftDescription,
-                      },
-                    })
-                  }
-                >
-                  <Entypo name="info-with-circle" size={18} color="#929292" />
-                </Pressable>
               </View>
+              <Pressable
+                style={styles.menuButton}
+                hitSlop={24}
+                onPress={() => setIsMenuModalVisible(true)}
+              >
+                <Entypo name="dots-three-vertical" size={20} color="#929292" />
+              </Pressable>
             </View>
             <View style={styles.weightSection}>
               <BarbellDisplay
@@ -394,9 +540,17 @@ export default function CurrentLift({
                 totalWeight={totalWeight}
                 weightChangeHandler={weightChangeTextHandler}
               />
-              <Text style={styles.lastLift}>
-                {lastWeight ? `Last: ${lastWeight} lbs` : null}
-              </Text>
+              {lastWeight && (
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                  <Text style={styles.lastLift}>
+                    Last lift:
+                  </Text>
+                  <Text style={[styles.lastLift, { fontWeight: 700 }]} >
+                    {lastWeight}
+                  </Text>
+                  <Text style={styles.lastLift}>lbs</Text>
+                </View>
+              )}
             </View>
           </View>
           <View>

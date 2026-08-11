@@ -47,7 +47,7 @@ interface LogSection {
 
 const COL_WORKOUT = 140;
 const COL_SETS = 56;
-const COL_REPS = 80;
+const COL_REPS = 52;
 const COL_DESC = 200;
 const COL_WEIGHT = 88;
 
@@ -480,7 +480,7 @@ export default function Logs() {
             >
               <Text style={styles.toggleButtonText}>
                 <Ionicons
-                  name={showDescription ? "eye-off-outline" : "eye-outline"}
+                  name={showDescription ? "eye-outline" : "eye-off-outline"}
                   size={20}
                 />
                 {" Desc"}

@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { db } from '../index';
-import { workouts } from '../schema';
+import { exercises, weightEntries, workouts } from '../schema';
 
 export const getWorkoutsByProgram = async (programId: number) => {
     return await db.select()
@@ -8,6 +8,57 @@ export const getWorkoutsByProgram = async (programId: number) => {
         .where(eq(workouts.programId, programId))
         .orderBy(workouts.orderIndex);
 }
+
+export const getLastLiftedDateForWorkouts = async (workoutIds: number[]) => {
+    if (workoutIds.length === 0) return {};
+
+    const exList = await db
+        .select({ id: exercises.id, workoutId: exercises.workoutId })
+        .from(exercises)
+        .where(inArray(exercises.workoutId, workoutIds));
+
+    if (exList.length === 0) return {};
+
+    const exerciseIdToWorkoutId: Record<number, number> = {};
+    const exerciseIds: number[] = [];
+    for (const ex of exList) {
+        exerciseIdToWorkoutId[ex.id] = ex.workoutId;
+        exerciseIds.push(ex.id);
+    }
+
+    const weights = await db
+        .select({
+            exerciseId: weightEntries.exerciseId,
+            loggedAt: weightEntries.loggedAt,
+        })
+        .from(weightEntries)
+        .where(inArray(weightEntries.exerciseId, exerciseIds))
+        .orderBy(desc(weightEntries.loggedAt));
+
+    const lastLiftedMap: Record<number, string> = {};
+    for (const entry of weights) {
+        const wId = exerciseIdToWorkoutId[entry.exerciseId];
+        if (wId && !lastLiftedMap[wId]) {
+            lastLiftedMap[wId] = entry.loggedAt;
+        }
+    }
+
+    return lastLiftedMap;
+};
+
+export const getWorkoutsWithLastLiftedByProgram = async (programId: number) => {
+    const workoutList = await getWorkoutsByProgram(programId);
+    if (workoutList.length === 0) return [];
+
+    const workoutIds = workoutList.map(w => w.id);
+    const lastLiftedMap = await getLastLiftedDateForWorkouts(workoutIds);
+
+    return workoutList.map(w => ({
+        ...w,
+        lastLiftedAt: lastLiftedMap[w.id] ?? null,
+    }));
+};
+
 
 export const getWorkoutById = async (id: number) => {
     return await db.select()

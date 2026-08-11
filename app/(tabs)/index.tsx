@@ -3,8 +3,9 @@ import { getRecentPrograms } from "@/db/queries/programs";
 import { Ionicons } from "@expo/vector-icons";
 import Entypo from "@expo/vector-icons/Entypo";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Program } from "./programs";
@@ -26,18 +27,25 @@ const Index = () => {
     })),
   ];
 
-  useEffect(() => {
-    const fetchRecentPrograms = async () => {
-      try {
-        const programsData = await getRecentPrograms();
-        setRecentPrograms(programsData);
-      } catch (error) {
-        console.error("Error fetching recent programs:", error);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      const fetchRecentPrograms = async () => {
+        try {
+          const programsData = await getRecentPrograms();
+          if (isActive) setRecentPrograms(programsData);
+        } catch (error) {
+          console.error("Error fetching recent programs:", error);
+        }
+      };
 
-    fetchRecentPrograms();
-  }, []);
+      fetchRecentPrograms();
+
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -75,7 +83,7 @@ const Index = () => {
                       fontStyle: "italic",
                     }}
                   >
-                    Last lift: {prog.lastWorkout}
+                    Last lift: {prog.lastWorkout ?? "N/A"}
                   </Text>
                 </View>
               </View>
