@@ -2,7 +2,7 @@
   "expo": {
     "name": "UpLift",
     "slug": "upLift",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/UL_icon.png",
     "scheme": "uplift",
@@ -44,7 +44,8 @@
         }
       ],
       "expo-font",
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true,

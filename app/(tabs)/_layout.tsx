@@ -22,7 +22,7 @@ export default function TabsLayout() {
           marginHorizontal: 50,
           justifyContent: "center",
           alignItems: "center",
-          height: 60,
+          height: 58,
           paddingHorizontal: 30,
           paddingVertical: 16,
           borderRadius: 40,
@@ -70,18 +70,17 @@ export default function TabsLayout() {
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <AnimatedView key="index">
-              <Ionicons name="home" size={focused ? size : 20} style={{ paddingTop: 0}} color={color} />
+              <Ionicons name="home" size={focused ? size : 20} style={{ paddingTop: 0 }} color={color} />
             </AnimatedView>
           ),
         }}
       />
       <Tabs.Screen
         name="programs"
-        href="/programs"
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <AnimatedView key="settings">
-              <SimpleLineIcons name="notebook" size={focused ? size : 20} style={{ paddingTop: 0}} color={color} />
+              <SimpleLineIcons name="notebook" size={focused ? size : 20} style={{ paddingTop: 0 }} color={color} />
             </AnimatedView>
           ),
         }}
@@ -91,7 +90,7 @@ export default function TabsLayout() {
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <AnimatedView key="cLift">
-              <Ionicons name="barbell" size={focused ? size : 20} style={{ paddingTop: 0}} color={color} />
+              <Ionicons name="barbell" size={focused ? size : 20} style={{ paddingTop: 0 }} color={color} />
             </AnimatedView>
           ),
         }}
@@ -101,7 +100,7 @@ export default function TabsLayout() {
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <AnimatedView key="logs">
-              <Ionicons name="calendar-outline" size={focused ? size : 20} style={{ paddingTop: 0}} color={color} />
+              <Ionicons name="calendar-outline" size={focused ? size : 20} style={{ paddingTop: 0 }} color={color} />
             </AnimatedView>
           ),
         }}

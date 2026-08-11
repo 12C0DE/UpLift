@@ -56,3 +56,31 @@ export const getWeightEntriesByExercises = async (exerciseIds: number[]) => {
         .orderBy(desc(weightEntries.loggedAt));
 }
 
+export interface LastWeightInfo {
+    weight: number | null;
+    loggedAt: string;
+}
+
+export const getLastWeightsForExercises = async (
+    exerciseIds: number[]
+): Promise<Record<number, LastWeightInfo>> => {
+    if (exerciseIds.length === 0) return {};
+    const results = await db
+        .select()
+        .from(weightEntries)
+        .where(inArray(weightEntries.exerciseId, exerciseIds))
+        .orderBy(desc(weightEntries.loggedAt));
+
+    const map: Record<number, LastWeightInfo> = {};
+    for (const entry of results) {
+        if (!map[entry.exerciseId]) {
+            map[entry.exerciseId] = {
+                weight: entry.weight,
+                loggedAt: entry.loggedAt,
+            };
+        }
+    }
+    return map;
+};
+
+

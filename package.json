@@ -1,7 +1,7 @@
 {
   "name": "uplift",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -24,12 +24,14 @@
     "babel-preset-expo": "~54.0.10",
     "drizzle-orm": "^0.45.1",
     "expo": "~54.0.36",
+    "expo-audio": "~1.1.1",
     "expo-constants": "~18.0.13",
     "expo-crypto": "~15.0.9",
     "expo-font": "~14.0.11",
     "expo-haptics": "~15.0.8",
     "expo-image": "~3.0.11",
     "expo-linking": "~8.0.11",
+    "expo-notifications": "~0.32.17",
     "expo-router": "~6.0.23",
     "expo-screen-orientation": "~9.0.9",
     "expo-splash-screen": "~31.0.13",
