@@ -13,7 +13,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "bundleIdentifier": "com.12code.uplift",
+      "bundleIdentifier": "com.12code.uplift"
     },
     "android": {
       "adaptiveIcon": {
@@ -45,7 +45,8 @@
       ],
       "expo-font",
       "expo-sqlite",
-      "expo-audio"
+      "expo-audio",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
