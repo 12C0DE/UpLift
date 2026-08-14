@@ -151,7 +151,7 @@ function buildLogExercise(
 
   return {
     name: ex.name,
-    totalSets: ex.sets ?? 1,
+    totalSets: Math.max(ex.sets ?? 1, maxSets),
     reps: ex.reps != null ? String(ex.reps) : "",
     description: ex.description ?? "",
     setWeights,
