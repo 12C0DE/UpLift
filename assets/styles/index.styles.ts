@@ -58,7 +58,6 @@ export const indexStyles = StyleSheet.create({
     justifyContent: "center",
   },
   rowLayout: {
-    // flex: 1,
     flexDirection: "row",
     alignContent: "center",
     justifyContent: "center",
@@ -86,7 +85,14 @@ export const indexStyles = StyleSheet.create({
     backgroundColor: "#262626",
     width: "48%",
     justifyContent: "center",
-    maxHeight: 100
+    maxHeight: 100,
+    borderWidth: 1,
+    borderColor: "#333333",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
   },
   otherButtonText: {
     fontSize: 16,

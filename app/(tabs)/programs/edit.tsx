@@ -9,9 +9,8 @@ import { createWorkout } from "@/db/queries/workout";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from "@expo/vector-icons/Feather";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import { Suspense, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
 interface Exercise {
   name: string;
@@ -21,6 +20,7 @@ interface Exercise {
 }
 
 interface WorkoutSection {
+  id?: number;
   title: string;
   week?: string;
   exercises: Exercise[];
@@ -61,6 +61,7 @@ const loadSections = async (programId: number): Promise<WorkoutSection[]> => {
     sectionsData.map(async (section) => {
       const dbExercises = await getExercisesByWorkout(section.id);
       return {
+        id: section.id,
         title: section.title,
         week: section.week?.toString() ?? "",
         exercises: dbExercises.map(formatExercise),
@@ -79,10 +80,13 @@ const EditProgram = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(!!programId);
 
+  const inputRefs = useRef<Record<string, TextInput | null>>({});
+
   useEffect(() => {
     navigation.setOptions({
-      title: programId ? "Edit" : "Create",
-      backButtonTitle: "Back",
+      title: programId ? "Edit Program" : "Create Program",
+      headerBackTitle: "",
+      headerBackVisible: false,
     });
   }, [navigation, programId]);
 
@@ -113,13 +117,37 @@ const EditProgram = () => {
     void loadProgram();
   }, [programId]);
 
+  const getInputKeysInOrder = (): string[] => {
+    const keys: string[] = ["programName"];
+    sections.forEach((sec, sIdx) => {
+      keys.push(`sec_${sIdx}_title`);
+      keys.push(`sec_${sIdx}_week`);
+      sec.exercises.forEach((_, eIdx) => {
+        keys.push(`ex_${sIdx}_${eIdx}_name`);
+        keys.push(`ex_${sIdx}_${eIdx}_sets`);
+        keys.push(`ex_${sIdx}_${eIdx}_reps`);
+        keys.push(`ex_${sIdx}_${eIdx}_desc`);
+      });
+    });
+    return keys;
+  };
+
+  const focusNextInput = (currentKey: string) => {
+    const orderedKeys = getInputKeysInOrder();
+    const currentIndex = orderedKeys.indexOf(currentKey);
+    if (currentIndex !== -1 && currentIndex < orderedKeys.length - 1) {
+      const nextKey = orderedKeys[currentIndex + 1];
+      inputRefs.current[nextKey]?.focus();
+    }
+  };
+
   //* SECTION Handlers
 
   const addSectionHandler = () => {
     const newSection: WorkoutSection = {
       title: "",
       week: "",
-      exercises: [defaultExercise],
+      exercises: [{ ...defaultExercise }],
     };
     setSections((prevSections) => [...prevSections, newSection]);
   };
@@ -148,8 +176,7 @@ const EditProgram = () => {
 
   const addExerciseHandler = (sectionIndex: number, newExercise: Exercise) => {
     const newSections = [...sections];
-
-    newSections[sectionIndex].exercises.push(newExercise);
+    newSections[sectionIndex].exercises.push({ ...newExercise });
     setSections(newSections);
   };
 
@@ -158,8 +185,8 @@ const EditProgram = () => {
     exerciseToRemove: number,
   ) => {
     const newSections = [...sections];
-    if (sections.length === 1) {
-      newSections[0].exercises = [defaultExercise];
+    if (newSections[sectionIndex].exercises.length === 1) {
+      newSections[sectionIndex].exercises = [{ ...defaultExercise }];
       setSections(newSections);
       return;
     }
@@ -223,7 +250,7 @@ const EditProgram = () => {
       if (sIdx < existingSections.length) {
         // Update existing workout
         const existingWorkout = existingSections[sIdx];
-        await updateWorkout(existingWorkout.id, section.title, weekNum !== undefined && !Number.isNaN(weekNum) ? weekNum : undefined, +sIdx);
+        await updateWorkout(existingWorkout.id, section.title, weekNum !== undefined && !Number.isNaN(weekNum) ? weekNum : undefined, sIdx);
 
         // Update exercises
         const existingExercises = await getExercisesByWorkout(existingWorkout.id);
@@ -303,6 +330,7 @@ const EditProgram = () => {
 
   const handleSave = async () => {
     if (!programName.trim()) {
+      Alert.alert("Program name required", "Please enter a program name.");
       return;
     }
 
@@ -316,61 +344,94 @@ const EditProgram = () => {
   if (isLoading) {
     return (
       <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#f6a800" />
       </View>
     );
   }
 
+  const orderedKeys = getInputKeysInOrder();
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>
-          {"Program"}
-        </Text>
+        <Text style={styles.title}>PROGRAM</Text>
         <TextInput
+          ref={(el) => { inputRefs.current["programName"] = el; }}
           style={styles.programName}
           value={programName}
           onChangeText={setProgramName}
           placeholder="Program Name"
-          placeholderTextColor="#888"
+          placeholderTextColor="#666"
+          returnKeyType={orderedKeys.length > 1 ? "next" : "done"}
+          blurOnSubmit={orderedKeys.length <= 1}
+          onSubmitEditing={() => focusNextInput("programName")}
         />
       </View>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: 24 }}
-        keyboardShouldPersistTaps="handled" // important — lets you tap inputs without dismissing keyboard first
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.sectionsContainer}>
           {sections.map((section, sectionIdx) => (
             <View key={`sec-${sectionIdx}`} style={styles.section}>
-              { !!programId && <Pressable style={styles.workoutBtn} 
-              // onPress={() => router.push(`//${programId})}
-              onPress={() => router.push(`/currentlift?programId=${programId}&start=1`)}
+              {!!programId && !!section.id && (
+                <Pressable
+                  style={styles.workoutBtn}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/currentlift" as any,
+                      params: {
+                        programId: String(programId),
+                        workoutId: String(section.id),
+                        workoutTitle: section.title,
+                        workoutSummary: section.exercises?.length
+                          ? section.exercises.map((e) => e.name).filter(Boolean).join(" • ")
+                          : section.title,
+                      },
+                    })
+                  }
                 >
-                <Text>Start Workout</Text>
-              </Pressable>}
+                  <Text
+                    style={{
+                      fontFamily: "BebasNeue",
+                      fontSize: 18,
+                      color: "#0a0a0a"
+                    }}
+                  >
+                    Start Workout
+                  </Text>
+                </Pressable>
+              )}
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionInputContainer}>
                   <TextInput
+                    ref={(el) => { inputRefs.current[`sec_${sectionIdx}_title`] = el; }}
                     style={styles.sectionInput}
                     value={section.title}
                     onChangeText={(text) => {
                       const updatedSection = { ...section, title: text };
                       updateSectionHandler(sectionIdx, updatedSection);
                     }}
-                    placeholder="Workout Title"
-                    placeholderTextColor={"#7a7a7a"}
+                    placeholder="Workout Title (e.g. Workout A)"
+                    placeholderTextColor="#666"
+                    returnKeyType="next"
+                    onSubmitEditing={() => focusNextInput(`sec_${sectionIdx}_title`)}
                   />
                   <TextInput
+                    ref={(el) => { inputRefs.current[`sec_${sectionIdx}_week`] = el; }}
                     style={styles.sectionInput}
                     value={section.week}
                     onChangeText={(text) => {
                       const updatedSection = { ...section, week: text };
                       updateSectionHandler(sectionIdx, updatedSection);
                     }}
-                    placeholder="Week (optional)"
-                    placeholderTextColor={"#7a7a7a"}
+                    placeholder="Week (optional, e.g. 1)"
+                    placeholderTextColor="#666"
+                    keyboardType="number-pad"
+                    returnKeyType="next"
+                    onSubmitEditing={() => focusNextInput(`sec_${sectionIdx}_week`)}
                   />
                 </View>
                 <Pressable
@@ -378,116 +439,137 @@ const EditProgram = () => {
                   hitSlop={24}
                   onPress={() => removeSectionHandler(sectionIdx)}
                 >
-                  <Feather name="trash" size={24} color="#929292" />
+                  <Feather name="trash" size={20} color="#929292" />
                 </Pressable>
               </View>
+
               <View style={styles.exerciseContainer}>
-                {section.exercises.map((exercise, exerciseIdx) => (
-                  <View key={`ex-${sectionIdx}-${exerciseIdx}`}>
-                    <View style={styles.exerciseHeader}>
+                {section.exercises.map((exercise, exerciseIdx) => {
+                  const nameKey = `ex_${sectionIdx}_${exerciseIdx}_name`;
+                  const setsKey = `ex_${sectionIdx}_${exerciseIdx}_sets`;
+                  const repsKey = `ex_${sectionIdx}_${exerciseIdx}_reps`;
+                  const descKey = `ex_${sectionIdx}_${exerciseIdx}_desc`;
+                  const isLastInputInForm = descKey === orderedKeys[orderedKeys.length - 1];
+
+                  return (
+                    <View key={`ex-${sectionIdx}-${exerciseIdx}`} style={styles.exerciseBox}>
+                      <View style={styles.exerciseHeader}>
+                        <TextInput
+                          ref={(el) => { inputRefs.current[nameKey] = el; }}
+                          style={styles.exerciseInput}
+                          value={exercise.name}
+                          onChangeText={(text) => {
+                            const updatedExercise = { ...exercise, name: text };
+                            updateExerciseHandler(
+                              sectionIdx,
+                              exerciseIdx,
+                              updatedExercise,
+                            );
+                          }}
+                          placeholder="Exercise Name"
+                          placeholderTextColor="#666"
+                          returnKeyType="next"
+                          onSubmitEditing={() => focusNextInput(nameKey)}
+                        />
+                        <Pressable
+                          style={styles.trashBtn}
+                          hitSlop={20}
+                          onPress={() =>
+                            removeExerciseHandler(sectionIdx, exerciseIdx)
+                          }
+                        >
+                          <Feather name="trash" size={16} color="#929292" />
+                        </Pressable>
+                      </View>
+                      <View style={styles.exerciseRow}>
+                        <View style={styles.exerciseInputContainer}>
+                          <Text style={styles.exerciseLabel}>Sets</Text>
+                          <TextInput
+                            ref={(el) => { inputRefs.current[setsKey] = el; }}
+                            keyboardType="number-pad"
+                            style={styles.exerciseInput}
+                            value={exercise.sets?.toString() ?? ""}
+                            onChangeText={(text) => {
+                              const sets = Number.parseInt(text) || null;
+                              const updatedExercise = { ...exercise, sets };
+                              updateExerciseHandler(
+                                sectionIdx,
+                                exerciseIdx,
+                                updatedExercise,
+                              );
+                            }}
+                            placeholder="3"
+                            placeholderTextColor="#666"
+                            returnKeyType="next"
+                            onSubmitEditing={() => focusNextInput(setsKey)}
+                          />
+                        </View>
+                        <View style={styles.exerciseInputContainer}>
+                          <Text style={styles.exerciseLabel}>Reps</Text>
+                          <TextInput
+                            ref={(el) => { inputRefs.current[repsKey] = el; }}
+                            style={styles.exerciseInput}
+                            keyboardType="number-pad"
+                            value={exercise.reps?.toString() ?? ""}
+                            onChangeText={(text) => {
+                              const updatedExercise = { ...exercise, reps: text };
+                              updateExerciseHandler(
+                                sectionIdx,
+                                exerciseIdx,
+                                updatedExercise,
+                              );
+                            }}
+                            placeholder="5"
+                            placeholderTextColor="#666"
+                            returnKeyType="next"
+                            onSubmitEditing={() => focusNextInput(repsKey)}
+                          />
+                        </View>
+                      </View>
                       <TextInput
-                        style={styles.exerciseInput}
-                        value={exercise.name}
+                        ref={(el) => { inputRefs.current[descKey] = el; }}
+                        multiline
+                        style={[styles.exerciseInput, { height: 50, textAlignVertical: "top" }]}
+                        numberOfLines={2}
+                        value={exercise.description}
                         onChangeText={(text) => {
-                          const updatedExercise = { ...exercise, name: text };
+                          const updatedExercise = { ...exercise, description: text };
                           updateExerciseHandler(
                             sectionIdx,
                             exerciseIdx,
                             updatedExercise,
                           );
                         }}
-                        placeholder="Exercise Name"
-                        placeholderTextColor={"rgb(122, 122, 122)"}
+                        placeholder="Notes / Description (optional)"
+                        placeholderTextColor="#666"
+                        returnKeyType={isLastInputInForm ? "done" : "next"}
+                        blurOnSubmit={isLastInputInForm}
+                        onSubmitEditing={() => focusNextInput(descKey)}
                       />
-                      <Pressable
-                        style={[styles.trashBtn, { marginTop: 8 }]}
-                        hitSlop={20}
-                        onPress={() =>
-                          removeExerciseHandler(sectionIdx, exerciseIdx)
-                        }
-                      >
-                        <Feather name="trash" size={16} color="#929292" />
-                      </Pressable>
                     </View>
-                    <View style={styles.exerciseRow}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.exerciseLabel}>Sets</Text>
-                        <TextInput
-                          keyboardType="number-pad"
-                          style={styles.exerciseInput}
-                          value={exercise.sets?.toString() ?? ""}
-                          onChangeText={(text) => {
-                            const sets = Number.parseInt(text) || null;
-                            const updatedExercise = { ...exercise, sets };
-                            updateExerciseHandler(
-                              sectionIdx,
-                              exerciseIdx,
-                              updatedExercise,
-                            );
-                          }}
-                          placeholder="Sets"
-                          placeholderTextColor={"#7a7a7a"}
-                        />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.exerciseLabel}>Reps</Text>
-                        <TextInput
-                          style={styles.exerciseInput}
-                          keyboardType="number-pad"
-                          value={exercise.reps?.toString() ?? ""}
-                          onChangeText={(text) => {
-                            const updatedExercise = { ...exercise, reps: text };
-                            updateExerciseHandler(
-                              sectionIdx,
-                              exerciseIdx,
-                              updatedExercise,
-                            );
-                          }}
-                          placeholder="8-10"
-                          placeholderTextColor={"#7a7a7a"}
-                        />
-                      </View>
-                    </View>
-                    <TextInput
-                      multiline
-                      style={[styles.exerciseInput, {height: 60, textAlignVertical: "top"}]}
-                      numberOfLines={2}
-                      value={exercise.description}
-                      onChangeText={(text) => {
-                        const updatedExercise = { ...exercise, description: text };
-                        updateExerciseHandler(
-                          sectionIdx,
-                          exerciseIdx,
-                          updatedExercise,
-                        );
-                      }}
-                      placeholder="Description"
-                      placeholderTextColor={"#7a7a7a"}
-                    />
-                    <View style={styles.divider} />
-                  </View>
-                ))}
+                  );
+                })}
                 <Text style={styles.exerciseFooter}>
-                  Exercise count: {section.exercises.length}
+                  Exercises in this workout: {section.exercises.length}
                 </Text>
               </View>
               <Pressable
                 style={styles.addBtn}
                 onPress={() => addExerciseHandler(sectionIdx, defaultExercise)}
               >
-                <Entypo name="plus" size={24} color="#f6f6f6" />
-                <Text style={styles.addBtnText}>Exercise</Text>
+                <Entypo name="plus" size={18} color="#ffffff" />
+                <Text style={styles.addBtnText}>Add Exercise</Text>
               </Pressable>
             </View>
           ))}
           <Pressable
-            style={[styles.addBtn, { marginTop: 12 }]}
+            style={[styles.addBtn, { marginTop: 8 }]}
             onPress={() => addSectionHandler()}
           >
-            <Entypo name="plus" size={24} color="#f6f6f6" />
-            <Text style={styles.addBtnText}>New Workout</Text>
+            <Entypo name="plus" size={18} color="#ffffff" />
+            <Text style={styles.addBtnText}>Add Workout</Text>
           </Pressable>
-          <View style={{ height: 60 }} />
+          <View style={{ height: 40 }} />
         </View>
       </ScrollView>
       <View style={styles.footer}>
@@ -495,7 +577,7 @@ const EditProgram = () => {
           style={[styles.footerBtn, styles.footerCancelBtn]}
           onPress={() => router.back()}
         >
-          <Text style={[styles.footerBtnText, { color: "#f6f6f6" }]}>
+          <Text style={[styles.footerBtnText, { color: "#ffffff" }]}>
             Cancel
           </Text>
         </Pressable>
@@ -505,7 +587,7 @@ const EditProgram = () => {
           disabled={isSaving}
         >
           <Text style={[styles.footerBtnText, { color: "#0a0a0a" }]}>
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? "Saving..." : "Save Program"}
           </Text>
         </Pressable>
       </View>

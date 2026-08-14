@@ -1,4 +1,6 @@
-import { Stack } from "expo-router";
+import Entypo from "@expo/vector-icons/Entypo";
+import { router, Stack } from "expo-router";
+import { Pressable } from "react-native";
 
 export default function ProgramsLayout() {
   return (
@@ -12,7 +14,15 @@ export default function ProgramsLayout() {
         name="edit"
         options={{
           headerShown: true,
-          headerBackTitle: "Programs",
+          headerBackVisible: false,
+          headerLeft: () => (
+            <Pressable
+              onPress={() => router.back()}
+              hitSlop={16}
+            >
+              <Entypo name="chevron-left" size={30} color="white" />
+            </Pressable>
+          ),
           headerStyle: {
             backgroundColor: "#0a0a0a",
           },
