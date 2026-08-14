@@ -6,6 +6,16 @@ const formatDate = (isoStr?: string | null) => {
     if (!isoStr) return "Never";
     const d = new Date(isoStr);
     if (isNaN(d.getTime())) return "Never";
+
+    const now = new Date();
+    const startOfNow = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfD = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const diffDays = Math.round((startOfNow - startOfD) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays > 1 && diffDays < 7) return `${diffDays} days ago`;
+
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
@@ -66,25 +76,103 @@ export const getLastLiftedDatesForPrograms = async (programIds: number[]): Promi
 };
 
 export const getPrograms = async () => {
-    return await db.select().from(programs)
-        .orderBy(desc(programs.modifiedAt));
-}
-
-export const getRecentPrograms = async (limit: number = 3) => {
-    const progs = await db.select().from(programs)
-        .orderBy(desc(programs.modifiedAt))
-        .limit(limit);
-
+    const progs = await db.select().from(programs).orderBy(desc(programs.modifiedAt));
     if (progs.length === 0) return [];
 
     const programIds = progs.map((p) => p.id);
-    const lastLiftedMap = await getLastLiftedDatesForPrograms(programIds);
 
-    return progs.map((p) => ({
-        ...p,
-        lastWorkout: lastLiftedMap[p.id] ? formatDate(lastLiftedMap[p.id]) : "Never",
-    }));
-}
+    const workoutList = await db
+        .select({
+            id: workouts.id,
+            programId: workouts.programId,
+            title: workouts.title,
+        })
+        .from(workouts)
+        .where(inArray(workouts.programId, programIds))
+        .orderBy(workouts.orderIndex);
+
+    const workoutsByProgram: Record<number, { id: number; title: string }[]> = {};
+    const workoutIdToProgramId: Record<number, number> = {};
+    const workoutIds: number[] = [];
+
+    for (const w of workoutList) {
+        if (!workoutsByProgram[w.programId]) {
+            workoutsByProgram[w.programId] = [];
+        }
+        workoutsByProgram[w.programId].push(w);
+        workoutIdToProgramId[w.id] = w.programId;
+        workoutIds.push(w.id);
+    }
+
+    const exercisesByProgram: Record<number, number> = {};
+    const exerciseIdToProgramId: Record<number, number> = {};
+    const exerciseIds: number[] = [];
+
+    if (workoutIds.length > 0) {
+        const exList = await db
+            .select({ id: exercises.id, workoutId: exercises.workoutId })
+            .from(exercises)
+            .where(inArray(exercises.workoutId, workoutIds));
+
+        for (const ex of exList) {
+            const progId = workoutIdToProgramId[ex.workoutId];
+            if (progId) {
+                exercisesByProgram[progId] = (exercisesByProgram[progId] || 0) + 1;
+                exerciseIdToProgramId[ex.id] = progId;
+                exerciseIds.push(ex.id);
+            }
+        }
+    }
+
+    const lastWorkoutMap: Record<number, string> = {};
+    const completedSessionsMap: Record<number, Set<string>> = {};
+
+    if (exerciseIds.length > 0) {
+        const weights = await db
+            .select({
+                exerciseId: weightEntries.exerciseId,
+                loggedAt: weightEntries.loggedAt,
+            })
+            .from(weightEntries)
+            .where(inArray(weightEntries.exerciseId, exerciseIds))
+            .orderBy(desc(weightEntries.loggedAt));
+
+        for (const entry of weights) {
+            const progId = exerciseIdToProgramId[entry.exerciseId];
+            if (progId) {
+                if (!lastWorkoutMap[progId]) {
+                    lastWorkoutMap[progId] = entry.loggedAt;
+                }
+                if (!completedSessionsMap[progId]) {
+                    completedSessionsMap[progId] = new Set();
+                }
+                const dateKey = entry.loggedAt.split("T")[0];
+                completedSessionsMap[progId].add(dateKey);
+            }
+        }
+    }
+
+    return progs.map((p) => {
+        const wList = workoutsByProgram[p.id] || [];
+        const lastIso = lastWorkoutMap[p.id] ?? null;
+        const completedCount = completedSessionsMap[p.id] ? completedSessionsMap[p.id].size : 0;
+
+        return {
+            ...p,
+            workoutCount: wList.length,
+            exerciseCount: exercisesByProgram[p.id] || 0,
+            timesCompleted: completedCount,
+            lastWorkoutISO: lastIso,
+            lastWorkout: formatDate(lastIso),
+            workoutTitles: wList.map((w) => w.title),
+        };
+    });
+};
+
+export const getRecentPrograms = async (limit: number = 3) => {
+    const allProgs = await getPrograms();
+    return allProgs.slice(0, limit);
+};
 
 export const getProgramById = (id: number) => {
     return db.select().from(programs).where(eq(programs.id, id)).get();

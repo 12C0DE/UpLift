@@ -344,12 +344,14 @@ const EditProgram = () => {
         <View style={styles.sectionsContainer}>
           {sections.map((section, sectionIdx) => (
             <View key={`sec-${sectionIdx}`} style={styles.section}>
-              { !!programId && <Pressable style={styles.workoutBtn} 
-              // onPress={() => router.push(`//${programId})}
-              onPress={() => router.push(`/currentlift?programId=${programId}&start=1`)}
+              {!!programId &&
+                <Pressable
+                  style={styles.workoutBtn}
+                  onPress={() => router.push(`/currentlift?programId=${programId}&start=1`)}
                 >
-                <Text>Start Workout</Text>
-              </Pressable>}
+                  <Text>Start Workout</Text>
+                </Pressable>
+              }
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionInputContainer}>
                   <TextInput
@@ -450,7 +452,7 @@ const EditProgram = () => {
                     </View>
                     <TextInput
                       multiline
-                      style={[styles.exerciseInput, {height: 60, textAlignVertical: "top"}]}
+                      style={[styles.exerciseInput, { height: 60, textAlignVertical: "top" }]}
                       numberOfLines={2}
                       value={exercise.description}
                       onChangeText={(text) => {
