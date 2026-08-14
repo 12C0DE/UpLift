@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "configurations": [
+    {
+      "name": "Attach to Expo / Hermes",
+      "type": "expo",
+      "request": "attach"
+    },
+    {
+      "name": "Launch Chrome (Expo Web)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:8081",
+      "webRoot": "${workspaceFolder}"
+    }
+  ]
+}

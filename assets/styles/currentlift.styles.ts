@@ -18,6 +18,7 @@ export const currentLiftStyles = StyleSheet.create({
   },
   headerSpacer: {
     width: 8,
+    backgroundColor: 'red'
   },
   headerContent: {
     flex: 1,
@@ -27,10 +28,11 @@ export const currentLiftStyles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   menuButton: {
-    width: 32,
+    width: 16,
     height: 32,
     alignItems: "center",
     justifyContent: "center",
+    color: "#f5f5f5",
   },
   descButton: {
     color: "#f5f5f5",
@@ -44,6 +46,7 @@ export const currentLiftStyles = StyleSheet.create({
     color: "#f5f5f5",
     letterSpacing: 1.2,
     flexShrink: 1,
+    marginLeft: 16,
   },
   weightSection: {
     padding: 16,
@@ -67,7 +70,6 @@ export const currentLiftStyles = StyleSheet.create({
     color: "#f9f9f9",
   },
   lastLift: {
-    // fontFamily: "BarlowSemiCondensed_Italic",
     fontSize: 14,
     fontStyle: "italic",
     textAlign: "center",

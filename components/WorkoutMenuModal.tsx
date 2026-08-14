@@ -242,11 +242,6 @@ export const WorkoutMenuModal: React.FC<WorkoutMenuModalProps> = ({
                   <Text style={modalStyles.closeText}>X</Text>
                 </Pressable>
               </View>
-
-              <Text style={modalStyles.menuHeaderSub}>
-                Quick actions for your current lift
-              </Text>
-
               {/* Option 1: Description */}
               <Pressable
                 style={modalStyles.optionCard}

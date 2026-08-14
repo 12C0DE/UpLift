@@ -1,5 +1,5 @@
 import { currentLiftModalStyles as modalStyles, currentLiftStyles as styles } from "@/assets";
-import { BarbellDisplay, WeightPlate, WorkoutMenuModal, WorkoutSummaryData, WorkoutSummaryModal } from "@/components";
+import { BarbellDisplay, LastLiftContent, WeightPlate, WorkoutMenuModal, WorkoutSummaryData, WorkoutSummaryModal } from "@/components";
 import { useActiveWorkout } from "@/context/ActiveWorkoutContext";
 import { getExercisesWithLastWeightByWorkout } from "@/db/queries/exercises";
 import { logWeight } from "@/db/queries/weights";
@@ -423,27 +423,7 @@ export default function CurrentLift({
     });
   };
 
-  const formatDate = (isoStr?: string | null) => {
-    if (!isoStr) return "";
-    const d = new Date(isoStr);
-    if (isNaN(d.getTime())) return "";
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  };
-
-  const renderLastLiftText = () => {
-    if (currentExercise && currentExercise.lastWeight != null) {
-      const formattedDate = formatDate(currentExercise.lastLoggedAt);
-      const dateText = formattedDate ? ` (${formattedDate})` : "";
-      return `Last: ${currentExercise.lastWeight} lbs${dateText}`;
-    }
-    if (lastWeight && lastWeight > 0) {
-      return `Last: ${lastWeight} lbs`;
-    }
-    return null;
-  };
-
   const modalBody = (
-
     <FlatList
       data={workouts}
       keyExtractor={(item) => String(item.id)}
@@ -453,11 +433,6 @@ export default function CurrentLift({
           onPress={() => selectWorkout(item)}
         >
           <Text style={modalStyles.itemTitle}>{item.title}</Text>
-          <Text style={modalStyles.itemSubtitle}>
-            {item.exercises?.length
-              ? `${item.exercises.length} exercises`
-              : "Tap to start"}
-          </Text>
         </Pressable>
       )}
       ListEmptyComponent={
@@ -516,7 +491,7 @@ export default function CurrentLift({
         <View>
           <View>
             <View style={styles.header}>
-              <View style={styles.headerSpacer} />
+              {/* <View style={styles.headerSpacer} /> */}
               <View style={styles.headerContent}>
                 <Text
                   style={styles.exerciseName}
@@ -540,17 +515,9 @@ export default function CurrentLift({
                 totalWeight={totalWeight}
                 weightChangeHandler={weightChangeTextHandler}
               />
-              {lastWeight && (
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 }}>
-                  <Text style={styles.lastLift}>
-                    Last lift:
-                  </Text>
-                  <Text style={[styles.lastLift, { fontWeight: 700 }]} >
-                    {lastWeight}
-                  </Text>
-                  <Text style={styles.lastLift}>lbs</Text>
-                </View>
-              )}
+              <LastLiftContent
+                lastWeight={currentExercise?.lastWeight}
+              />
             </View>
           </View>
           <View>

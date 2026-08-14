@@ -151,7 +151,7 @@ function buildLogExercise(
 
   return {
     name: ex.name,
-    totalSets: ex.sets ?? 3,
+    totalSets: ex.sets ?? 1,
     reps: ex.reps != null ? String(ex.reps) : "",
     description: ex.description ?? "",
     setWeights,
