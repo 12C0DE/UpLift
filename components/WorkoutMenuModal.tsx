@@ -422,10 +422,10 @@ export const WorkoutMenuModal: React.FC<WorkoutMenuModalProps> = ({
                   onPress={() => setViewMode("menu")}
                   hitSlop={16}
                 >
-                  <Entypo name="chevron-left" size={22} color="#f6a800" />
-                  <Text style={modalStyles.backHeaderText}>Back</Text>
+                  <Entypo name="chevron-left" size={30} color="#f6a800" />
+                  {/* <Text style={modalStyles.backHeaderText}>Back</Text> */}
                 </Pressable>
-                <Text style={modalStyles.sheetTitle}>Finish Early</Text>
+                {/* <Text style={modalStyles.sheetTitle}>Quit Early</Text> */}
                 <Pressable onPress={onClose} hitSlop={20}>
                   <Text style={modalStyles.closeText}>X</Text>
                 </Pressable>
@@ -435,11 +435,15 @@ export const WorkoutMenuModal: React.FC<WorkoutMenuModalProps> = ({
                 <View style={modalStyles.warningIconCircle}>
                   <Entypo name="warning" size={32} color="#ff5252" />
                 </View>
-                <Text style={modalStyles.confirmHeading}>Finish Workout?</Text>
-                <Text style={modalStyles.confirmDescription}>
-                  Are you sure you want to finish this workout early? Any
-                  remaining uncompleted set entries will be saved as 0 lbs.
-                </Text>
+                <Text style={modalStyles.confirmHeading}>You Done?</Text>
+                <View style={{ marginBottom: 24 }}>
+                  <Text style={modalStyles.confirmDescription}>
+                    If you quit now
+                  </Text>
+                  <Text style={modalStyles.confirmDescription}>
+                    Any remaining entries will be saved as 0.
+                  </Text>
+                </View>
 
                 <View style={modalStyles.confirmActionsRow}>
                   <Pressable
@@ -455,7 +459,7 @@ export const WorkoutMenuModal: React.FC<WorkoutMenuModalProps> = ({
                     disabled={isSaving}
                   >
                     <Text style={modalStyles.confirmFinishText}>
-                      {isSaving ? "Saving..." : "Finish & Save"}
+                      {isSaving ? "Saving..." : "I Surrender"}
                     </Text>
                   </Pressable>
                 </View>

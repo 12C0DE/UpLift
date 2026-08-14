@@ -89,7 +89,6 @@ export const ProgramsStylesheet = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 20,
     backgroundColor: "#1e1e1e",
-    // borderRadius: 14,
     marginHorizontal: "auto",
     marginBottom: 20,
     borderWidth: 1,

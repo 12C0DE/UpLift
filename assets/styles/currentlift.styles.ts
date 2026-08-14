@@ -14,7 +14,6 @@ export const currentLiftStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    // paddingVertical: 4,
   },
   headerSpacer: {
     width: 8,
@@ -192,7 +191,6 @@ export const currentLiftModalStyles = StyleSheet.create({
   },
   menuSheet: {
     backgroundColor: "#121212",
-    borderRadius: 24,
     borderWidth: 1,
     borderColor: "#2f2f2f",
     padding: 20,
@@ -278,7 +276,7 @@ export const currentLiftModalStyles = StyleSheet.create({
   /* Options Cards */
   optionCard: {
     backgroundColor: "#1f1f1f",
-    borderRadius: 16,
+    // borderRadius: 16,
     padding: 14,
     marginBottom: 12,
     flexDirection: "row",
@@ -292,8 +290,6 @@ export const currentLiftModalStyles = StyleSheet.create({
   optionIconBox: {
     width: 42,
     height: 42,
-    borderRadius: 12,
-    backgroundColor: "#2a2a2a",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 14,
@@ -412,7 +408,9 @@ export const currentLiftModalStyles = StyleSheet.create({
   /* Finish Confirmation Styles */
   confirmBox: {
     alignItems: "center",
-    paddingVertical: 12,
+    paddingVertical: 10,
+    justifyContent: 'space-between',
+    gap: 8
   },
   warningIconCircle: {
     width: 56,
@@ -435,7 +433,7 @@ export const currentLiftModalStyles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: 12,
     lineHeight: 20,
-    marginBottom: 20,
+    // paddingTop: 8
   },
   confirmActionsRow: {
     flexDirection: "row",
@@ -445,7 +443,6 @@ export const currentLiftModalStyles = StyleSheet.create({
   confirmCancelBtn: {
     flex: 1,
     backgroundColor: "#262626",
-    borderRadius: 14,
     paddingVertical: 14,
     alignItems: "center",
   },
@@ -457,7 +454,6 @@ export const currentLiftModalStyles = StyleSheet.create({
   confirmFinishBtn: {
     flex: 1,
     backgroundColor: "#ff5252",
-    borderRadius: 14,
     paddingVertical: 14,
     alignItems: "center",
   },

@@ -66,7 +66,7 @@ export default function CurrentLift({
   const [isSaving, setIsSaving] = useState(false);
   const [workoutSaved, setWorkoutSaved] = useState(false);
   const [isStartModalVisible, setIsStartModalVisible] = useState(
-    Boolean(startParam),
+    Boolean(startParam) && !workoutIdParam,
   );
   const [workouts, setWorkouts] = useState<WorkoutOption[]>([]);
   const [selectedProgramId, setSelectedProgramId] = useState<number | null>(
@@ -86,9 +86,9 @@ export default function CurrentLift({
   const activeReps = currentExercise?.reps ?? reps;
 
   useEffect(() => {
-    setIsStartModalVisible(Boolean(startParam));
+    setIsStartModalVisible(Boolean(startParam) && !workoutIdParam);
     setSelectedProgramId(programIdParam ? Number(programIdParam) : null);
-  }, [programIdParam, startParam]);
+  }, [programIdParam, startParam, workoutIdParam]);
 
   useEffect(() => {
     if (!isStartModalVisible) return;
