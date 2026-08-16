@@ -11,6 +11,9 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "postinstall": "patch-package"
   },
   "dependencies": {
@@ -55,13 +58,21 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@testing-library/react-native": "^14.0.1",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/jest": "^29.5.14",
     "@types/react": "~19.1.0",
+    "@types/react-test-renderer": "^19.1.0",
     "babel-plugin-inline-import": "^3.0.0",
+    "better-sqlite3": "^13.0.3",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "jest": "^29.7.0",
+    "jest-expo": "^57.0.4",
     "patch-package": "^8.0.1",
     "prettier": "^3.3.3",
+    "react-test-renderer": "^19.2.8",
     "typescript": "~5.9.2"
   },
   "private": true

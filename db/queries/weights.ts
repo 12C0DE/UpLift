@@ -15,7 +15,7 @@ export const getLastWeight = async (exerciseId: number) => {
         .select()
         .from(weightEntries)
         .where(eq(weightEntries.exerciseId, exerciseId))
-        .orderBy(desc(weightEntries.loggedAt))
+        .orderBy(desc(weightEntries.loggedAt), desc(weightEntries.id))
         .limit(1);
 
     return results[0] || null;
