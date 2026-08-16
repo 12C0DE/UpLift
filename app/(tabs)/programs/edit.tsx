@@ -58,7 +58,7 @@ const loadSections = async (programId: number): Promise<WorkoutSection[]> => {
   const { getExercisesByWorkout } = await import('@/db/queries/exercises');
   const sectionsData = await getWorkoutsByProgram(programId);
   return Promise.all(
-    sectionsData.map(async (section: any) => {
+    sectionsData.map(async (section: { id: number; title: string; week: number | null }) => {
       const dbExercises = await getExercisesByWorkout(section.id);
       return {
         id: section.id,

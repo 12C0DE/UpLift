@@ -75,5 +75,8 @@
     "react-test-renderer": "^19.2.8",
     "typescript": "~5.9.2"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "private": true
 }

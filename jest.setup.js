@@ -1,5 +1,6 @@
 // Global setup for Jest tests
 process.env.NODE_ENV = 'test';
+process.env.TZ = 'UTC';
 
 // Silencing warning logs during test runs if necessary
 jest.mock('expo-font', () => ({

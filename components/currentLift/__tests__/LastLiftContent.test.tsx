@@ -29,7 +29,8 @@ describe('LastLiftContent', () => {
             component = renderer.create(<LastLiftContent lastWeight={185} />);
         });
         const instance = component.root;
-        const textElements = instance.findAllByType('Text');
+        const { Text } = require('react-native');
+        const textElements = instance.findAllByType(Text);
         const textValues = textElements.map((t: any) => t.props.children);
 
         expect(textValues).toContain('Last lift:');

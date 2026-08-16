@@ -163,7 +163,7 @@ async function loadWorkoutsWithExercises(
   workouts: Awaited<ReturnType<typeof getWorkoutsByProgram>>,
 ) {
   return Promise.all(
-    workouts.map(async (w: any) => ({ workout: w, exercises: await getExercisesByWorkout(w.id) })),
+    workouts.map(async (w: { id: number }) => ({ workout: w, exercises: await getExercisesByWorkout(w.id) })),
   );
 }
 
