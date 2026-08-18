@@ -149,7 +149,7 @@ export default function CurrentLift({
         workoutStartTimeRef.current = Date.now();
 
         const weightMap: Record<number, Record<number, number>> = {};
-        exercisesData.forEach((ex) => {
+        exercisesData.forEach((ex: any) => {
           const lastWt = ex.lastWeight ?? 0;
           const numSets = ex.sets ?? totalSets;
           weightMap[ex.id] = {};

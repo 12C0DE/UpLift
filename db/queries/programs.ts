@@ -79,7 +79,7 @@ export const getPrograms = async () => {
     const progs = await db.select().from(programs).orderBy(desc(programs.modifiedAt));
     if (progs.length === 0) return [];
 
-    const programIds = progs.map((p) => p.id);
+    const programIds = progs.map((p: any) => p.id);
 
     const workoutList = await db
         .select({
@@ -152,7 +152,7 @@ export const getPrograms = async () => {
         }
     }
 
-    return progs.map((p) => {
+    return progs.map((p: any) => {
         const wList = workoutsByProgram[p.id] || [];
         const lastIso = lastWorkoutMap[p.id] ?? null;
         const completedCount = completedSessionsMap[p.id] ? completedSessionsMap[p.id].size : 0;

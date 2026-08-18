@@ -15,10 +15,10 @@ export const getExercisesWithLastWeightByWorkout = async (workoutId: number) => 
     const exerciseList = await getExercisesByWorkout(workoutId);
     if (exerciseList.length === 0) return [];
 
-    const exerciseIds = exerciseList.map((ex) => ex.id);
+    const exerciseIds = exerciseList.map((ex: any) => ex.id);
     const lastWeightsMap = await getLastWeightsForExercises(exerciseIds);
 
-    return exerciseList.map((ex) => ({
+    return exerciseList.map((ex: any) => ({
         ...ex,
         lastWeight: lastWeightsMap[ex.id]?.weight ?? null,
         lastLoggedAt: lastWeightsMap[ex.id]?.loggedAt ?? null,

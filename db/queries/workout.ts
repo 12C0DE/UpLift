@@ -50,10 +50,10 @@ export const getWorkoutsWithLastLiftedByProgram = async (programId: number) => {
     const workoutList = await getWorkoutsByProgram(programId);
     if (workoutList.length === 0) return [];
 
-    const workoutIds = workoutList.map(w => w.id);
+    const workoutIds = workoutList.map((w: any) => w.id);
     const lastLiftedMap = await getLastLiftedDateForWorkouts(workoutIds);
 
-    return workoutList.map(w => ({
+    return workoutList.map((w: any) => ({
         ...w,
         lastLiftedAt: lastLiftedMap[w.id] ?? null,
     }));
