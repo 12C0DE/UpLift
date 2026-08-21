@@ -6,6 +6,7 @@ import { logWeight } from "@/db/queries/weights";
 import { getWorkoutsByProgram } from "@/db/queries/workout";
 import { BAR_WEIGHT, WEIGHT_LIST } from "@/utils";
 import Entypo from "@expo/vector-icons/Entypo";
+import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -572,10 +573,12 @@ export default function CurrentLift({
             style={styles.navButton}
             onPress={() => {
               if (currentSet > 1) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 const prevSet = currentSet - 1;
                 setCurrentSet(prevSet);
                 setTotalWeight(exerciseWeights[currentExercise?.id ?? -1]?.[prevSet] ?? 0);
               } else if (currentExerciseIndex > 0) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 const prevIndex = currentExerciseIndex - 1;
                 const prevExercise = workoutExercises[prevIndex];
                 const prevSets = prevExercise?.sets ?? totalSets;
@@ -597,6 +600,7 @@ export default function CurrentLift({
             onPress={() => {
               if (workoutSaved) return;
               if (currentSet < activeTotalSets) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 const nextSet = currentSet + 1;
                 setCurrentSet(nextSet);
                 if (currentExercise) {
@@ -606,12 +610,14 @@ export default function CurrentLift({
                   }));
                 }
               } else if (workoutExercises.length > 0 && currentExerciseIndex < workoutExercises.length - 1) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 const nextIndex = currentExerciseIndex + 1;
                 const nextExercise = workoutExercises[nextIndex];
                 setCurrentExerciseIndex(nextIndex);
                 setCurrentSet(1);
                 setTotalWeight(exerciseWeights[nextExercise?.id ?? -1]?.[1] ?? 0);
               } else if (workoutExercises.length > 0) {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                 handleSaveWorkout();
               }
             }}
