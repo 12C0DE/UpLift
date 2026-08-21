@@ -64,4 +64,14 @@ describe('db/queries/exercises', () => {
         expect(list[0].lastWeight).toBe(185);
         expect(list[0].lastLoggedAt).toBeDefined();
     });
+
+    it('falls back to 2nd last logged weight when latest weight is 0', async () => {
+        const [ex] = await createExercise(workoutId, 'Overhead Press');
+        await logWeight(ex.id, 135);
+        await logWeight(ex.id, 0);
+
+        const list = await getExercisesWithLastWeightByWorkout(workoutId);
+        expect(list.length).toBe(1);
+        expect(list[0].lastWeight).toBe(135);
+    });
 });
