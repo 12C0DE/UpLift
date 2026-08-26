@@ -547,6 +547,12 @@ export default function CurrentLift({
             <Text style={styles.swipeHint}>Swipe up or down to change weight</Text>
           </View>
           <View style={styles.setsRepsSection}>
+            <View style={styles.repsContainer}>
+              <Text style={styles.sectionLabel}>Reps</Text>
+              <View style={[styles.numberBox, styles.numberBoxCentered]}>
+                <Text style={styles.numberText}>{activeReps}</Text>
+              </View>
+            </View>
             <View style={styles.setsContainer}>
               <Text style={styles.sectionLabel}>Sets</Text>
               <View style={styles.setsRow}>
@@ -557,12 +563,6 @@ export default function CurrentLift({
                 <View style={styles.numberBox}>
                   <Text style={styles.numberText}>{activeTotalSets}</Text>
                 </View>
-              </View>
-            </View>
-            <View style={styles.repsContainer}>
-              <Text style={styles.sectionLabel}>Reps</Text>
-              <View style={[styles.numberBox, styles.numberBoxCentered]}>
-                <Text style={styles.numberText}>{activeReps}</Text>
               </View>
             </View>
           </View>
