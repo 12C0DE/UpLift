@@ -142,7 +142,9 @@ function clusterWorkoutEntries(
 
   for (const entry of workoutEntries) {
     const entryTime = new Date(entry.loggedAt).getTime();
-    let session = sessions.find((s) => Math.abs(s.timestamp - entryTime) <= SESSION_WINDOW_MS);
+    const lastSession = sessions[sessions.length - 1];
+    
+    let session: SessionCluster | undefined = lastSession && Math.abs(lastSession.timestamp - entryTime) <= SESSION_WINDOW_MS ? lastSession : undefined;
 
     if (!session) {
       const dateKey = localDateKey(entry.loggedAt);

@@ -3,13 +3,14 @@ import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import * as Haptics from "expo-haptics";
 import { Tabs } from "expo-router";
+import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeIn, LinearTransition } from "react-native-reanimated";
 
 interface TabConfig {
   name: string;
   label: string;
-  renderIcon: (focused: boolean) => React.ReactNode;
+  renderIcon: (focused: boolean) => ReactNode;
 }
 
 const TAB_CONFIGS: Record<string, TabConfig> = {
