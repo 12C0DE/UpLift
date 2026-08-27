@@ -1,110 +1,181 @@
 import { Ionicons } from "@expo/vector-icons";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import * as Haptics from "expo-haptics";
 import { Tabs } from "expo-router";
-import { View } from "react-native";
-import Animated, {
-  FadeIn,
-  FadeOut,
-} from "react-native-reanimated";
+import { Pressable, StyleSheet, View } from "react-native";
+import Animated, { FadeIn, LinearTransition } from "react-native-reanimated";
 
-const AnimatedView = Animated.createAnimatedComponent(View);
+interface TabConfig {
+  name: string;
+  label: string;
+  renderIcon: (focused: boolean) => React.ReactNode;
+}
+
+const TAB_CONFIGS: Record<string, TabConfig> = {
+  index: {
+    name: "index",
+    label: "Home",
+    renderIcon: (focused) => (
+      <Ionicons
+        name={focused ? "home" : "home-outline"}
+        size={20}
+        color={focused ? "#0a0a0a" : "#9e9e9e"}
+      />
+    ),
+  },
+  programs: {
+    name: "programs",
+    label: "Programs",
+    renderIcon: (focused) => (
+      <SimpleLineIcons
+        name="notebook"
+        size={18}
+        color={focused ? "#0a0a0a" : "#9e9e9e"}
+      />
+    ),
+  },
+  currentlift: {
+    name: "currentlift",
+    label: "Lift",
+    renderIcon: (focused) => (
+      <Ionicons
+        name={focused ? "barbell" : "barbell-outline"}
+        size={20}
+        color={focused ? "#0a0a0a" : "#9e9e9e"}
+      />
+    ),
+  },
+  logs: {
+    name: "logs",
+    label: "Logs",
+    renderIcon: (focused) => (
+      <Ionicons
+        name={focused ? "calendar" : "calendar-outline"}
+        size={20}
+        color={focused ? "#0a0a0a" : "#9e9e9e"}
+      />
+    ),
+  },
+};
+
+function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  return (
+    <View style={styles.floatingContainer}>
+      <View style={styles.barPill}>
+        {state.routes.map((route, index) => {
+          const config = TAB_CONFIGS[route.name];
+          if (!config) return null;
+
+          const isFocused = state.index === index;
+
+          const onPress = () => {
+            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            const event = navigation.emit({
+              type: "tabPress",
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          return (
+            <Pressable
+              key={route.key}
+              onPress={onPress}
+              style={styles.tabItem}
+              hitSlop={8}
+            >
+              <Animated.View
+                layout={LinearTransition.springify().mass(0.7).damping(48)}
+                style={isFocused ? styles.activePill : styles.inactiveItem}
+              >
+                {config.renderIcon(isFocused)}
+                {isFocused && (
+                  <Animated.Text
+                    entering={FadeIn.duration(150)}
+                    style={styles.activeLabel}
+                  >
+                    {config.label}
+                  </Animated.Text>
+                )}
+              </Animated.View>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
 
 export default function TabsLayout() {
   return (
     <Tabs
-      screenOptions={({ route }) => ({
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          position: "absolute",
-          bottom: 15,
-          left: 0,
-          right: 0,
-          marginHorizontal: 50,
-          justifyContent: "center",
-          alignItems: "center",
-          height: 58,
-          paddingHorizontal: 30,
-          paddingVertical: 16,
-          borderRadius: 40,
-          borderWidth: 1,
-          borderTopWidth: 1,
-          borderColor: "#333",
-          borderTopColor: "#333",
-          backgroundColor: "#0a0a0a",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 5 },
-          shadowOpacity: 0.3,
-          shadowRadius: 5,
-          maxWidth: 400
-        },
-        tabBarItemStyle: {
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "flex-start",
-          flexDirection: "row",
-          marginHorizontal: 0,
-        },
-        tabBarInactiveTintColor: "#999",
-        tabBarActiveTintColor: "white",
-        tabBarLabel: ({ focused, color }) => {
-          if (!focused) return null;
-          let title = route.name;
-          if (route.name === "index") title = "Home";
-          else if (route.name === "currentlift") title = "Lift";
-          else if (route.name === "logs") title = "Logs";
-          else if (route.name === "programs") title = "Programs";
-          return (
-            <Animated.Text
-              entering={FadeIn.duration(200)}
-              exiting={FadeOut.duration(200)}
-              style={{ color, fontSize: 10, fontWeight: 500 }}
-            >
-              {title}
-            </Animated.Text>
-          );
-        },
-      })}
+      }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <AnimatedView key="index">
-              <Ionicons name="home" size={focused ? size : 20} style={{ paddingTop: 0 }} color={color} />
-            </AnimatedView>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="programs"
-        options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <AnimatedView key="settings">
-              <SimpleLineIcons name="notebook" size={focused ? size : 20} style={{ paddingTop: 0 }} color={color} />
-            </AnimatedView>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="currentlift"
-        options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <AnimatedView key="cLift">
-              <Ionicons name="barbell" size={focused ? size : 20} style={{ paddingTop: 0 }} color={color} />
-            </AnimatedView>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="logs"
-        options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <AnimatedView key="logs">
-              <Ionicons name="calendar-outline" size={focused ? size : 20} style={{ paddingTop: 0 }} color={color} />
-            </AnimatedView>
-          ),
-        }}
-      />
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="programs" />
+      <Tabs.Screen name="currentlift" />
+      <Tabs.Screen name="logs" />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  floatingContainer: {
+    position: "absolute",
+    bottom: 24,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    pointerEvents: "box-none",
+  },
+  barPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    width: 330,
+    height: 56,
+    paddingHorizontal: 12,
+    borderRadius: 28,
+    backgroundColor: "#161616",
+    borderWidth: 1,
+    borderColor: "#2c2c2c",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  tabItem: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  activePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "#f6a800",
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 18,
+  },
+  activeLabel: {
+    fontFamily: "BebasNeue",
+    fontSize: 15,
+    color: "#0a0a0a",
+    letterSpacing: 0.5,
+  },
+  inactiveItem: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 8,
+  },
+});
