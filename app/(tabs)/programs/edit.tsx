@@ -1,11 +1,11 @@
 import { EditProgramStyles as styles } from "@/assets";
-import { createExercise } from "@/db/queries/exercises";
+import { createExercise, deleteExercise, getExercisesByWorkout, updateExercise } from "@/db/queries/exercises";
 import {
   createProgram,
   getProgramById,
   updateProgram,
 } from "@/db/queries/programs";
-import { createWorkout } from "@/db/queries/workout";
+import { createWorkout, deleteWorkout, getWorkoutsByProgram, updateWorkout } from "@/db/queries/workout";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from "@expo/vector-icons/Feather";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
@@ -54,8 +54,6 @@ const formatExercise = (ex: DbExercise): Exercise => ({
 });
 
 const loadSections = async (programId: number): Promise<WorkoutSection[]> => {
-  const { getWorkoutsByProgram } = await import('@/db/queries/workout');
-  const { getExercisesByWorkout } = await import('@/db/queries/exercises');
   const sectionsData = await getWorkoutsByProgram(programId);
   return Promise.all(
     sectionsData.map(async (section: { id: number; title: string; week: number | null }) => {
@@ -238,9 +236,6 @@ const EditProgram = () => {
   };
 
   const updateSections = async (existingProgramId: number, sections: WorkoutSection[]) => {
-    const { getWorkoutsByProgram, updateWorkout } = await import('@/db/queries/workout');
-    const { getExercisesByWorkout, updateExercise } = await import('@/db/queries/exercises');
-
     const existingSections = await getWorkoutsByProgram(existingProgramId);
 
     for (let sIdx = 0; sIdx < sections.length; sIdx++) {
@@ -285,7 +280,7 @@ const EditProgram = () => {
         // Delete any extra exercises
         for (let eIdx = section.exercises.length; eIdx < existingExercises.length; eIdx++) {
           const existingExercise = existingExercises[eIdx];
-          await import('@/db/queries/exercises').then(({ deleteExercise }) => deleteExercise(existingExercise.id));
+          await deleteExercise(existingExercise.id);
         }
       } else {
         // Create new workout and its exercises
@@ -303,7 +298,7 @@ const EditProgram = () => {
     // Delete any extra workouts
     for (let sIdx = sections.length; sIdx < existingSections.length; sIdx++) {
       const existingWorkout = existingSections[sIdx];
-      await import('@/db/queries/workout').then(({ deleteWorkout }) => deleteWorkout(existingWorkout.id));
+      await deleteWorkout(existingWorkout.id);
     }
   };
 

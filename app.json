@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "UpLift",
-    "slug": "upLift",
+    "name": "MaxxOut",
+    "slug": "maxxout",
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/UL_icon.png",
-    "scheme": "uplift",
+    "scheme": "maxxout",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

@@ -50,7 +50,7 @@ const Index = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Uplift</Text>
+        <Text style={styles.title}>MaxxOut</Text>
       </View>
       <View>
         <Text style={styles.subText}>Recent workouts</Text>

@@ -1,3 +1,5 @@
+import { weightPlateStyles as styles } from '@/assets';
+import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -7,7 +9,6 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
 import { scheduleOnRN } from "react-native-worklets";
-import { weightPlateStyles as styles } from '@/assets';
 
 interface WeightPlateProps {
   weight: number;
@@ -28,50 +29,53 @@ export const WeightPlate = ({
   const VELOCITY_THRESHOLD = 500;
   const triggered = useSharedValue(false);
 
-  const gesture = Gesture.Pan()
-    .maxPointers(1)
-    .onBegin(() => {
-      triggered.value = false;
-    })
-    .onUpdate((e) => {
-      const clamped = Math.max(
-        -MAX_DRAG,
-        Math.min(MAX_DRAG, e.translationY * 0.3),
-      );
-      translateY.value = clamped;
+  const composed = useMemo(() => {
+    const gesture = Gesture.Pan()
+      .maxPointers(1)
+      .onBegin(() => {
+        triggered.value = false;
+      })
+      .onUpdate((e) => {
+        const clamped = Math.max(
+          -MAX_DRAG,
+          Math.min(MAX_DRAG, e.translationY * 0.3),
+        );
+        translateY.value = clamped;
 
-      if (!triggered.value) {
-        if (
-          e.translationY < -SWIPE_THRESHOLD ||
-          e.velocityY < -VELOCITY_THRESHOLD
-        ) {
-          triggered.value = true;
-          scheduleOnRN(onSwipeUp);
-        } else if (
-          e.translationY > SWIPE_THRESHOLD ||
-          e.velocityY > VELOCITY_THRESHOLD
-        ) {
-          triggered.value = true;
-          scheduleOnRN(onSwipeDown);
+        if (!triggered.value) {
+          if (
+            e.translationY < -SWIPE_THRESHOLD ||
+            e.velocityY < -VELOCITY_THRESHOLD
+          ) {
+            triggered.value = true;
+            scheduleOnRN(onSwipeUp);
+          } else if (
+            e.translationY > SWIPE_THRESHOLD ||
+            e.velocityY > VELOCITY_THRESHOLD
+          ) {
+            triggered.value = true;
+            scheduleOnRN(onSwipeDown);
+          }
         }
-      }
-    })
-    .onEnd(() => {
-      translateY.value = withSpring(0, {
-        damping: 20,
-        stiffness: 300,
-        overshootClamping: true,
+      })
+      .onEnd(() => {
+        translateY.value = withSpring(0, {
+          damping: 20,
+          stiffness: 300,
+          overshootClamping: true,
+        });
       });
-    });
-  const tapGesture = Gesture.Tap()
-    .onBegin(() => {
-      scale.value = withSpring(0.95);
-    })
-    .onFinalize(() => {
-      scale.value = withSpring(1);
-    });
 
-  const composed = Gesture.Simultaneous(gesture, tapGesture);
+    const tapGesture = Gesture.Tap()
+      .onBegin(() => {
+        scale.value = withSpring(0.95);
+      })
+      .onFinalize(() => {
+        scale.value = withSpring(1);
+      });
+
+    return Gesture.Simultaneous(gesture, tapGesture);
+  }, [onSwipeUp, onSwipeDown]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }, { scale: scale.value }],

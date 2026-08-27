@@ -16,7 +16,14 @@ import { ActivityIndicator, FlatList, Modal, Pressable, ScrollView, Text, View }
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type HeaderRow = { type: "header"; dateCount: number };
-type SectionRow = { type: "section"; title: string; week: string; dates: string[] };
+type SectionRow = {
+  type: "section";
+  workoutId?: number;
+  isCurrentLift?: boolean;
+  title: string;
+  week: string;
+  dates: string[];
+};
 type ExerciseNameRow = {
   type: "exercise-name";
   name: string;
@@ -38,6 +45,8 @@ interface LogExercise {
 }
 
 interface LogSection {
+  workoutId?: number;
+  isCurrentLift?: boolean;
   title: string;
   week: string;
   exercises: LogExercise[];
@@ -50,6 +59,11 @@ const COL_SETS = 56;
 const COL_REPS = 52;
 const COL_DESC = 200;
 const COL_WEIGHT = 88;
+
+/** Persistent scroll state across tab navigations */
+let savedScrollX = 0;
+let savedScrollY = 0;
+let lastAutoScrolledWorkoutId: number | null = null;
 
 /** Convert a UTC ISO string to a local YYYY-MM-DD date key */
 function localDateKey(isoString: string): string {
@@ -73,7 +87,14 @@ const buildRows = (sections: LogSection[], globalColCount: number): TableRow[] =
   for (const section of sections) {
     const pad = Math.max(0, globalColCount - section.dates.length);
     const paddedDates = [...section.dates, ...new Array<string>(pad).fill("")];
-    rows.push({ type: "section", title: section.title, week: section.week, dates: paddedDates });
+    rows.push({
+      type: "section",
+      workoutId: section.workoutId,
+      isCurrentLift: section.isCurrentLift,
+      title: section.title,
+      week: section.week,
+      dates: paddedDates,
+    });
     for (const exercise of section.exercises) {
       rows.push({
         type: "exercise-name",
@@ -215,6 +236,8 @@ function buildWorkoutSection(
   });
 
   return {
+    workoutId: workout.id,
+    isCurrentLift: isThisActive,
     title: workout.title,
     week: workout.week != null ? `Week ${workout.week}` : "",
     exercises: logExercises,
@@ -236,9 +259,14 @@ export default function Logs() {
   const [selectedProgramId, setSelectedProgramId] = useState<number | null>(null);
   const [programName, setProgramName] = useState<string | null>(null);
   const [sections, setSections] = useState<LogSection[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [showDescription, setShowDescription] = useState(true);
   const [isProgramModalVisible, setIsProgramModalVisible] = useState(false);
+
+  const isInitialLoadRef = useRef(true);
+  const flashListRef = useRef<any>(null);
+  const headerScrollRef = useRef<ScrollView>(null);
+  const listScrollRef = useRef<ScrollView>(null);
 
   const isInProgress =
     activeWorkoutId !== null && !isWorkoutSaved && Object.keys(exerciseWeights).length > 0;
@@ -263,7 +291,9 @@ export default function Logs() {
       let cancelled = false;
 
       const loadData = async () => {
-        setIsLoading(true);
+        if (isInitialLoadRef.current) {
+          setIsInitialLoading(true);
+        }
         try {
           const progs = await getPrograms();
           if (cancelled) return;
@@ -318,7 +348,10 @@ export default function Logs() {
         } catch (err) {
           console.error("Error loading logs data:", err);
         } finally {
-          if (!cancelled) setIsLoading(false);
+          if (!cancelled) {
+            setIsInitialLoading(false);
+            isInitialLoadRef.current = false;
+          }
         }
       };
 
@@ -340,8 +373,36 @@ export default function Logs() {
     descriptionWidth +
     COL_WEIGHT * globalColCount;
 
-  const headerScrollRef = useRef<ScrollView>(null);
-  const listScrollRef = useRef<ScrollView>(null);
+  // Handle autoscrolling to active lift or restoring scroll position
+  React.useEffect(() => {
+    if (!isFocused || isInitialLoading || rows.length === 0) return;
+
+    if (isInProgress && activeWorkoutId !== null) {
+      if (lastAutoScrolledWorkoutId !== activeWorkoutId) {
+        const targetIndex = rows.findIndex(
+          (r) => r.type === "section" && r.workoutId === activeWorkoutId,
+        );
+        if (targetIndex !== -1) {
+          lastAutoScrolledWorkoutId = activeWorkoutId;
+          const timer = setTimeout(() => {
+            flashListRef.current?.scrollToIndex({
+              index: targetIndex,
+              animated: true,
+            });
+          }, 100);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+
+    // Restore saved scroll position if set
+    if (savedScrollX > 0) {
+      listScrollRef.current?.scrollTo({ x: savedScrollX, animated: false });
+    }
+    if (savedScrollY > 0) {
+      flashListRef.current?.scrollToOffset({ offset: savedScrollY, animated: false });
+    }
+  }, [isFocused, isInitialLoading, rows, isInProgress, activeWorkoutId]);
 
   const syncScroll = (x: number, source: "header" | "list") => {
     if (source === "list") {
@@ -461,7 +522,7 @@ export default function Logs() {
   };
 
   const renderBody = () => {
-    if (isLoading) {
+    if (isInitialLoading) {
       return (
         <ActivityIndicator
           style={{ marginTop: 40 }}
@@ -489,16 +550,24 @@ export default function Logs() {
         ref={listScrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
-        onScroll={(e) => syncScroll(e.nativeEvent.contentOffset.x, "list")}
+        onScroll={(e) => {
+          const x = e.nativeEvent.contentOffset.x;
+          savedScrollX = x;
+          syncScroll(x, "list");
+        }}
         scrollEventThrottle={16}
       >
         <View style={{ width: tableWidth, flex: 1 }}>
           <FlashList
+            ref={flashListRef}
             data={rows}
             renderItem={renderRow}
             keyExtractor={(_, idx) => String(idx)}
             getItemType={(item) => item.type}
             showsVerticalScrollIndicator={false}
+            onScroll={(e) => {
+              savedScrollY = e.nativeEvent.contentOffset.y;
+            }}
           />
         </View>
       </ScrollView>
@@ -541,6 +610,9 @@ export default function Logs() {
                       ]}
                       onPress={() => {
                         setSelectedProgramId(item.id);
+                        savedScrollX = 0;
+                        savedScrollY = 0;
+                        lastAutoScrolledWorkoutId = null;
                         setIsProgramModalVisible(false);
                       }}
                     >
