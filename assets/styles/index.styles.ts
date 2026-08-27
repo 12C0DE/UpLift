@@ -10,10 +10,8 @@ export const indexStyles = StyleSheet.create({
     paddingBottom: 24,
   },
   header: {
-    paddingTop: 24,
-    paddingBottom: 16,
-    flexDirection: "row",
-    flex: 1,
+    paddingTop: 8,
+    marginVertical: 16,
     alignContent: "center",
     justifyContent: "center",
   },
