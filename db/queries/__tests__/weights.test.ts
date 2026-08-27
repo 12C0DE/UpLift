@@ -82,4 +82,30 @@ describe('db/queries/weights', () => {
         const map = await getLastWeightsForExercises([]);
         expect(map).toEqual({});
     });
+
+    it('falls back to 2nd last weight if last entry is 0 in getLastWeight', async () => {
+        await logWeight(exerciseId, 185);
+        await logWeight(exerciseId, 0);
+
+        const last = await getLastWeight(exerciseId);
+        expect(last).not.toBeNull();
+        expect(last?.weight).toBe(185);
+    });
+
+    it('falls back to 2nd last weight if last entry is 0 in getLastWeightsForExercises', async () => {
+        const [prog] = await createProgram('Prog Fallback');
+        const [w] = await createWorkout(prog.id, 'W Fallback');
+        const [ex2] = await createExercise(w.id, 'Deadlift');
+
+        // exerciseId: last is 0, 2nd last is 225
+        await logWeight(exerciseId, 225);
+        await logWeight(exerciseId, 0);
+
+        // ex2: only 1 entry with 0 weight
+        await logWeight(ex2.id, 0);
+
+        const map = await getLastWeightsForExercises([exerciseId, ex2.id]);
+        expect(map[exerciseId]?.weight).toBe(225);
+        expect(map[ex2.id]?.weight).toBe(0);
+    });
 });

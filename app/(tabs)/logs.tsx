@@ -1,22 +1,29 @@
-import { LogsStyles as styles } from "@/assets";
+import { currentLiftModalStyles as modalStyles, LogsStyles as styles } from "@/assets";
 import { TblCell } from "@/components";
 import { useActiveWorkout } from "@/context/ActiveWorkoutContext";
 import { getExercisesByWorkout } from "@/db/queries/exercises";
-import { getProgramById } from "@/db/queries/programs";
+import { getProgramById, getPrograms } from "@/db/queries/programs";
 import { getWeightEntriesByExercises } from "@/db/queries/weights";
 import { getWorkoutsByProgram } from "@/db/queries/workout";
 
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type HeaderRow = { type: "header"; dateCount: number };
-type SectionRow = { type: "section"; title: string; week: string; dates: string[] };
+type SectionRow = {
+  type: "section";
+  workoutId?: number;
+  isCurrentLift?: boolean;
+  title: string;
+  week: string;
+  dates: string[];
+};
 type ExerciseNameRow = {
   type: "exercise-name";
   name: string;
@@ -38,6 +45,8 @@ interface LogExercise {
 }
 
 interface LogSection {
+  workoutId?: number;
+  isCurrentLift?: boolean;
   title: string;
   week: string;
   exercises: LogExercise[];
@@ -50,6 +59,11 @@ const COL_SETS = 56;
 const COL_REPS = 52;
 const COL_DESC = 200;
 const COL_WEIGHT = 88;
+
+/** Persistent scroll state across tab navigations */
+let savedScrollX = 0;
+let savedScrollY = 0;
+let lastAutoScrolledWorkoutId: number | null = null;
 
 /** Convert a UTC ISO string to a local YYYY-MM-DD date key */
 function localDateKey(isoString: string): string {
@@ -73,7 +87,14 @@ const buildRows = (sections: LogSection[], globalColCount: number): TableRow[] =
   for (const section of sections) {
     const pad = Math.max(0, globalColCount - section.dates.length);
     const paddedDates = [...section.dates, ...new Array<string>(pad).fill("")];
-    rows.push({ type: "section", title: section.title, week: section.week, dates: paddedDates });
+    rows.push({
+      type: "section",
+      workoutId: section.workoutId,
+      isCurrentLift: section.isCurrentLift,
+      title: section.title,
+      week: section.week,
+      dates: paddedDates,
+    });
     for (const exercise of section.exercises) {
       rows.push({
         type: "exercise-name",
@@ -93,28 +114,64 @@ const buildRows = (sections: LogSection[], globalColCount: number): TableRow[] =
   return rows;
 };
 
-type SetEntry = { id: number; weight: number | null };
-type ByExDate = Record<number, Record<string, SetEntry[]>>;
+interface SessionCluster {
+  sessionKey: string;
+  displayDate: string;
+  timestamp: number;
+  byExercise: Record<number, { id: number; weight: number | null }[]>;
+}
 
-function groupEntriesByExDate(
+function clusterWorkoutEntries(
+  exercises: { id: number }[],
   allEntries: { exerciseId: number; id: number; weight: number | null; loggedAt: string }[],
-  exerciseIds: number[],
-): ByExDate {
-  const byExDate: ByExDate = {};
-  for (const id of exerciseIds) byExDate[id] = {};
-  for (const entry of allEntries) {
-    const date = localDateKey(entry.loggedAt);
-    const bucket = byExDate[entry.exerciseId];
-    if (!bucket) continue;
-    if (!bucket[date]) bucket[date] = [];
-    bucket[date].push({ id: entry.id, weight: entry.weight });
+): SessionCluster[] {
+  const exIdSet = new Set(exercises.map((e) => e.id));
+  const workoutEntries = allEntries.filter((e) => exIdSet.has(e.exerciseId));
+
+  if (workoutEntries.length === 0) return [];
+
+  workoutEntries.sort((a, b) => {
+    const timeA = new Date(a.loggedAt).getTime();
+    const timeB = new Date(b.loggedAt).getTime();
+    if (timeB !== timeA) return timeB - timeA;
+    return b.id - a.id;
+  });
+
+  const SESSION_WINDOW_MS = 2 * 60 * 60 * 1000;
+  const sessions: SessionCluster[] = [];
+
+  for (const entry of workoutEntries) {
+    const entryTime = new Date(entry.loggedAt).getTime();
+    const lastSession = sessions[sessions.length - 1];
+    
+    let session: SessionCluster | undefined = lastSession && Math.abs(lastSession.timestamp - entryTime) <= SESSION_WINDOW_MS ? lastSession : undefined;
+
+    if (!session) {
+      const dateKey = localDateKey(entry.loggedAt);
+      session = {
+        sessionKey: `session_${entry.id}_${entryTime}`,
+        displayDate: formatDate(dateKey),
+        timestamp: entryTime,
+        byExercise: {},
+      };
+      sessions.push(session);
+    }
+
+    if (!session.byExercise[entry.exerciseId]) {
+      session.byExercise[entry.exerciseId] = [];
+    }
+    session.byExercise[entry.exerciseId].push({ id: entry.id, weight: entry.weight });
   }
-  for (const exId of Object.keys(byExDate)) {
-    for (const date of Object.keys(byExDate[Number(exId)])) {
-      byExDate[Number(exId)][date].sort((a, b) => a.id - b.id);
+
+  for (const s of sessions) {
+    for (const exId of Object.keys(s.byExercise)) {
+      s.byExercise[Number(exId)].sort((a, b) => a.id - b.id);
     }
   }
-  return byExDate;
+
+  sessions.sort((a, b) => b.timestamp - a.timestamp);
+
+  return sessions;
 }
 
 function getInProgressSetArray(
@@ -127,38 +184,6 @@ function getInProgressSetArray(
     .map((s) => s.weight);
 }
 
-function buildLogExercise(
-  ex: { id: number; name: string; sets: number | null; reps: number | null; description: string | null },
-  dateCols: string[],
-  sortedDates: string[],
-  byExDate: ByExDate,
-  inProgressSets: number[],
-  isInProgress: boolean,
-): LogExercise {
-  const maxSets = Math.max(
-    isInProgress ? inProgressSets.length : 0,
-    ...sortedDates.map((d) => byExDate[ex.id]?.[d]?.length ?? 0),
-  );
-
-  const setWeights: (number | null)[][] = [];
-  for (let s = 0; s < maxSets; s++) {
-    const row: (number | null)[] = dateCols.map((col) => {
-      if (col === "now") return inProgressSets[s] ?? null;
-      return byExDate[ex.id]?.[col]?.[s]?.weight ?? null;
-    });
-    setWeights.push(row);
-  }
-
-  return {
-    name: ex.name,
-    totalSets: Math.max(ex.sets ?? 1, maxSets),
-    reps: ex.reps != null ? String(ex.reps) : "",
-    description: ex.description ?? "",
-    setWeights,
-  };
-}
-
-
 async function loadWorkoutsWithExercises(
   workouts: Awaited<ReturnType<typeof getWorkoutsByProgram>>,
 ) {
@@ -170,33 +195,51 @@ async function loadWorkoutsWithExercises(
 function buildWorkoutSection(
   workout: { id: number; title: string; week: number | null },
   exercises: { id: number; name: string; sets: number | null; reps: number | null; description: string | null }[],
-  byExDate: ByExDate,
+  allEntries: { exerciseId: number; id: number; weight: number | null; loggedAt: string }[],
   activeWorkoutId: number | null,
   isInProgress: boolean,
   exerciseWeights: Record<number, Record<number, number>>,
 ): LogSection {
-  const workoutDates = new Set<string>();
-  for (const ex of exercises) {
-    for (const d of Object.keys(byExDate[ex.id] ?? {})) workoutDates.add(d);
-  }
-  const sortedDates = [...workoutDates].sort((a, b) => b.localeCompare(a)).slice(0, MAX_SESSION_COLS);
+  const workoutSessions = clusterWorkoutEntries(exercises, allEntries);
+  const recentSessions = workoutSessions.slice(0, MAX_SESSION_COLS);
 
   const isThisActive = workout.id === activeWorkoutId && isInProgress;
-  const dateCols = isThisActive ? ["now", ...sortedDates] : sortedDates;
-  const displayDates = dateCols.map((d) => (d === "now" ? "Now" : formatDate(d)));
 
-  const logExercises = exercises.map((ex) =>
-    buildLogExercise(
-      ex,
-      dateCols,
-      sortedDates,
-      byExDate,
-      isThisActive ? getInProgressSetArray(ex.id, exerciseWeights) : [],
-      isThisActive,
-    ),
-  );
+  const displayDates: string[] = [];
+  if (isThisActive) displayDates.push("Now");
+  for (const s of recentSessions) displayDates.push(s.displayDate);
+
+  const logExercises = exercises.map((ex) => {
+    const inProgressSets = isThisActive ? getInProgressSetArray(ex.id, exerciseWeights) : [];
+    const maxSets = Math.max(
+      isThisActive ? inProgressSets.length : 0,
+      ...recentSessions.map((s) => s.byExercise[ex.id]?.length ?? 0),
+    );
+
+    const setWeights: (number | null)[][] = [];
+    for (let setIdx = 0; setIdx < maxSets; setIdx++) {
+      const row: (number | null)[] = [];
+      if (isThisActive) {
+        row.push(inProgressSets[setIdx] ?? null);
+      }
+      for (const session of recentSessions) {
+        row.push(session.byExercise[ex.id]?.[setIdx]?.weight ?? null);
+      }
+      setWeights.push(row);
+    }
+
+    return {
+      name: ex.name,
+      totalSets: Math.max(ex.sets ?? 1, maxSets),
+      reps: ex.reps != null ? String(ex.reps) : "",
+      description: ex.description ?? "",
+      setWeights,
+    };
+  });
 
   return {
+    workoutId: workout.id,
+    isCurrentLift: isThisActive,
     title: workout.title,
     week: workout.week != null ? `Week ${workout.week}` : "",
     exercises: logExercises,
@@ -208,19 +251,27 @@ export default function Logs() {
   const isFocused = useIsFocused();
 
   const {
-    programId,
-    workoutId,
+    programId: activeProgramId,
+    workoutId: activeWorkoutId,
     exerciseWeights,
     isWorkoutSaved,
   } = useActiveWorkout();
 
+  const [allPrograms, setAllPrograms] = useState<{ id: number; name: string }[]>([]);
+  const [selectedProgramId, setSelectedProgramId] = useState<number | null>(null);
   const [programName, setProgramName] = useState<string | null>(null);
   const [sections, setSections] = useState<LogSection[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [showDescription, setShowDescription] = useState(true);
+  const [isProgramModalVisible, setIsProgramModalVisible] = useState(false);
+
+  const isInitialLoadRef = useRef(true);
+  const flashListRef = useRef<any>(null);
+  const headerScrollRef = useRef<ScrollView>(null);
+  const listScrollRef = useRef<ScrollView>(null);
 
   const isInProgress =
-    workoutId !== null && !isWorkoutSaved && Object.keys(exerciseWeights).length > 0;
+    activeWorkoutId !== null && !isWorkoutSaved && Object.keys(exerciseWeights).length > 0;
 
   useFocusEffect(
     useCallback(() => {
@@ -239,24 +290,39 @@ export default function Logs() {
 
   useFocusEffect(
     useCallback(() => {
-      if (!programId) {
-        setSections([]);
-        setProgramName(null);
-        return;
-      }
-
       let cancelled = false;
 
       const loadData = async () => {
-        setIsLoading(true);
+        if (isInitialLoadRef.current) {
+          setIsInitialLoading(true);
+        }
         try {
-          const program = getProgramById(programId);
-          const workouts = await getWorkoutsByProgram(programId);
+          const progs = await getPrograms();
+          if (cancelled) return;
+          setAllPrograms(progs);
 
+          let targetId: number | null = null;
+          if (activeProgramId !== null && isInProgress) {
+            targetId = activeProgramId;
+          } else if (selectedProgramId !== null && progs.some((p: any) => p.id === selectedProgramId)) {
+            targetId = selectedProgramId;
+          } else if (progs.length > 0) {
+            targetId = progs[0].id;
+          }
+
+          if (targetId === null) {
+            setProgramName(null);
+            setSections([]);
+            return;
+          }
+
+          setSelectedProgramId(targetId);
+
+          const program = getProgramById(targetId);
+          const workouts = await getWorkoutsByProgram(targetId);
           if (cancelled) return;
 
           const workoutsWithExercises = await loadWorkoutsWithExercises(workouts);
-
           if (cancelled) return;
 
           const allExIds: number[] = [];
@@ -264,13 +330,19 @@ export default function Logs() {
             for (const ex of exercises) allExIds.push(ex.id);
           }
           const allEntries = await getWeightEntriesByExercises(allExIds);
-
           if (cancelled) return;
 
-          const byExDate = groupEntriesByExDate(allEntries, allExIds);
+          const isSelectedProgramActive = targetId === activeProgramId && isInProgress;
 
           const logSections = workoutsWithExercises.map(({ workout, exercises }) =>
-            buildWorkoutSection(workout, exercises, byExDate, workoutId, isInProgress, exerciseWeights),
+            buildWorkoutSection(
+              workout,
+              exercises,
+              allEntries,
+              isSelectedProgramActive ? activeWorkoutId : null,
+              isSelectedProgramActive,
+              exerciseWeights,
+            ),
           );
 
           setProgramName(program?.name ?? "Program");
@@ -278,7 +350,10 @@ export default function Logs() {
         } catch (err) {
           console.error("Error loading logs data:", err);
         } finally {
-          if (!cancelled) setIsLoading(false);
+          if (!cancelled) {
+            setIsInitialLoading(false);
+            isInitialLoadRef.current = false;
+          }
         }
       };
 
@@ -286,7 +361,7 @@ export default function Logs() {
       return () => {
         cancelled = true;
       };
-    }, [programId, workoutId, isInProgress, exerciseWeights]),
+    }, [activeProgramId, activeWorkoutId, isInProgress, exerciseWeights, selectedProgramId]),
   );
 
   const globalColCount =
@@ -300,8 +375,36 @@ export default function Logs() {
     descriptionWidth +
     COL_WEIGHT * globalColCount;
 
-  const headerScrollRef = useRef<ScrollView>(null);
-  const listScrollRef = useRef<ScrollView>(null);
+  // Handle autoscrolling to active lift or restoring scroll position
+  React.useEffect(() => {
+    if (!isFocused || isInitialLoading || rows.length === 0) return;
+
+    if (isInProgress && activeWorkoutId !== null) {
+      if (lastAutoScrolledWorkoutId !== activeWorkoutId) {
+        const targetIndex = rows.findIndex(
+          (r) => r.type === "section" && r.workoutId === activeWorkoutId,
+        );
+        if (targetIndex !== -1) {
+          lastAutoScrolledWorkoutId = activeWorkoutId;
+          const timer = setTimeout(() => {
+            flashListRef.current?.scrollToIndex({
+              index: targetIndex,
+              animated: true,
+            });
+          }, 100);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+
+    // Restore saved scroll position if set
+    if (savedScrollX > 0) {
+      listScrollRef.current?.scrollTo({ x: savedScrollX, animated: false });
+    }
+    if (savedScrollY > 0) {
+      flashListRef.current?.scrollToOffset({ offset: savedScrollY, animated: false });
+    }
+  }, [isFocused, isInitialLoading, rows, isInProgress, activeWorkoutId]);
 
   const syncScroll = (x: number, source: "header" | "list") => {
     if (source === "list") {
@@ -420,10 +523,8 @@ export default function Logs() {
     return null;
   };
 
-  const titleLabel = programName ?? "Logs";
-
   const renderBody = () => {
-    if (isLoading) {
+    if (isInitialLoading) {
       return (
         <ActivityIndicator
           style={{ marginTop: 40 }}
@@ -432,10 +533,17 @@ export default function Logs() {
         />
       );
     }
-    if (!programId) {
+    if (allPrograms.length === 0) {
       return (
         <View style={{ flex: 1, alignItems: "center", paddingTop: 60 }}>
-          <Text style={styles.titleText}>No active workout</Text>
+          <Text style={[styles.titleText, { color: "#f5f5f5" }]}>No programs available</Text>
+        </View>
+      );
+    }
+    if (sections.length === 0) {
+      return (
+        <View style={{ flex: 1, alignItems: "center", paddingTop: 60 }}>
+          <Text style={[styles.titleText, { color: "#f5f5f5" }]}>No workouts in this program</Text>
         </View>
       );
     }
@@ -444,16 +552,24 @@ export default function Logs() {
         ref={listScrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
-        onScroll={(e) => syncScroll(e.nativeEvent.contentOffset.x, "list")}
+        onScroll={(e) => {
+          const x = e.nativeEvent.contentOffset.x;
+          savedScrollX = x;
+          syncScroll(x, "list");
+        }}
         scrollEventThrottle={16}
       >
         <View style={{ width: tableWidth, flex: 1 }}>
           <FlashList
+            ref={flashListRef}
             data={rows}
             renderItem={renderRow}
             keyExtractor={(_, idx) => String(idx)}
             getItemType={(item) => item.type}
             showsVerticalScrollIndicator={false}
+            onScroll={(e) => {
+              savedScrollY = e.nativeEvent.contentOffset.y;
+            }}
           />
         </View>
       </ScrollView>
@@ -465,15 +581,74 @@ export default function Logs() {
       {isFocused ? <StatusBar style="dark" backgroundColor="#f6a800" /> : null}
       <SafeAreaView edges={["top"]} style={styles.statusBarArea} />
       <SafeAreaView edges={["left", "right", "bottom"]} style={styles.screenBody}>
+        <Modal
+          visible={isProgramModalVisible}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setIsProgramModalVisible(false)}
+        >
+          <View style={modalStyles.backdrop}>
+            <Pressable
+              style={modalStyles.backdropPressable}
+              onPress={() => setIsProgramModalVisible(false)}
+            />
+            <View style={modalStyles.sheet}>
+              <View style={modalStyles.sheetHeader}>
+                <Text style={modalStyles.sheetTitle}>Select Program</Text>
+                <Pressable onPress={() => setIsProgramModalVisible(false)} hitSlop={20}>
+                  <Text style={modalStyles.closeText}>X</Text>
+                </Pressable>
+              </View>
+              <FlatList
+                data={allPrograms}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={({ item }) => {
+                  const isSelected = item.id === selectedProgramId;
+                  return (
+                    <Pressable
+                      style={[
+                        modalStyles.itemButton,
+                        isSelected && { borderColor: "#f6a800", borderWidth: 2 },
+                      ]}
+                      onPress={() => {
+                        setSelectedProgramId(item.id);
+                        savedScrollX = 0;
+                        savedScrollY = 0;
+                        lastAutoScrolledWorkoutId = null;
+                        setIsProgramModalVisible(false);
+                      }}
+                    >
+                      <Text style={[modalStyles.itemTitle, isSelected && { color: "#f6a800" }]}>
+                        {item.name}
+                      </Text>
+                    </Pressable>
+                  );
+                }}
+                ListEmptyComponent={
+                  <Text style={modalStyles.emptyText}>
+                    No programs found.
+                  </Text>
+                }
+              />
+            </View>
+          </View>
+        </Modal>
+
         <View style={styles.titleBar}>
           <View style={styles.titleRow}>
-            <Text
-              style={styles.titleText}
-              numberOfLines={2}
-              ellipsizeMode="tail"
+            <Pressable
+              style={{ flexDirection: "row", alignItems: "center", flexShrink: 1, paddingRight: 8 }}
+              onPress={() => setIsProgramModalVisible(true)}
             >
-              {titleLabel}
-            </Text>
+              <Text
+                style={styles.titleText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {programName ?? "Select Program"}
+              </Text>
+              <Entypo name="chevron-small-down" size={28} color="#0a0a0a" style={{ marginLeft: 2 }} />
+            </Pressable>
             <Pressable
               style={styles.toggleButton}
               onPress={() => setShowDescription((prev) => !prev)}

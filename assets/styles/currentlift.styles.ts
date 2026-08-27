@@ -106,7 +106,7 @@ export const currentLiftStyles = StyleSheet.create({
   },
   setsContainer: {
     alignItems: "center",
-    marginBottom: 16,
+    marginTop: 16,
   },
   sectionLabel: {
     fontFamily: "BebasNeue",
@@ -183,7 +183,6 @@ export const currentLiftModalStyles = StyleSheet.create({
   },
   sheet: {
     backgroundColor: "#121212",
-    borderRadius: 24,
     borderWidth: 1,
     borderColor: "#2f2f2f",
     padding: 20,
@@ -236,7 +235,6 @@ export const currentLiftModalStyles = StyleSheet.create({
   },
   itemButton: {
     backgroundColor: "#1f1f1f",
-    borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 16,
     marginBottom: 12,
@@ -276,7 +274,6 @@ export const currentLiftModalStyles = StyleSheet.create({
   /* Options Cards */
   optionCard: {
     backgroundColor: "#1f1f1f",
-    // borderRadius: 16,
     padding: 14,
     marginBottom: 12,
     flexDirection: "row",
@@ -312,7 +309,6 @@ export const currentLiftModalStyles = StyleSheet.create({
     backgroundColor: "#f6a800",
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 8,
   },
   runningBadgeText: {
     color: "#0a0a0a",
@@ -324,7 +320,6 @@ export const currentLiftModalStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#1a1a1a",
-    borderRadius: 20,
     paddingVertical: 20,
     marginVertical: 12,
     borderWidth: 1,
@@ -352,7 +347,6 @@ export const currentLiftModalStyles = StyleSheet.create({
   },
   presetBtn: {
     backgroundColor: "#1f1f1f",
-    borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 18,
     borderWidth: 1,
@@ -379,7 +373,6 @@ export const currentLiftModalStyles = StyleSheet.create({
   },
   timerSecondaryBtn: {
     backgroundColor: "#262626",
-    borderRadius: 16,
     paddingVertical: 10,
     paddingHorizontal: 14,
   },

@@ -6,6 +6,7 @@ import { logWeight } from "@/db/queries/weights";
 import { getWorkoutsByProgram } from "@/db/queries/workout";
 import { BAR_WEIGHT, WEIGHT_LIST } from "@/utils";
 import Entypo from "@expo/vector-icons/Entypo";
+import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -546,6 +547,12 @@ export default function CurrentLift({
             <Text style={styles.swipeHint}>Swipe up or down to change weight</Text>
           </View>
           <View style={styles.setsRepsSection}>
+            <View style={styles.repsContainer}>
+              <Text style={styles.sectionLabel}>Reps</Text>
+              <View style={[styles.numberBox, styles.numberBoxCentered]}>
+                <Text style={styles.numberText}>{activeReps}</Text>
+              </View>
+            </View>
             <View style={styles.setsContainer}>
               <Text style={styles.sectionLabel}>Sets</Text>
               <View style={styles.setsRow}>
@@ -558,12 +565,6 @@ export default function CurrentLift({
                 </View>
               </View>
             </View>
-            <View style={styles.repsContainer}>
-              <Text style={styles.sectionLabel}>Reps</Text>
-              <View style={[styles.numberBox, styles.numberBoxCentered]}>
-                <Text style={styles.numberText}>{activeReps}</Text>
-              </View>
-            </View>
           </View>
         </View>
         <View style={styles.navContainer}>
@@ -572,10 +573,12 @@ export default function CurrentLift({
             style={styles.navButton}
             onPress={() => {
               if (currentSet > 1) {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 const prevSet = currentSet - 1;
                 setCurrentSet(prevSet);
                 setTotalWeight(exerciseWeights[currentExercise?.id ?? -1]?.[prevSet] ?? 0);
               } else if (currentExerciseIndex > 0) {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 const prevIndex = currentExerciseIndex - 1;
                 const prevExercise = workoutExercises[prevIndex];
                 const prevSets = prevExercise?.sets ?? totalSets;
@@ -597,6 +600,7 @@ export default function CurrentLift({
             onPress={() => {
               if (workoutSaved) return;
               if (currentSet < activeTotalSets) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 const nextSet = currentSet + 1;
                 setCurrentSet(nextSet);
                 if (currentExercise) {
@@ -606,12 +610,14 @@ export default function CurrentLift({
                   }));
                 }
               } else if (workoutExercises.length > 0 && currentExerciseIndex < workoutExercises.length - 1) {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 const nextIndex = currentExerciseIndex + 1;
                 const nextExercise = workoutExercises[nextIndex];
                 setCurrentExerciseIndex(nextIndex);
                 setCurrentSet(1);
                 setTotalWeight(exerciseWeights[nextExercise?.id ?? -1]?.[1] ?? 0);
               } else if (workoutExercises.length > 0) {
+                void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                 handleSaveWorkout();
               }
             }}

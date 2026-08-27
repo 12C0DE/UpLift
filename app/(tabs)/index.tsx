@@ -50,7 +50,7 @@ const Index = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Uplift</Text>
+        <Text style={styles.title}>MaxxOut</Text>
       </View>
       <View>
         <Text style={styles.subText}>Recent workouts</Text>
@@ -67,23 +67,46 @@ const Index = () => {
               style={styles.progButton}
               onPress={() => router.push(`/currentlift?programId=${prog.id}&start=1`)}
             >
-              <View style={styles.progLayout}>
-                <View style={styles.rowLayout}>
-                  <Text style={styles.progText}>Start Workout</Text>
-                  <Entypo name="controller-play" size={24} color="black" />
+              <View style={styles.cardHeaderRow}>
+                <View style={{ flex: 1, paddingRight: 8 }}>
+                  <Text style={styles.progText} numberOfLines={1} ellipsizeMode="tail">
+                    {prog.name}
+                  </Text>
                 </View>
-                <View>
-                  <Text style={styles.workoutText}>{`-- ${prog.name} --`}</Text>
+                <View style={styles.startBadge}>
+                  <Text style={styles.startBadgeText}>START</Text>
+                  <Entypo name="controller-play" size={16} color="#f6a800" />
                 </View>
-                <View>
-                  <Text
-                    style={{
-                      fontFamily: "italicFont",
-                      fontSize: 12,
-                      fontStyle: "italic",
-                    }}
-                  >
-                    Last lift: {prog.lastWorkout ?? "N/A"}
+              </View>
+
+              {prog.workoutTitles && prog.workoutTitles.length > 0 && (
+                <Text style={styles.workoutPreviewText} numberOfLines={1} ellipsizeMode="tail">
+                  {prog.workoutTitles.join(" • ")}
+                </Text>
+              )}
+
+              <View style={styles.cardDivider} />
+
+              <View style={styles.metaGrid}>
+                <View style={styles.metaItem}>
+                  <Ionicons name="barbell-outline" size={14} color="#0a0a0a" />
+                  <Text style={styles.metaText}>
+                    {prog.workoutCount ?? 0} {(prog.workoutCount ?? 0) === 1 ? "workout" : "workouts"}
+                    {(prog.exerciseCount ?? 0) > 0 ? ` (${prog.exerciseCount} lifts)` : ""}
+                  </Text>
+                </View>
+
+                <View style={styles.metaItem}>
+                  <Ionicons name="repeat-outline" size={14} color="#0a0a0a" />
+                  <Text style={styles.metaText}>
+                    {prog.timesCompleted ?? 0} {(prog.timesCompleted ?? 0) === 1 ? "time" : "times"} completed
+                  </Text>
+                </View>
+
+                <View style={styles.metaItem}>
+                  <Ionicons name="calendar-outline" size={14} color="#0a0a0a" />
+                  <Text style={styles.metaText}>
+                    {prog.lastWorkout ?? "Never"}
                   </Text>
                 </View>
               </View>

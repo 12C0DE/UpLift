@@ -16,9 +16,17 @@ export const getLastWeight = async (exerciseId: number) => {
         .from(weightEntries)
         .where(eq(weightEntries.exerciseId, exerciseId))
         .orderBy(desc(weightEntries.loggedAt), desc(weightEntries.id))
-        .limit(1);
+        .limit(2);
 
-    return results[0] || null;
+    if (results.length === 0) return null;
+    const first = results[0];
+    const second = results[1];
+
+    if ((first.weight === 0 || first.weight == null) && second) {
+        return second;
+    }
+
+    return first;
 }
 
 export const logWeight = async (exerciseId: number, weight: number) => {
@@ -69,16 +77,32 @@ export const getLastWeightsForExercises = async (
         .select()
         .from(weightEntries)
         .where(inArray(weightEntries.exerciseId, exerciseIds))
-        .orderBy(desc(weightEntries.loggedAt));
+        .orderBy(desc(weightEntries.loggedAt), desc(weightEntries.id));
+
+    const exerciseEntriesMap: Record<number, Array<(typeof results)[number]>> = {};
+    for (const entry of results) {
+        if (!exerciseEntriesMap[entry.exerciseId]) {
+            exerciseEntriesMap[entry.exerciseId] = [];
+        }
+        if (exerciseEntriesMap[entry.exerciseId].length < 2) {
+            exerciseEntriesMap[entry.exerciseId].push(entry);
+        }
+    }
 
     const map: Record<number, LastWeightInfo> = {};
-    for (const entry of results) {
-        if (!map[entry.exerciseId]) {
-            map[entry.exerciseId] = {
-                weight: entry.weight,
-                loggedAt: entry.loggedAt,
-            };
-        }
+    for (const [exIdStr, entries] of Object.entries(exerciseEntriesMap)) {
+        const exerciseId = Number(exIdStr);
+        const first = entries[0];
+        const second = entries[1];
+
+        const chosen = (first.weight === 0 || first.weight == null) && second
+            ? second
+            : first;
+
+        map[exerciseId] = {
+            weight: chosen.weight,
+            loggedAt: chosen.loggedAt,
+        };
     }
     return map;
 };

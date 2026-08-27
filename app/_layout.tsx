@@ -1,4 +1,17 @@
 // Polyfills for JS runtime environments (Hermes)
+import { ActiveWorkoutProvider } from '@/context/ActiveWorkoutContext';
+import { db } from '@/db';
+import migrations from '@/db/migrations/migrations';
+import { BarlowSemiCondensed_400Regular, BarlowSemiCondensed_400Regular_Italic, BarlowSemiCondensed_500Medium } from "@expo-google-fonts/barlow-semi-condensed";
+import { BebasNeue_400Regular, useFonts } from "@expo-google-fonts/bebas-neue";
+import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
+import { useKeepAwake } from 'expo-keep-awake';
+import { SplashScreen, Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { ActivityIndicator, Text } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
 if (!Array.prototype.toReversed) {
   Object.defineProperty(Array.prototype, "toReversed", {
     value: function toReversedPolyfill() {
@@ -19,23 +32,10 @@ if (!Array.prototype.toSorted) {
   });
 }
 
-import { ActiveWorkoutProvider } from '@/context/ActiveWorkoutContext';
-import { db } from '@/db';
-import migrations from '@/db/migrations/migrations';
-import { BarlowSemiCondensed_400Regular, BarlowSemiCondensed_400Regular_Italic, BarlowSemiCondensed_500Medium } from "@expo-google-fonts/barlow-semi-condensed";
-import { BebasNeue_400Regular, useFonts } from "@expo-google-fonts/bebas-neue";
-import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
-import { useKeepAwake } from 'expo-keep-awake';
-import { SplashScreen, Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
-import { ActivityIndicator, Text } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export const metadata = {
-  title: "UpLift",
+  title: "MaxxOut",
 };
 
 export default function RootLayout() {

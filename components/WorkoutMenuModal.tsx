@@ -345,7 +345,7 @@ export const WorkoutMenuModal: React.FC<WorkoutMenuModalProps> = ({
                   {timeRemaining === 0
                     ? "Time's Up!"
                     : isTimerRunning
-                      ? "Resting..."
+                      ? ""
                       : "Paused"}
                 </Text>
               </View>
