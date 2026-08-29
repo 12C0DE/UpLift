@@ -28,12 +28,6 @@ export const workoutSummaryModalStyles = StyleSheet.create({
     color: "#f5f5f5",
     letterSpacing: 1,
   },
-  subtitle: {
-    fontSize: 13,
-    color: "#9a9a9a",
-    textAlign: "center",
-    marginTop: 4,
-  },
   statsGrid: {
     width: "100%",
     gap: 12,
