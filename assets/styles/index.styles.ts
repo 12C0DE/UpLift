@@ -21,9 +21,8 @@ export const indexStyles = StyleSheet.create({
     textAlign: "center",
     color: "#f5f5f5",
     letterSpacing: 1.2,
-    maxWidth: 350,
     marginHorizontal: 8,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   subText: {
     fontFamily: "italicFont",
@@ -93,11 +92,11 @@ export const indexStyles = StyleSheet.create({
   },
   metaGrid: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
     alignItems: "center",
     justifyContent: "space-between",
     rowGap: 6,
-    columnGap: 10,
+    columnGap: 4,
   },
   metaItem: {
     flexDirection: "row",
