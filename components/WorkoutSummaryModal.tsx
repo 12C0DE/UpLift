@@ -1,7 +1,7 @@
-import { currentLiftModalStyles as modalStyles } from "@/assets";
+import { currentLiftModalStyles as modalStyles, workoutSummaryModalStyles as styles } from "@/assets";
 import Entypo from "@expo/vector-icons/Entypo";
 import React from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, Text, View } from "react-native";
 
 export interface WorkoutSummaryData {
   durationSeconds: number;
@@ -48,9 +48,6 @@ export const WorkoutSummaryModal: React.FC<WorkoutSummaryModalProps> = ({
               <Entypo name="trophy" size={32} color="#f6a800" />
             </View>
             <Text style={styles.title}>Workout Complete!</Text>
-            <Text style={styles.subtitle}>
-              Great job pushing through your training session.
-            </Text>
           </View>
 
           {/* Stats Grid */}
@@ -125,96 +122,4 @@ export const WorkoutSummaryModal: React.FC<WorkoutSummaryModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#121212",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#2f2f2f",
-    padding: 24,
-    width: "100%",
-    alignItems: "center",
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  trophyCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: "rgba(246, 168, 0, 0.15)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  title: {
-    fontFamily: "BebasNeue",
-    fontSize: 32,
-    color: "#f5f5f5",
-    letterSpacing: 1,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: "#9a9a9a",
-    textAlign: "center",
-    marginTop: 4,
-  },
-  statsGrid: {
-    width: "100%",
-    gap: 12,
-    marginBottom: 24,
-  },
-  statCard: {
-    backgroundColor: "#1f1f1f",
-    borderRadius: 16,
-    padding: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#333",
-  },
-  iconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: "#2a2a2a",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 14,
-  },
-  statTextGroup: {
-    flex: 1,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#9a9a9a",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  statValue: {
-    fontFamily: "BebasNeue",
-    fontSize: 22,
-    color: "#ffffff",
-    letterSpacing: 0.5,
-    marginTop: 2,
-  },
-  statSubText: {
-    fontSize: 11,
-    color: "#777777",
-    marginTop: 1,
-  },
-  homeBtn: {
-    backgroundColor: "#f6a800",
-    borderRadius: 16,
-    paddingVertical: 16,
-    width: "100%",
-    alignItems: "center",
-  },
-  homeBtnText: {
-    fontFamily: "BebasNeue",
-    fontSize: 22,
-    color: "#0a0a0a",
-    letterSpacing: 0.8,
-  },
-});
+
