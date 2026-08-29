@@ -34,6 +34,9 @@ export const indexStyles = StyleSheet.create({
     color: "#929292",
     marginBottom: 16,
   },
+  recentPrograms: {
+    flex: 1,
+  },
   emptyProg: {
     width: "85%",
     paddingVertical: 16,

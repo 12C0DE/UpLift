@@ -6,7 +6,7 @@ import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Program } from "./programs";
 
@@ -52,7 +52,7 @@ const Index = () => {
       <View style={styles.header}>
         <Text style={styles.title}>MaxxOut</Text>
       </View>
-      <View>
+      <ScrollView style={styles.recentPrograms}>
         <Text style={styles.subText}>Recent workouts</Text>
         {recentProgramSlots.map((slot) => {
           if (!slot.prog) {
@@ -113,7 +113,7 @@ const Index = () => {
             </Pressable>
           );
         })}
-      </View>
+      </ScrollView>
       <View style={styles.otherButtonsContainer}>
         <Pressable style={styles.otherButton} onPress={() => router.push("/programs")}>
           <View style={styles.otherButtonLayout}>
