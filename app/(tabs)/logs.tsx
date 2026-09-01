@@ -318,7 +318,7 @@ export default function Logs() {
 
           setSelectedProgramId(targetId);
 
-          const program = getProgramById(targetId);
+          const program = await getProgramById(targetId);
           const workouts = await getWorkoutsByProgram(targetId);
           if (cancelled) return;
 
