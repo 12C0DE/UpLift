@@ -10,10 +10,8 @@ export const indexStyles = StyleSheet.create({
     paddingBottom: 24,
   },
   header: {
-    paddingTop: 24,
-    paddingBottom: 16,
-    flexDirection: "row",
-    flex: 1,
+    paddingTop: 8,
+    marginVertical: 16,
     alignContent: "center",
     justifyContent: "center",
   },
@@ -23,9 +21,8 @@ export const indexStyles = StyleSheet.create({
     textAlign: "center",
     color: "#f5f5f5",
     letterSpacing: 1.2,
-    maxWidth: 350,
     marginHorizontal: 8,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   subText: {
     fontFamily: "italicFont",
@@ -95,11 +92,11 @@ export const indexStyles = StyleSheet.create({
   },
   metaGrid: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
     alignItems: "center",
     justifyContent: "space-between",
     rowGap: 6,
-    columnGap: 10,
+    columnGap: 4,
   },
   metaItem: {
     flexDirection: "row",
