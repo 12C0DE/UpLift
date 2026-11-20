@@ -117,10 +117,10 @@ export const ProgramsStylesheet = StyleSheet.create({
   },
   metaGrid: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
     alignItems: "center",
     justifyContent: "space-between",
-    rowGap: 8,
+    rowGap: 6,
     columnGap: 12,
   },
   metaItem: {

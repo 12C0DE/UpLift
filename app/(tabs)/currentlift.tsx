@@ -57,21 +57,31 @@ export default function CurrentLift({
   const workoutSummaryParam = firstParam(params.workoutSummary);
   const workoutIdParam = firstParam(params.workoutId);
 
-  const { setWorkoutData, updateWeights, markSaved, clearWorkout } = useActiveWorkout();
+  const {
+    programId: activeProgramId,
+    workoutId: activeWorkoutId,
+    workoutTitle: activeWorkoutTitle,
+    exercises: activeExercises,
+    exerciseWeights: activeExerciseWeights,
+    setWorkoutData,
+    updateWeights,
+    markSaved,
+    clearWorkout,
+  } = useActiveWorkout();
 
   const [totalWeight, setTotalWeight] = useState(lastWeight || 0);
   const [currentSet, setCurrentSet] = useState(1);
   const [workoutExercises, setWorkoutExercises] = useState<ExerciseType[]>([]);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
-  const [exerciseWeights, setExerciseWeights] = useState<Record<number, Record<number, number>>>({})
+  const [exerciseWeights, setExerciseWeights] = useState<Record<number, Record<number, number>>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [workoutSaved, setWorkoutSaved] = useState(false);
   const [isStartModalVisible, setIsStartModalVisible] = useState(
-    Boolean(startParam) && !workoutIdParam,
+    Boolean(startParam) && !workoutIdParam && !activeWorkoutId,
   );
   const [workouts, setWorkouts] = useState<WorkoutOption[]>([]);
   const [selectedProgramId, setSelectedProgramId] = useState<number | null>(
-    programIdParam ? Number(programIdParam) : null,
+    programIdParam ? Number(programIdParam) : (activeProgramId ?? null),
   );
   const [isLoadingStartData, setIsLoadingStartData] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
@@ -81,15 +91,17 @@ export default function CurrentLift({
   const workoutStartTimeRef = useRef<number>(Date.now());
 
   const currentExercise: ExerciseType | null = workoutExercises[currentExerciseIndex] ?? null;
-  const activeLiftName = currentExercise?.name ?? workoutTitleParam ?? liftName;
+  const fallbackWorkoutTitle = workoutTitleParam ?? activeWorkoutTitle ?? liftName;
+
+  const activeLiftName = currentExercise?.name ?? fallbackWorkoutTitle;
   const activeLiftDescription = currentExercise?.description ?? workoutSummaryParam ?? desc;
   const activeTotalSets = currentExercise?.sets ?? totalSets;
   const activeReps = currentExercise?.reps ?? reps;
 
   useEffect(() => {
-    setIsStartModalVisible(Boolean(startParam) && !workoutIdParam);
-    setSelectedProgramId(programIdParam ? Number(programIdParam) : null);
-  }, [programIdParam, startParam, workoutIdParam]);
+    setIsStartModalVisible(Boolean(startParam) && !workoutIdParam && !activeWorkoutId);
+    setSelectedProgramId(programIdParam ? Number(programIdParam) : (activeProgramId ?? null));
+  }, [programIdParam, startParam, workoutIdParam, activeWorkoutId, activeProgramId]);
 
   useEffect(() => {
     if (!isStartModalVisible) return;
@@ -130,6 +142,13 @@ export default function CurrentLift({
 
   useEffect(() => {
     if (!workoutIdParam) {
+      if (activeWorkoutId && activeExercises.length > 0) {
+        setWorkoutExercises(activeExercises);
+        setExerciseWeights((prev) =>
+          Object.keys(prev).length > 0 ? prev : activeExerciseWeights,
+        );
+        return;
+      }
       setWorkoutExercises([]);
       setCurrentExerciseIndex(0);
       setCurrentSet(1);
@@ -139,9 +158,17 @@ export default function CurrentLift({
     let isActive = true;
 
     const loadExercises = async () => {
+      const wId = Number(workoutIdParam);
+      if (activeWorkoutId === wId && activeExercises.length > 0) {
+        setWorkoutExercises(activeExercises);
+        setExerciseWeights((prev) =>
+          Object.keys(prev).length > 0 ? prev : activeExerciseWeights,
+        );
+        return;
+      }
 
       try {
-        const exercisesData = await getExercisesWithLastWeightByWorkout(Number(workoutIdParam));
+        const exercisesData = await getExercisesWithLastWeightByWorkout(wId);
         if (!isActive) return;
         setWorkoutExercises(exercisesData);
         setCurrentExerciseIndex(0);
@@ -166,7 +193,7 @@ export default function CurrentLift({
 
         setWorkoutData({
           programId: programIdParam ? Number(programIdParam) : null,
-          workoutId: Number(workoutIdParam),
+          workoutId: wId,
           workoutTitle: workoutTitleParam ?? null,
           workoutWeek: null,
           exercises: exercisesData,
@@ -184,17 +211,25 @@ export default function CurrentLift({
     return () => {
       isActive = false;
     };
-  }, [workoutIdParam, totalSets, setWorkoutData, workoutTitleParam, programIdParam]);
-
+  }, [
+    workoutIdParam,
+    totalSets,
+    setWorkoutData,
+    workoutTitleParam,
+    programIdParam,
+    activeWorkoutId,
+    activeExercises,
+    activeExerciseWeights,
+  ]);
 
   const prevExerciseWeightsRef = useRef(exerciseWeights);
   useEffect(() => {
     if (prevExerciseWeightsRef.current === exerciseWeights) return;
     prevExerciseWeightsRef.current = exerciseWeights;
-    if (workoutIdParam && workoutExercises.length > 0) {
+    if ((workoutIdParam || activeWorkoutId) && workoutExercises.length > 0) {
       updateWeights(exerciseWeights);
     }
-  }, [exerciseWeights, workoutIdParam, workoutExercises.length, updateWeights]);
+  }, [exerciseWeights, workoutIdParam, activeWorkoutId, workoutExercises.length, updateWeights]);
 
   const calculatePlates = (weight: number): number[] => {
     const weightsPerSide = (weight - BAR_WEIGHT) / 2;
@@ -600,7 +635,7 @@ export default function CurrentLift({
             onPress={() => {
               if (workoutSaved) return;
               if (currentSet < activeTotalSets) {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 const nextSet = currentSet + 1;
                 setCurrentSet(nextSet);
                 if (currentExercise) {

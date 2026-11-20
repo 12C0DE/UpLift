@@ -6,4 +6,5 @@ export * from "./index.styles";
 export * from "./Logs.styles";
 export * from "./programs.styles";
 export * from "./weightPlate.styles";
+export * from "./workoutSummaryModal.styles";
 
