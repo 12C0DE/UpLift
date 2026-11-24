@@ -635,7 +635,7 @@ export default function CurrentLift({
             onPress={() => {
               if (workoutSaved) return;
               if (currentSet < activeTotalSets) {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 const nextSet = currentSet + 1;
                 setCurrentSet(nextSet);
                 if (currentExercise) {
